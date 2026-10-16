@@ -1,0 +1,57 @@
+services:
+  mongodb:
+    image: mongo:8
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Backend/Dockerfile
+    env_file: .env
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/placement_assistant
+      REDIS_URL: redis://redis:6379
+    ports:
+      - '4000:4000'
+    depends_on:
+      - mongodb
+      - redis
+
+  ai-worker:
+    build:
+      context: .
+      dockerfile: Backend/Dockerfile
+    command: npm run worker --workspace=@placement-assistant/api
+    env_file: .env
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/placement_assistant
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+
+  web:
+    build:
+      context: .
+      dockerfile: Frontend/Dockerfile
+    ports:
+      - '5173:80'
+    depends_on:
+      - api
+
+volumes:
+  mongo-data:
+  redis-data:
