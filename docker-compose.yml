@@ -29,6 +29,8 @@ services:
     depends_on:
       - mongodb
       - redis
+    volumes:
+      - resume-uploads:/app/Backend/uploads
 
   ai-worker:
     build:
@@ -42,6 +44,8 @@ services:
     depends_on:
       - mongodb
       - redis
+    volumes:
+      - resume-uploads:/app/Backend/uploads
 
   web:
     build:
@@ -55,3 +59,4 @@ services:
 volumes:
   mongo-data:
   redis-data:
+  resume-uploads:

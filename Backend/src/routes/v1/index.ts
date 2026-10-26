@@ -1,5 +1,25 @@
 import { Router } from 'express';
+import { authRouter } from '../../modules/auth/auth.routes.js';
+import { profileRouter } from '../../modules/profile/profile.routes.js';
+import { resumeRouter } from '../../modules/resume/resume.routes.js';
+import { recommendationRouter } from '../../modules/recommendations/recommendation.routes.js';
+import { skillRouter } from '../../modules/skills/skill.routes.js';
+import { skillGapRouter } from '../../modules/skills/skill-gap.routes.js';
+import { knowledgeRouter } from '../../modules/knowledge/knowledge.routes.js';
+import { chatRouter } from '../../modules/chat/chat.routes.js';
+import { jobRouter } from '../../modules/jobs/job.routes.js';
+import { interviewRouter } from '../../modules/interviews/interview.routes.js';
 import { healthRouter } from './health.routes.js';
 
 export const v1Router = Router();
 v1Router.use('/health', healthRouter);
+v1Router.use('/auth', authRouter);
+v1Router.use('/profile', profileRouter);
+v1Router.use('/resumes', resumeRouter);
+v1Router.use('/skills', skillRouter);
+v1Router.use('/skill-gaps', skillGapRouter);
+v1Router.use('/knowledge', knowledgeRouter);
+v1Router.use('/chat', chatRouter);
+v1Router.use('/jobs', jobRouter);
+v1Router.use('/interviews', interviewRouter);
+v1Router.use('/', recommendationRouter);
