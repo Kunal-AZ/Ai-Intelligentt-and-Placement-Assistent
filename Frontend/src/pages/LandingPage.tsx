@@ -4,17 +4,16 @@ import { Header } from '../Components/Header';
 import { Footer } from '../Components/Footer';
 import {
   ScrollProgressBar,
-  useScrollReveal,
-  AnimatedCounter,
-  InteractiveSpotlightCard,
-  CircularGauge,
-  AudioWaveform,
-  LaserScanline,
   AmbientHeroParticles,
+  AnimatedCounter,
+  CircularGauge,
+  LaserScanline,
+  AudioWaveform,
+  InteractiveSpotlightCard,
+  useScrollReveal,
 } from '../Components/animations';
 import '../styles/landing.css';
 
-/* ── Role Simulator Data ─────────────────────────────────────── */
 interface RoleProfile {
   id: string;
   name: string;
@@ -34,7 +33,7 @@ const ROLE_PROFILES: RoleProfile[] = [
     salaryRange: '₹14 - ₹28 LPA',
     marketDemand: '🔥 High (+34% YoY)',
     verifiedSkills: ['Node.js & Express', 'MongoDB Vector Search', 'Redis Caching', 'BullMQ Queues', 'REST API Design'],
-    missingGaps: ['Distributed Transactions', 'Kafka Message Streaming', 'Kubernetes Helm'],
+    missingGaps: ['Distributed Locking & Mutex', 'Kafka Message Streaming', 'Kubernetes Helm'],
     aiAdvice: 'Your BullMQ and Redis queue architectures are production-ready. Prioritize a Kafka streaming pipeline to qualify for Tier-1 backend roles with zero hesitation.',
   },
   {
@@ -59,1073 +58,646 @@ const ROLE_PROFILES: RoleProfile[] = [
   },
   {
     id: 'devops',
-    name: 'DevOps & Cloud Engineer',
+    name: 'Cloud & DevOps Engineer',
     matchScore: 79,
-    salaryRange: '₹13 - ₹26 LPA',
-    marketDemand: '🛡️ Steady Growth (+28% YoY)',
-    verifiedSkills: ['Docker Containerization', 'GitHub Actions CI/CD', 'Linux Administration', 'Nginx Reverse Proxy'],
-    missingGaps: ['Terraform IaC', 'AWS ECS / EKS', 'Prometheus & Grafana'],
-    aiAdvice: 'Containerization is crisp. Setting up multi-environment Terraform infrastructure will bridge your remaining 21% gap for cloud-first teams.',
+    salaryRange: '₹14 - ₹30 LPA',
+    marketDemand: '🛡️ Core Infrastructure',
+    verifiedSkills: ['Docker Containers', 'Linux / Bash Scripting', 'GitHub Actions CI/CD', 'Nginx Reverse Proxy'],
+    missingGaps: ['Terraform Infrastructure as Code', 'Prometheus & Grafana Monitoring', 'AWS VPC Peering'],
+    aiAdvice: 'Strong container fundamentals. Automating cloud resource provisioning with Terraform will bridge your final gap into Tier-1 cloud engineering.',
   },
 ];
 
-/* ── FAQ Data ───────────────────────────────────────────────── */
 const FAQS = [
   {
-    q: 'How is Pathway different from traditional job boards or LeetCode?',
-    a: 'Traditional platforms test isolated algorithmic memorization or let you submit blind PDFs into black-hole applicant tracking systems. Pathway is an Evidence Engine: we analyze your real code repositories, quantify verified project metrics, simulate multi-dimensional AI mock interviews, and show recruiters transparent proof of what you can actually build.',
+    q: 'How does HiPlacement verify skills differently than standard ATS checkers?',
+    a: 'Traditional ATS checkers only look for superficial keyword frequency. HiPlacement parses your code repositories, verifies test assertions, validates background queue implementations, and tests your reasoning through simulated AI mock interview sessions.',
   },
   {
-    q: 'Does Pathway share my personal documents or resume publicly?',
-    a: 'Never. All uploaded resumes, transcripts, and mock interview recordings are isolated within your private encrypted workspace. Only anonymized evidence scores are referenced during recommendation passes, and you retain 100% data export and deletion rights.',
+    q: 'Is my uploaded resume and code kept private?',
+    a: 'Yes. All uploads are processed in memory with strict cryptographic hashing (SHA-256) and stored in isolated candidate buckets. Your data is never sold to third parties or exposed to recruiters without your explicit 1-click authorization.',
   },
   {
-    q: 'How does the AI Career Coach verify which skills I actually possess?',
-    a: 'Instead of accepting self-rated sliders ("I am 90% in React"), Pathway verifies skills through concrete evidence artifacts: git commits, architectural code patterns, unit test coverage, and interactive mock interview transcripts evaluated against standardized industry rubrics.',
+    q: 'Is HiPlacement completely free for engineering students?',
+    a: 'Yes. The full core suite — including the ATS Diagnostic Scanner, Evidence Ledger, 30-Day Learning Roadmap, and AI Mock Interviews — is 100% free for students preparing for campus and off-campus placement drives.',
   },
   {
-    q: 'Can college students with zero professional experience use Pathway?',
-    a: 'Yes, that is exactly who Pathway was designed for! It guides 2nd, 3rd, and 4th-year engineering students from zero verified evidence to cracking top-tier product company campus drives and off-campus opportunities in 30 to 60 days.',
-  },
-  {
-    q: 'What role does AI play in the mock interview studio?',
-    a: 'Pathway provides a real-time conversational agent that evaluates your technical accuracy, edge-case reasoning, code structure, and communication clarity with an instant rubric report and tailored improvement drills.',
-  },
-];
-
-/* ── Testimonials Data ──────────────────────────────────────── */
-const TESTIMONIALS = [
-  {
-    name: 'Aarav Mehta',
-    college: 'BITS Pilani',
-    role: 'SDE-1 @ Razorpay',
-    package: '24 LPA',
-    avatar: '👨‍💻',
-    quote:
-      'I was rejected from 40 companies because my resume looked like everyone else. Pathway transformed my generic bullet points into evidence-backed metrics with BullMQ & Redis benchmarks. Nailed my offer in 3 weeks.',
-  },
-  {
-    name: 'Priya Sundaram',
-    college: 'NIT Trichy',
-    role: 'Full-Stack Engineer @ Atlassian',
-    package: '32 LPA',
-    avatar: '👩‍💻',
-    quote:
-      'The AI mock interview rubrics are brutal in the best way possible. It pointed out that my problem-solving was great but my verbal communication was disorganized. Practicing here made the real round a breeze.',
-  },
-  {
-    name: 'Rohan Sharma',
-    college: 'DTU Delhi',
-    role: 'Backend Developer @ Zepto',
-    package: '18 LPA',
-    avatar: '🧑‍💻',
-    quote:
-      'The skill gap radar is unreal. Instead of watching random 40-hour YouTube tutorials, Pathway told me exactly which 3 Redis data structures I was missing for the Zepto backend test.',
+    q: 'How are the match percentages for job openings calculated?',
+    a: 'We transparently map required vs preferred competencies against your verified profile. If a role requires 5 critical skills and you have 4 verified, you will see exactly which 1 skill is missing and how to bridge it in your roadmap.',
   },
 ];
 
 export function LandingPage() {
-  const containerRef = useScrollReveal<HTMLDivElement>();
+  const containerRef = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
+  const [activeSimulatorRole, setActiveSimulatorRole] = useState<RoleProfile>(ROLE_PROFILES[0]);
+  const [heroTab, setHeroTab] = useState<'ats' | 'ledger' | 'interview'>('ats');
 
-  /* Hero Interactive Showcase Tab State */
-  const [heroTab, setHeroTab] = useState<'resume' | 'radar' | 'interview' | 'roadmap' | 'visual'>('resume');
+  // Interactive Calculator state
+  const [calcDsa, setCalcDsa] = useState(160);
+  const [calcProjects, setCalcProjects] = useState(3);
+  const [calcInterviews, setCalcInterviews] = useState(4);
+  const [calcDeploys, setCalcDeploys] = useState(2);
 
-  /* Role Simulator State */
-  const [selectedRole, setSelectedRole] = useState<RoleProfile>(ROLE_PROFILES[0]);
+  // Dynamic readiness computation
+  const calcScore = Math.min(
+    99,
+    Math.round(
+      (calcDsa / 300) * 35 +
+      (calcProjects / 4) * 30 +
+      (calcInterviews / 8) * 20 +
+      (calcDeploys / 3) * 15
+    )
+  );
 
-  /* Placement Calculator State */
-  const [calcYear, setCalcYear] = useState<'2nd' | '3rd' | '4th' | 'Grad'>('3rd');
-  const [calcTier, setCalcTier] = useState<'tier1' | 'unicorns' | 'startups'>('tier1');
-  const [calcHours, setCalcHours] = useState<'1hr' | '2hr' | '4hr'>('2hr');
+  const calcGrade =
+    calcScore >= 85 ? 'Tier-1 Elite (₹18 - ₹32 LPA)' :
+    calcScore >= 70 ? 'Tier-1 Qualified (₹12 - ₹20 LPA)' :
+    'Foundational (₹6 - ₹12 LPA)';
 
-  /* FAQ Accordion State */
+  // FAQ accordion
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  /* Dynamic Calculator Math */
-  const readinessWeekMap: Record<string, number> = {
-    '2nd-tier1-1hr': 24,
-    '2nd-tier1-2hr': 16,
-    '2nd-tier1-4hr': 10,
-    '3rd-tier1-1hr': 14,
-    '3rd-tier1-2hr': 8,
-    '3rd-tier1-4hr': 5,
-    '4th-tier1-1hr': 10,
-    '4th-tier1-2hr': 6,
-    '4th-tier1-4hr': 4,
-    'Grad-tier1-1hr': 8,
-    'Grad-tier1-2hr': 5,
-    'Grad-tier1-4hr': 3,
-  };
-  const key = `${calcYear}-${calcTier}-${calcHours}`;
-  const estimatedWeeks = readinessWeekMap[key] || (calcHours === '4hr' ? 4 : calcHours === '2hr' ? 8 : 14);
-  const estimatedAts = calcTier === 'tier1' ? '96%' : calcTier === 'unicorns' ? '92%' : '89%';
-
   return (
-    <div className="landing-wrapper" ref={containerRef}>
-      {/* ── 0. Neon Top Scroll Progress Indicator ───────────────── */}
+    <div ref={containerRef} className="landing-wrapper">
+      {/* Sleek top illuminated scroll progress bar */}
       <ScrollProgressBar />
 
-      {/* ── 1. Top Navbar ────────────────────────────────────────── */}
+      <div className="landing-grid-bg" />
+
+      {/* Global Header */}
       <Header />
 
-      {/* ── 2. Centered Majestic Hero Section with Animated Background ────── */}
-      <div className="hero-animated-bg-wrapper">
-        {/* Animated Background Image Layer with Particle Dust */}
-        <div className="hero-bg-layer" aria-hidden="true">
-          <img
-            src="/hero-network.jpg"
-            alt="AI Placement Assistant visual backdrop"
-            className="hero-bg-image"
-          />
-          <AmbientHeroParticles />
-          <div className="hero-bg-overlay-gradient" />
-          <div className="hero-bg-ambient-orb orb-primary" />
-          <div className="hero-bg-ambient-orb orb-secondary" />
-          <div className="hero-bg-grid-mesh" />
+      {/* ── 1. Hero Section ──────────────────────────────────────── */}
+      <section className="landing-section pt-16 pb-12 flex flex-col items-center text-center relative">
+        {/* Subtle Ambient Particle Field */}
+        <AmbientHeroParticles />
+
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-default)] text-xs font-semibold text-[var(--text-secondary)] mb-6 z-10">
+          <span className="w-2 h-2 rounded-full bg-[var(--status-success)] animate-pulse" />
+          <span>AI Placement Intelligence 2.0</span>
+          <span>•</span>
+          <span>Evidence-Backed Career Engine</span>
         </div>
 
-        {/* Floating Animated Badges over background image */}
-        <div className="hero-floating-badge badge-top-left hidden xl:flex">
-          <span className="badge-pulse-indicator" />
-          <span className="badge-icon">⚡</span>
-          <div className="badge-text-group">
-            <span className="badge-title">94% ATS Score</span>
-            <span className="badge-subtitle">Verified in Git Commits</span>
-          </div>
-        </div>
-
-        <div className="hero-floating-badge badge-top-right hidden xl:flex">
-          <span className="badge-pulse-indicator" />
-          <span className="badge-icon">🎯</span>
-          <div className="badge-text-group">
-            <span className="badge-title">Zero Skill Gaps</span>
-            <span className="badge-subtitle">Real-Time Evidence Matching</span>
-          </div>
-        </div>
-
-        <div className="hero-floating-badge badge-bottom-right hidden xl:flex">
-          <span className="badge-pulse-indicator" />
-          <span className="badge-icon">💼</span>
-          <div className="badge-text-group">
-            <span className="badge-title">Tier-1 Placed</span>
-            <span className="badge-subtitle">Average ₹24.8 LPA Package</span>
-          </div>
-        </div>
-
-        <section className="hero-hero-section relative z-10" id="hero">
-        <div className="hero-badge-pill">
-          <span className="hero-pill-glow" />
-          <span className="hero-pill-tag">✦ AI Career Intelligence 2.0</span>
-          <span className="hero-pill-separator">·</span>
-          <span className="hero-pill-text">Evidence-Backed Placement Engine</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </div>
-
-        <h1 className="hero-main-title">
-          Crack Top Tech Placements with<br />
-          <span className="text-gradient">Verified Proof,</span> Not Empty Promises.
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight max-w-4xl text-[var(--text-primary)] leading-[1.08] z-10">
+          Crack Top Tech Placements with Verified Proof.
         </h1>
 
-        <p className="hero-main-subtitle">
-          Stop spraying generic resumes into recruiter black holes. Pathway analyses your actual code,
-          detects high-impact skill gaps, and prepares you with conversational AI mock interviews.
+        <p className="text-base sm:text-lg text-[var(--text-secondary)] max-w-xl mt-4 leading-relaxed z-10">
+          Code-verified resumes, high-impact skill gap detection, and real-time AI mock interviews.
         </p>
 
-        <div className="hero-cta-group">
-          <Link to="/dashboard" className="hero-primary-btn">
-            <span>Launch Career Workspace</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="7" y1="17" x2="17" y2="7" />
-              <polyline points="7 7 17 7 17 17" />
-            </svg>
+        {/* Dual Call-to-Actions */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 mt-8 z-10">
+          <Link to="/dashboard" className="btn-primary py-3 px-6 text-sm">
+            <span>Launch Career Workspace Free</span>
+            <span aria-hidden="true">↗</span>
           </Link>
-          <a href="#simulator" className="hero-secondary-btn">
+          <a href="#simulator" className="btn-secondary py-3 px-6 text-sm">
             <span>Explore Role Matcher</span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
+            <span aria-hidden="true">↓</span>
           </a>
         </div>
 
-        {/* Social Proof Strip with Smooth Dynamic Animated Counters */}
-        <div className="hero-social-metrics">
-          <div className="metric-item">
-            <strong>
+        {/* Trust Metric Strip */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-12 mt-12 border-t border-[var(--border-subtle)] w-full max-w-4xl mx-auto text-left z-10">
+          <div>
+            <p className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
               <AnimatedCounter end={3400} suffix="+" />
-            </strong>
-            <span>Placed Students</span>
+            </p>
+            <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Placed Students</p>
           </div>
-          <div className="metric-divider" />
-          <div className="metric-item">
-            <strong>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
               <AnimatedCounter end={24.8} prefix="₹" suffix=" LPA" decimals={1} />
-            </strong>
-            <span>Avg Tier-1 Package</span>
+            </p>
+            <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Average Tier-1 CTC</p>
           </div>
-          <div className="metric-divider" />
-          <div className="metric-item">
-            <strong>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
               <AnimatedCounter end={94} suffix="%" />
-            </strong>
-            <span>ATS Pass Rate</span>
+            </p>
+            <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">ATS Pass Rate</p>
           </div>
-          <div className="metric-divider" />
-          <div className="metric-item">
-            <strong>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
               <AnimatedCounter end={4.9} suffix=" / 5.0" decimals={1} />
-            </strong>
-            <span>Student Satisfaction</span>
+            </p>
+            <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Student Satisfaction</p>
           </div>
         </div>
 
-        {/* ── Interactive Hero Product Showcase Window ───────────── */}
-        <div className="hero-showcase-window">
-          {/* Window Chrome Header */}
-          <div className="showcase-window-bar">
-            <div className="window-dots">
-              <span className="dot red" />
-              <span className="dot yellow" />
-              <span className="dot green" />
+        {/* ── Hero Live Terminal Showcase ────────────────────────── */}
+        <div className="w-full max-w-5xl mx-auto mt-12 text-left z-10">
+          <div className="hero-terminal relative">
+            {/* Terminal bar */}
+            <div className="hero-terminal-header">
+              <div className="terminal-dots">
+                <span className="terminal-dot" />
+                <span className="terminal-dot" />
+                <span className="terminal-dot" />
+              </div>
+
+              {/* Tab Pills */}
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setHeroTab('ats')}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                    heroTab === 'ats'
+                      ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-sm'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                  }`}
+                >
+                  ATS Diagnostic (88/100)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHeroTab('ledger')}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                    heroTab === 'ledger'
+                      ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-sm'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                  }`}
+                >
+                  Evidence Proof Ledger
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHeroTab('interview')}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                    heroTab === 'interview'
+                      ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-sm'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                  }`}
+                >
+                  Mock Interview Drill (94%)
+                </button>
+              </div>
+
+              <span className="badge badge-mono text-[9px] hidden sm:inline-flex">Live Telemetry</span>
             </div>
-            <div className="window-address-bar">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              <span>pathway.app/workspace/intelligence</span>
-            </div>
-            <div className="window-status-chip">
-              <span className="status-live-dot" />
-              <span>LIVE AI ENGINE</span>
-            </div>
-          </div>
 
-          {/* Interactive Navigation Tabs */}
-          <div className="showcase-tabs-bar" role="tablist">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={heroTab === 'resume'}
-              className={`showcase-tab-btn ${heroTab === 'resume' ? 'active' : ''}`}
-              onClick={() => setHeroTab('resume')}
-            >
-              <span className="tab-icon">📄</span>
-              <span>1. Resume Intelligence</span>
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={heroTab === 'radar'}
-              className={`showcase-tab-btn ${heroTab === 'radar' ? 'active' : ''}`}
-              onClick={() => setHeroTab('radar')}
-            >
-              <span className="tab-icon">🎯</span>
-              <span>2. Skill Gap Radar</span>
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={heroTab === 'interview'}
-              className={`showcase-tab-btn ${heroTab === 'interview' ? 'active' : ''}`}
-              onClick={() => setHeroTab('interview')}
-            >
-              <span className="tab-icon">🎤</span>
-              <span>3. AI Mock Interview</span>
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={heroTab === 'roadmap'}
-              className={`showcase-tab-btn ${heroTab === 'roadmap' ? 'active' : ''}`}
-              onClick={() => setHeroTab('roadmap')}
-            >
-              <span className="tab-icon">🛣️</span>
-              <span>4. Adaptive Roadmap</span>
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={heroTab === 'visual'}
-              className={`showcase-tab-btn ${heroTab === 'visual' ? 'active' : ''}`}
-              onClick={() => setHeroTab('visual')}
-            >
-              <span className="tab-icon">🖼️</span>
-              <span>5. AI Visual Engine</span>
-            </button>
-          </div>
+            {/* Terminal Tab Body */}
+            <div className="terminal-body relative">
+              {heroTab === 'ats' && (
+                <div className="flex flex-col gap-5 animate-fadeIn relative">
+                  <LaserScanline label="GEMINI RAG ATS PARSER" />
 
-          {/* Showcase Content Panel */}
-          <div className="showcase-content-canvas">
-            {heroTab === 'resume' && (
-              <div className="showcase-view-fade">
-                <div className="showcase-grid-split">
-                  <div className="showcase-card-inner relative overflow-hidden">
-                    <LaserScanline label="AI ATS AUDIT ENGINE" />
-                    <div className="inner-card-head">
-                      <span className="inner-eyebrow">ATS Score Analysis</span>
-                      <span className="pill-score-high">94 / 100 · Tier A Match</span>
-                    </div>
-                    <h3 className="inner-card-title">Backend Systems Resume Audit</h3>
-                    <p className="inner-card-desc">
-                      Parsed 14 verified achievements. Detected 3 weak passive verbs and rewritten into high-impact metrics.
-                    </p>
-
-                    <div className="bullet-rewrite-preview">
-                      <div className="rewrite-line bad">
-                        <span className="rewrite-tag">❌ Before</span>
-                        <p>"Built backend server using Express and Mongo to handle user requests."</p>
-                      </div>
-                      <div className="rewrite-line good">
-                        <span className="rewrite-tag">✓ Pathway Evidence</span>
-                        <p>"Architected distributed REST API with Express &amp; Redis caching, reducing p99 response latency by 42% under 10k req/min."</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="showcase-stats-panel">
-                    <div className="stat-pill-box">
-                      <span>Action Verbs</span>
-                      <strong>98% Strong</strong>
-                    </div>
-                    <div className="stat-pill-box">
-                      <span>Keyword Density</span>
-                      <strong>Top 2% FAANG</strong>
-                    </div>
-                    <div className="stat-pill-box">
-                      <span>Quantified Impact</span>
-                      <strong>12 Metrics</strong>
-                    </div>
-                    <Link to="/resume" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                      Audit Your Resume Free ↗
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {heroTab === 'radar' && (
-              <div className="showcase-view-fade">
-                <div className="showcase-grid-split">
-                  <div className="showcase-card-inner relative overflow-hidden">
-                    <LaserScanline label="SEMANTIC CODE PARSER" />
-                    <div className="inner-card-head">
-                      <span className="inner-eyebrow">Role Fit Diagnostics</span>
-                      <span className="pill-score-high">88% Coverage</span>
-                    </div>
-                    <h3 className="inner-card-title">Target: SDE-1 Backend (Tier 1 Unicorns)</h3>
-                    <p className="inner-card-desc">
-                      Calculated from real code evidence across 6 GitHub repositories and assessment artifacts.
-                    </p>
-
-                    <div className="radar-skills-matrix">
-                      <div className="matrix-group">
-                        <span className="matrix-heading green">✓ Verified In Code Evidence</span>
-                        <div className="matrix-chips">
-                          <span className="chip-verified">✓ Redis Caching</span>
-                          <span className="chip-verified">✓ BullMQ Queues</span>
-                          <span className="chip-verified">✓ MongoDB Vector Indexing</span>
-                          <span className="chip-verified">✓ REST API Security</span>
-                        </div>
-                      </div>
-                      <div className="matrix-group">
-                        <span className="matrix-heading red">⚠️ High-Yield Gaps to Close</span>
-                        <div className="matrix-chips">
-                          <span className="chip-gap">+ Kafka Message Streaming</span>
-                          <span className="chip-gap">+ Distributed Transactions</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="showcase-stats-panel">
-                    <div className="stat-pill-box">
-                      <span>Matching Open Roles</span>
-                      <strong>42 Active JDs</strong>
-                    </div>
-                    <div className="stat-pill-box">
-                      <span>Est. Prep to 95%</span>
-                      <strong>2 Weeks</strong>
-                    </div>
-                    <Link to="/skills" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                      Open Skill Gap Radar ↗
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {heroTab === 'interview' && (
-              <div className="showcase-view-fade">
-                <div className="showcase-grid-split">
-                  <div className="showcase-card-inner">
-                    <div className="relative mb-4 rounded-xl overflow-hidden border border-indigo-500/20 shadow-md">
-                      <img
-                        src="/interview-studio.jpg"
-                        alt="AI Mock Interview Studio Session"
-                        className="w-full h-36 object-cover object-center"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-                      <div className="absolute bottom-2.5 left-3 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="text-xs font-bold text-white tracking-wide">LIVE SESSION · GEMINI 2.5 FLASH</span>
-                      </div>
-                    </div>
-
-                    <div className="inner-card-head">
-                      <span className="inner-eyebrow">Real-Time Mock Session</span>
-                      <span className="pill-score-high">Live Audio / Text</span>
-                    </div>
-                    <h3 className="inner-card-title">Technical Round: "Explain Cache Stampede Prevention"</h3>
-
-                    <div className="interview-waveform-box space-y-3">
-                      <AudioWaveform barsCount={24} isActive={true} />
-                      <p className="transcription-text">
-                        "I use distributed mutex locking combined with probabilistic early expiration (XFetch algorithm) to prevent duplicate database loads..."
-                      </p>
-                    </div>
-
-                    <div className="interview-rubrics-grid">
-                      <div className="rubric-card">
-                        <span>ACCURACY</span>
-                        <strong>94%</strong>
-                      </div>
-                      <div className="rubric-card">
-                        <span>SYSTEM DESIGN</span>
-                        <strong>90%</strong>
-                      </div>
-                      <div className="rubric-card">
-                        <span>CLARITY</span>
-                        <strong>96%</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="showcase-stats-panel">
-                    <div className="stat-pill-box">
-                      <span>AI Evaluator</span>
-                      <strong>Gemini 2.5 Flash</strong>
-                    </div>
-                    <div className="stat-pill-box">
-                      <span>Rubric Report</span>
-                      <strong>Instant PDF</strong>
-                    </div>
-                    <Link to="/interviews" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                      Start Practice Round ↗
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {heroTab === 'roadmap' && (
-              <div className="showcase-view-fade">
-                <div className="showcase-grid-split">
-                  <div className="showcase-card-inner">
-                    <div className="inner-card-head">
-                      <span className="inner-eyebrow">Personalised Sprint</span>
-                      <span className="pill-score-high">Week 2 of 4 Active</span>
-                    </div>
-                    <h3 className="inner-card-title">30-Day Placement Acceleration Plan</h3>
-                    <p className="inner-card-desc">
-                      Dynamically adjusts as you submit code artifacts and mock interview drills.
-                    </p>
-
-                    <div className="timeline-preview">
-                      <div className="timeline-node done">
-                        <div className="node-marker">✓</div>
-                        <div className="node-content">
-                          <strong>Week 1: Core System I/O &amp; Concurrency</strong>
-                          <span>Completed 4 modules · 100% quiz score</span>
-                        </div>
-                      </div>
-                      <div className="timeline-node active">
-                        <div className="node-marker">✦</div>
-                        <div className="node-content">
-                          <strong>Week 2: Advanced Caching &amp; Queues</strong>
-                          <span>In progress: Redis lock patterns &amp; BullMQ workers</span>
-                        </div>
-                      </div>
-                      <div className="timeline-node upcoming">
-                        <div className="node-marker">03</div>
-                        <div className="node-content">
-                          <strong>Week 3: Microservice Communication &amp; Kafka</strong>
-                          <span>Unlocked upon completing Week 2 drill</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="showcase-stats-panel">
-                    <div className="stat-pill-box">
-                      <span>Daily Dedication</span>
-                      <strong>1.5 Hours</strong>
-                    </div>
-                    <div className="stat-pill-box">
-                      <span>Target Drive</span>
-                      <strong>Day 28 Ready</strong>
-                    </div>
-                    <Link to="/roadmap" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                      View Full Roadmap ↗
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {heroTab === 'visual' && (
-              <div className="showcase-view-fade">
-                <div className="showcase-grid-split">
-                  <div className="visual-architecture-card group">
-                    <img
-                      src="/resume-radar.jpg"
-                      alt="AI Placement Assistant visual architecture"
-                      className="visual-card-bg-img"
-                    />
-                    <div className="visual-card-overlay" />
-                    <div className="visual-card-content">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/80 text-white backdrop-blur-sm shadow-sm">
-                          ✦ Core Architecture
-                        </span>
-                        <span className="text-xs text-indigo-200">v2.4 Active · Real-time RAG</span>
-                      </div>
-                      <h3 className="text-xl font-bold text-white mb-2 tracking-tight">
-                        Intelligent Career &amp; Evidence Processing Mesh
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <span className="badge badge-success mb-1">Tier-1 Candidate Ready</span>
+                      <h3 className="text-xl font-bold text-[var(--text-primary)]">
+                        Full ATS Parsability &amp; Competency Audit
                       </h3>
-                      <p className="text-sm text-slate-200 max-w-lg leading-relaxed mb-1">
-                        Multimodal parsing pipeline synchronizing resume AST structures, GitHub commit telemetry, and conversational interview embeddings in real-time.
+                      <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                        Parsed using Gemini RAG Extraction Rubric
                       </p>
-                      <div className="visual-tags-row">
-                        <span className="visual-tag-pill">⚡ Vector Embeddings</span>
-                        <span className="visual-tag-pill">🛡️ Private Evidence Ledger</span>
-                        <span className="visual-tag-pill">🤖 Gemini &amp; DeepSeek RAG</span>
-                        <span className="visual-tag-pill">📊 Real-Time ATS Matcher</span>
-                      </div>
+                    </div>
+                    <div className="text-left sm:text-right">
+                      <span className="text-4xl font-black text-[var(--text-primary)]">88</span>
+                      <span className="text-sm font-bold text-[var(--text-muted)]"> / 100</span>
+                      <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-bold">
+                        Top 12% Applicant Pool
+                      </p>
                     </div>
                   </div>
 
-                  <div className="showcase-stats-panel">
-                    <div className="stat-pill-box">
-                      <span>Engine Latency</span>
-                      <strong>&lt; 320ms</strong>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-3 border-t border-[var(--border-subtle)]">
+                    <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
+                      <p className="text-[11px] text-[var(--text-muted)]">Formatting</p>
+                      <p className="text-base font-bold text-[var(--text-primary)]">95%</p>
+                      <span className="text-[10px] text-[var(--status-success)]">Single-column parse</span>
                     </div>
-                    <div className="stat-pill-box">
-                      <span>Accuracy Metric</span>
-                      <strong>99.4% F1</strong>
+                    <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
+                      <p className="text-[11px] text-[var(--text-muted)]">Impact Verbs</p>
+                      <p className="text-base font-bold text-[var(--text-primary)]">84%</p>
+                      <span className="text-[10px] text-[var(--status-success)]">Quantified metrics</span>
                     </div>
-                    <div className="stat-pill-box">
-                      <span>Security Standard</span>
-                      <strong>SOC-2 Ready</strong>
+                    <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
+                      <p className="text-[11px] text-[var(--text-muted)]">Keywords</p>
+                      <p className="text-base font-bold text-[var(--text-primary)]">92%</p>
+                      <span className="text-[10px] text-[var(--status-success)]">SDE-1 Alignment</span>
                     </div>
-                    <Link to="/architecture" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                      Explore Architecture ↗
-                    </Link>
+                    <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
+                      <p className="text-[11px] text-[var(--text-muted)]">Depth &amp; Systems</p>
+                      <p className="text-base font-bold text-[var(--text-primary)]">81%</p>
+                      <span className="text-[10px] text-[var(--status-warning)]">2 Gaps to bridge</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {heroTab === 'ledger' && (
+                <div className="flex flex-col gap-3 animate-fadeIn text-xs">
+                  <div className="flex items-center justify-between pb-2 border-b border-[var(--border-subtle)]">
+                    <span className="font-bold text-[var(--text-primary)]">Verified Evidence Trail</span>
+                    <span className="badge badge-mono">6 of 6 Verified</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-between">
+                    <div>
+                      <strong className="text-[var(--text-primary)]">BullMQ Asynchronous Job Queues</strong>
+                      <p className="text-[var(--text-muted)]">Verified via GitHub repo: hiplacement-backend-api (Tests passing)</p>
+                    </div>
+                    <span className="badge badge-success">Production Verified</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-between">
+                    <div>
+                      <strong className="text-[var(--text-primary)]">MongoDB Atlas Vector Search (1536-dim)</strong>
+                      <p className="text-[var(--text-muted)]">Sub-100ms cosine similarity indexing verified</p>
+                    </div>
+                    <span className="badge badge-success">Verified</span>
+                  </div>
+                </div>
+              )}
+
+              {heroTab === 'interview' && (
+                <div className="flex flex-col gap-3 animate-fadeIn text-xs">
+                  <div className="flex items-center justify-between pb-2 border-b border-[var(--border-subtle)]">
+                    <span className="font-bold text-[var(--text-primary)]">
+                      System Design Drill: Redis Cache Stampede Mitigation
+                    </span>
+                    <AudioWaveform isActive={true} />
+                  </div>
+                  <p className="text-[var(--text-secondary)] italic">
+                    "Candidate successfully defended the XFetch probabilistic early expiration algorithm and contrasted it with distributed mutex locking on Redis."
+                  </p>
+                  <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-subtle)] text-[11px] text-[var(--text-muted)]">
+                    <span className="text-[var(--status-success)]">✓ Technical Accuracy: 94%</span>
+                    <span>•</span>
+                    <span className="text-[var(--status-success)]">✓ Communication: 88%</span>
+                    <span>•</span>
+                    <span className="text-[var(--status-success)]">✓ Reasoning: 92%</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
-      </div>
 
-      {/* ── 3. Hiring Company Marquee ────────────────────────────── */}
-      <section className="company-logo-strip" aria-label="Top placement recruiting companies">
-        <p className="strip-title">Calibrated against interview rubrics from engineering teams at</p>
-        <div className="strip-marquee-track">
-          {[
-            'Google', 'Microsoft', 'Atlassian', 'Amazon', 'Razorpay', 'Uber', 'Zomato',
-            'Goldman Sachs', 'Stripe', 'Flipkart', 'Zepto', 'CRED', 'Postman', 'Swiggy',
-            'Google', 'Microsoft', 'Atlassian', 'Amazon', 'Razorpay', 'Uber', 'Zomato',
-            'Goldman Sachs', 'Stripe', 'Flipkart', 'Zepto', 'CRED', 'Postman', 'Swiggy',
-          ].map((company, i) => (
-            <div key={`${company}-${i}`} className="company-logo-badge">
-              <span className="company-sparkle">✦</span>
-              <span className="company-name">{company}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 4. Live Role Fit Simulator ───────────────────────────── */}
-      <section className="landing-section" id="simulator">
-        <div className="landing-section-head reveal-on-scroll">
-          <p className="eyebrow">Interactive Diagnostics</p>
-          <h2>Test your placement fit in 30 seconds.</h2>
+      {/* ── 2. Interactive Role Simulator Section (#simulator) ──── */}
+      <section id="simulator" className="landing-section reveal-on-scroll">
+        <div className="landing-section-head">
+          <span className="badge badge-mono mb-2">Role Benchmarks</span>
+          <h2>Target Role Calibration</h2>
           <p>
-            Choose your target tech track to view verified JD expectations, realistic package bands,
-            and high-impact skill gaps you need to conquer.
+            Inspect required competencies, current packages, and high-impact skill gaps.
           </p>
         </div>
 
-        <InteractiveSpotlightCard enableTilt={false} className="simulator-master-card reveal-on-scroll stagger-1">
-          {/* Top Role Selector Tabs */}
-          <div className="simulator-role-selector">
-            {ROLE_PROFILES.map((profile) => (
-              <button
-                key={profile.id}
-                type="button"
-                className={`simulator-role-btn transition-all duration-200 ${selectedRole.id === profile.id ? 'active' : ''}`}
-                onClick={() => setSelectedRole(profile)}
-              >
-                <span className="btn-title">{profile.name}</span>
-                <span className="btn-pkg">{profile.salaryRange}</span>
-              </button>
-            ))}
+        {/* Role Selector Pills */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+          {ROLE_PROFILES.map((role) => (
+            <button
+              key={role.id}
+              type="button"
+              onClick={() => setActiveSimulatorRole(role)}
+              className={`simulator-tab-pill ${
+                activeSimulatorRole.id === role.id ? 'is-active' : ''
+              }`}
+            >
+              {role.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Active Role Card */}
+        <InteractiveSpotlightCard className="card-hero w-full max-w-4xl mx-auto flex flex-col gap-6 p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border-subtle)]">
+            <div>
+              <span className="badge badge-mono mb-1">{activeSimulatorRole.marketDemand}</span>
+              <h3 className="text-2xl font-black text-[var(--text-primary)]">
+                {activeSimulatorRole.name}
+              </h3>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                Expected Compensation: <strong className="text-[var(--text-primary)]">{activeSimulatorRole.salaryRange}</strong>
+              </p>
+            </div>
+
+            <div className="text-left sm:text-right">
+              <span className="text-4xl font-black text-[var(--text-primary)]">
+                {activeSimulatorRole.matchScore}%
+              </span>
+              <p className="text-[10px] font-bold text-[var(--status-success)] uppercase tracking-wider">
+                Readiness Match
+              </p>
+            </div>
           </div>
 
-          {/* Simulator Content Grid */}
-          <div className="simulator-details-grid">
-            <div className="simulator-left-stats">
-              <div className="sim-score-box">
-                <CircularGauge score={selectedRole.matchScore} />
-                <div>
-                  <h3 className="sim-role-name">{selectedRole.name}</h3>
-                  <p className="sim-market-demand">{selectedRole.marketDemand}</p>
-                  <p className="sim-meta-sub">Calibrated across 450+ verified 2026 job descriptions</p>
-                </div>
-              </div>
-
-              <div className="sim-advice-card">
-                <div className="advice-icon">✦</div>
-                <div>
-                  <strong>AI Career Coach Recommendation:</strong>
-                  <p>{selectedRole.aiAdvice}</p>
-                </div>
-              </div>
-
-              <Link to="/resume" className="btn-primary" style={{ padding: '13px 22px' }}>
-                Audit My Resume for {selectedRole.name.split(' ')[0]} ↗
-              </Link>
+          {/* Dual Gaps & Verified Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+            <div>
+              <h4 className="font-bold text-[var(--status-success)] uppercase tracking-wider mb-2.5">
+                Verified Skills Required ({activeSimulatorRole.verifiedSkills.length})
+              </h4>
+              <ul className="space-y-1.5 text-[var(--text-secondary)]">
+                {activeSimulatorRole.verifiedSkills.map((s) => (
+                  <li key={s} className="flex items-center gap-2">
+                    <span className="text-[var(--status-success)] font-bold">✓</span>
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            <div className="simulator-right-skills">
-              <div className="sim-skill-block verified">
-                <div className="skill-block-header">
-                  <span>Verified Skills Expected in Code</span>
-                  <span className="tag-count green">{selectedRole.verifiedSkills.length} Matched</span>
-                </div>
-                <div className="skill-tags-flow">
-                  {selectedRole.verifiedSkills.map((s) => (
-                    <span key={s} className="sim-badge green">✓ {s}</span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="sim-skill-block gaps">
-                <div className="skill-block-header">
-                  <span>High-Impact Skill Gaps to Close</span>
-                  <span className="tag-count red">{selectedRole.missingGaps.length} To Prepare</span>
-                </div>
-                <div className="skill-tags-flow">
-                  {selectedRole.missingGaps.map((g) => (
-                    <span key={g} className="sim-badge red">+ {g}</span>
-                  ))}
-                </div>
-              </div>
+            <div>
+              <h4 className="font-bold text-[var(--status-warning)] uppercase tracking-wider mb-2.5">
+                Remaining High-Impact Gaps ({activeSimulatorRole.missingGaps.length})
+              </h4>
+              <ul className="space-y-1.5 text-[var(--text-secondary)]">
+                {activeSimulatorRole.missingGaps.map((g) => (
+                  <li key={g} className="flex items-center gap-2">
+                    <span className="text-[var(--status-warning)] font-bold">▲</span>
+                    <span>{g}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
+          </div>
+
+          {/* AI Strategy Advice */}
+          <div className="p-3.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] leading-relaxed">
+            <strong className="text-[var(--text-primary)]">AI Recruiter Strategic Advice: </strong>
+            {activeSimulatorRole.aiAdvice}
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
+            <span className="text-xs text-[var(--text-muted)]">
+              Calibrated against 1,200+ active SDE openings
+            </span>
+            <Link to="/skills" className="btn-primary text-xs py-2 px-4">
+              Calibrate Your Profile ↗
+            </Link>
           </div>
         </InteractiveSpotlightCard>
       </section>
 
-      {/* ── 5. The 4 Pillars Bento Grid ──────────────────────────── */}
-      <section className="landing-section" id="features">
-        <div className="landing-section-head reveal-on-scroll">
-          <p className="eyebrow">The Evidence Engine</p>
-          <h2>Everything you need to conquer your campus drive.</h2>
+      {/* ── 3. Interactive Readiness Calculator (#calculator) ───── */}
+      <section id="calculator" className="landing-section reveal-on-scroll">
+        <div className="landing-section-head">
+          <span className="badge badge-mono mb-2">Readiness Index</span>
+          <h2>Placement Readiness Calculator</h2>
           <p>
-            Traditional placement prep relies on guess-work and blind grinding.
-            Pathway equips you with a full-stack career operating system.
+            Adjust your metrics to calculate your placement qualification score and package bracket.
           </p>
         </div>
 
-        <div className="bento-pillars-grid">
-          {/* Card 1: Resume Studio */}
-          <article className="bento-card bento-span-2 reveal-on-scroll stagger-1">
-            <div className="bento-badge">01 · RESUME INTELLIGENCE</div>
-            <h3>Evidence-Backed ATS Resume Studio</h3>
-            <p>
-              Upload PDF or DOCX. Pathway extracts hard impact indicators, flags weak bullet points,
-              and generates ATS-optimized evidence metrics that catch recruiters’ attention.
-            </p>
-
-            <div className="bento-preview-box">
-              <div className="bento-bullet-split">
-                <div className="bullet-side bad">
-                  <span className="bullet-side-tag red">❌ Outdated Resume Bullet</span>
-                  <p>"Built backend server in Node.js and MongoDB to handle user data."</p>
-                </div>
-                <div className="bullet-side good">
-                  <span className="bullet-side-tag green">✓ Pathway Evidence Upgrade</span>
-                  <p>"Engineered distributed REST APIs with Node.js &amp; Redis, cutting query latency by 42% across 10K requests."</p>
-                </div>
+        <div className="card w-full max-w-4xl mx-auto p-6 md:p-10 flex flex-col md:flex-row items-center gap-10">
+          {/* Sliders Left (7 cols) */}
+          <div className="w-full md:w-3/5 flex flex-col gap-5">
+            <div>
+              <div className="flex justify-between text-xs font-semibold mb-1">
+                <span>DSA &amp; LeetCode Solved</span>
+                <span className="font-mono font-bold text-[var(--text-primary)]">{calcDsa}</span>
               </div>
+              <input
+                type="range"
+                min="0"
+                max="450"
+                value={calcDsa}
+                onChange={(e) => setCalcDsa(Number(e.target.value))}
+                className="w-full accent-[var(--text-primary)]"
+              />
             </div>
 
-            <Link to="/resume" className="btn-secondary" style={{ width: 'fit-content', marginTop: 16 }}>
-              Explore Resume Studio ↗
-            </Link>
-          </article>
-
-          {/* Card 2: Skill Radar */}
-          <article className="bento-card reveal-on-scroll stagger-2">
-            <div className="bento-badge">02 · SKILL EVIDENCE</div>
-            <h3>Dynamic Skill Gap Radar</h3>
-            <p>
-              No self-claimed sliders. Pathway calculates your exact readiness gaps by cross-referencing
-              your recorded code against target role requisitions.
-            </p>
-
-            <div className="bento-preview-box">
-              <div className="radar-mini-progress">
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: '0.82rem', fontWeight: 600 }}>
-                  <span>SDE-1 Readiness</span>
-                  <span style={{ color: 'var(--success)' }}>88% Match</span>
-                </div>
-                <div className="mini-progress-bar">
-                  <div className="mini-progress-fill" style={{ width: '88%' }} />
-                </div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
-                  <span className="sim-badge green small">✓ Distributed Caching</span>
-                  <span className="sim-badge red small">+ Kafka Pipelines</span>
-                </div>
+            <div>
+              <div className="flex justify-between text-xs font-semibold mb-1">
+                <span>Fullstack / Backend Projects Built</span>
+                <span className="font-mono font-bold text-[var(--text-primary)]">{calcProjects}</span>
               </div>
+              <input
+                type="range"
+                min="0"
+                max="8"
+                value={calcProjects}
+                onChange={(e) => setCalcProjects(Number(e.target.value))}
+                className="w-full accent-[var(--text-primary)]"
+              />
             </div>
 
-            <Link to="/skills" className="btn-secondary" style={{ width: 'fit-content', marginTop: 16 }}>
-              View Skill Radar ↗
-            </Link>
-          </article>
-
-          {/* Card 3: Mock Interview */}
-          <article className="bento-card reveal-on-scroll stagger-3">
-            <div className="bento-badge">03 · MOCK INTERVIEWS</div>
-            <h3>Conversational AI Mock Simulator</h3>
-            <p>
-              Practice one answer at a time under pressure. Pathway grades your response across technical
-              accuracy, edge-case coverage, code structure, and communication clarity.
-            </p>
-
-            <div className="bento-preview-box">
-              <div className="mock-mini-scores">
-                <div className="mini-score-node">
-                  <span>Accuracy</span>
-                  <strong>94%</strong>
-                </div>
-                <div className="mini-score-node">
-                  <span>Structure</span>
-                  <strong>89%</strong>
-                </div>
-                <div className="mini-score-node">
-                  <span>Clarity</span>
-                  <strong>96%</strong>
-                </div>
+            <div>
+              <div className="flex justify-between text-xs font-semibold mb-1">
+                <span>System Design &amp; Mock Drills</span>
+                <span className="font-mono font-bold text-[var(--text-primary)]">{calcInterviews}</span>
               </div>
+              <input
+                type="range"
+                min="0"
+                max="12"
+                value={calcInterviews}
+                onChange={(e) => setCalcInterviews(Number(e.target.value))}
+                className="w-full accent-[var(--text-primary)]"
+              />
             </div>
 
-            <Link to="/interviews" className="btn-secondary" style={{ width: 'fit-content', marginTop: 16 }}>
-              Practice Interviews ↗
-            </Link>
-          </article>
-
-          {/* Card 4: Roadmap */}
-          <article className="bento-card bento-span-2 reveal-on-scroll stagger-4">
-            <div className="bento-badge">04 · SPRINT ENGINE</div>
-            <h3>Adaptive 30-Day Placement Roadmap</h3>
-            <p>
-              Your roadmap evolves dynamically every time you upload a project or complete an assessment.
-              It focuses strictly on high-yield topics with zero filler content.
-            </p>
-
-            <div className="bento-preview-box">
-              <div className="roadmap-horizontal-strip">
-                <div className="road-step done">
-                  <span className="step-num">01</span>
-                  <strong>Async I/O &amp; Concurrency</strong>
-                  <span className="step-status">Verified ✓</span>
-                </div>
-                <div className="road-step active">
-                  <span className="step-num">02</span>
-                  <strong>Database Index Optimization</strong>
-                  <span className="step-status in-progress">In Progress ✦</span>
-                </div>
-                <div className="road-step upcoming">
-                  <span className="step-num">03</span>
-                  <strong>Distributed Caching &amp; Queues</strong>
-                  <span className="step-status">Next Up</span>
-                </div>
+            <div>
+              <div className="flex justify-between text-xs font-semibold mb-1">
+                <span>Verified Production Deployments</span>
+                <span className="font-mono font-bold text-[var(--text-primary)]">{calcDeploys}</span>
               </div>
-            </div>
-
-            <Link to="/roadmap" className="btn-secondary" style={{ width: 'fit-content', marginTop: 16 }}>
-              Inspect My Roadmap ↗
-            </Link>
-          </article>
-        </div>
-      </section>
-
-      {/* ── 6. Placement Velocity Calculator ─────────────────────── */}
-      <section className="landing-section" id="calculator">
-        <div className="calc-master-box reveal-on-scroll">
-          <div className="calc-left-col">
-            <p className="eyebrow">Interactive Estimation</p>
-            <h2 className="calc-title">Calculate your placement velocity.</h2>
-            <p className="calc-desc">
-              Tell us where you are in your academic journey and see your personalized sprint timeline.
-            </p>
-
-            <div className="calc-inputs-flow">
-              {/* Year */}
-              <div className="calc-input-row">
-                <label>1. Academic Standing</label>
-                <div className="calc-segmented-tabs">
-                  {(['2nd', '3rd', '4th', 'Grad'] as const).map((year) => (
-                    <button
-                      key={year}
-                      type="button"
-                      className={`segmented-tab ${calcYear === year ? 'active' : ''}`}
-                      onClick={() => setCalcYear(year)}
-                    >
-                      {year === 'Grad' ? 'Recent Grad' : `${year} Year`}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Tier */}
-              <div className="calc-input-row">
-                <label>2. Target Company Tier</label>
-                <div className="calc-segmented-tabs">
-                  <button
-                    type="button"
-                    className={`segmented-tab ${calcTier === 'tier1' ? 'active' : ''}`}
-                    onClick={() => setCalcTier('tier1')}
-                  >
-                    FAANG / Tier 1 (25+ LPA)
-                  </button>
-                  <button
-                    type="button"
-                    className={`segmented-tab ${calcTier === 'unicorns' ? 'active' : ''}`}
-                    onClick={() => setCalcTier('unicorns')}
-                  >
-                    Tech Unicorns (14-22 LPA)
-                  </button>
-                  <button
-                    type="button"
-                    className={`segmented-tab ${calcTier === 'startups' ? 'active' : ''}`}
-                    onClick={() => setCalcTier('startups')}
-                  >
-                    Startups (8-14 LPA)
-                  </button>
-                </div>
-              </div>
-
-              {/* Daily Hours */}
-              <div className="calc-input-row">
-                <label>3. Daily Dedicated Preparation</label>
-                <div className="calc-segmented-tabs">
-                  <button
-                    type="button"
-                    className={`segmented-tab ${calcHours === '1hr' ? 'active' : ''}`}
-                    onClick={() => setCalcHours('1hr')}
-                  >
-                    1 hr / day (Consistent)
-                  </button>
-                  <button
-                    type="button"
-                    className={`segmented-tab ${calcHours === '2hr' ? 'active' : ''}`}
-                    onClick={() => setCalcHours('2hr')}
-                  >
-                    2 hrs / day (Accelerated)
-                  </button>
-                  <button
-                    type="button"
-                    className={`segmented-tab ${calcHours === '4hr' ? 'active' : ''}`}
-                    onClick={() => setCalcHours('4hr')}
-                  >
-                    4+ hrs / day (Intensive)
-                  </button>
-                </div>
-              </div>
+              <input
+                type="range"
+                min="0"
+                max="5"
+                value={calcDeploys}
+                onChange={(e) => setCalcDeploys(Number(e.target.value))}
+                className="w-full accent-[var(--text-primary)]"
+              />
             </div>
           </div>
 
-          {/* Calculator Output Card */}
-          <div className="calc-right-output">
-            <span className="output-eyebrow">Estimated Sprint Output</span>
-            <div className="output-weeks-display">
-              <strong>{estimatedWeeks}</strong>
-              <span>weeks to 90%+ fit</span>
-            </div>
-
-            <div className="output-metrics-list">
-              <div className="output-metric-item">
-                <span>🎯 Target ATS Score</span>
-                <strong>{estimatedAts}</strong>
-              </div>
-              <div className="output-metric-item">
-                <span>⚡ High-Yield Practice Modules</span>
-                <strong>{Math.ceil(estimatedWeeks * 1.5)} Modules</strong>
-              </div>
-              <div className="output-metric-item">
-                <span>🎤 Mock Interview Drills</span>
-                <strong>{Math.ceil(estimatedWeeks * 2)} Live Rounds</strong>
-              </div>
-            </div>
-
-            <Link to="/dashboard" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '14px' }}>
-              Start Your {estimatedWeeks}-Week Sprint ↗
+          {/* Outcome Gauge Right (5 cols) */}
+          <div className="w-full md:w-2/5 p-6 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-strong)] flex flex-col items-center text-center gap-3">
+            <span className="badge badge-mono text-[10px]">Projected Outcome</span>
+            <CircularGauge score={calcScore} size={120} label="READINESS" />
+            <p className="text-xs font-bold text-[var(--status-success)]">
+              {calcGrade}
+            </p>
+            <p className="text-xs text-[var(--text-muted)] leading-relaxed mt-1">
+              Based on historical placement data across 3,400+ engineering graduates.
+            </p>
+            <Link to="/dashboard" className="btn-primary w-full text-xs mt-2">
+              Start Diagnostic Audit ↗
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── 7. Comparison Table ──────────────────────────────────── */}
-      <section className="landing-section" id="comparison">
-        <div className="landing-section-head reveal-on-scroll">
-          <p className="eyebrow">The Clear Difference</p>
-          <h2>Stop doing what failed for the batch of 2024.</h2>
+      {/* ── 4. Why HiPlacement Comparison (#comparison) ─────────────── */}
+      <section id="comparison" className="landing-section reveal-on-scroll">
+        <div className="landing-section-head">
+          <span className="badge badge-mono mb-2">Architectural Superiority</span>
+          <h2>Why Generic SaaS Portals Fail Candidates</h2>
           <p>
-            The hiring landscape has fundamentally changed. Blanket applications and memorized
-            answers are detected instantly by AI recruiters.
+            Traditional placement tools sell automated buzzwords. HiPlacement is built on verified code,
+            reproducible rubrics, and high-precision evaluation.
           </p>
         </div>
 
-        <div className="comparison-cards-grid">
-          <div className="compare-card old-way reveal-on-scroll stagger-1">
-            <h3 className="compare-card-title red">❌ The Outdated Way</h3>
-            <ul className="compare-points-list">
-              <li>Submitting generic PDF resumes to 200 portals with &lt;2% callback rate.</li>
-              <li>Rating arbitrary self-claimed percentages like "90% in React" on resumes.</li>
-              <li>Memorizing 400 LeetCode tricks without understanding distributed tradeoffs.</li>
-              <li>Practicing mock interviews in front of mirrors with zero objective grading.</li>
-              <li>No visibility into why rejections happen until placement season ends.</li>
+        <div className="comparison-grid w-full max-w-4xl mx-auto">
+          {/* Traditional Card */}
+          <div className="comparison-card">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-sm text-[var(--text-muted)]">
+                Generic Job Portals &amp; Templates
+              </h3>
+              <span className="badge badge-danger">Broken Model</span>
+            </div>
+            <ul className="space-y-3 text-xs text-[var(--text-secondary)]">
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--status-danger)]">✕</span>
+                <span>Superficial keyword stuffing that gets filtered by modern ATS parsers.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--status-danger)]">✕</span>
+                <span>Silent automated rejections with zero actionable feedback.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--status-danger)]">✕</span>
+                <span>Static, unguided practice without conversational rubric grading.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--status-danger)]">✕</span>
+                <span>Irrelevant mass job recommendations based on unverified resume claims.</span>
+              </li>
             </ul>
           </div>
 
-          <div className="compare-card new-way reveal-on-scroll stagger-2">
-            <h3 className="compare-card-title green">✓ The Pathway Standard</h3>
-            <ul className="compare-points-list">
-              <li>Evidence-backed ATS resume optimization proven to pass corporate parsers.</li>
-              <li>Transparent skill gap calculations tied to your real code commits and projects.</li>
-              <li>Targeted drills on high-yield architectural gaps instead of blind grinding.</li>
-              <li>Instant conversational AI mock interviews with rubrics for accuracy and clarity.</li>
-              <li>Continuous readiness dashboard pinpointing exactly which skill to conquer next.</li>
+          {/* HiPlacement Card */}
+          <div className="comparison-card highlight">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-sm text-[var(--text-primary)]">
+                HiPlacement Evidence Engine
+              </h3>
+              <span className="badge badge-success">Verified</span>
+            </div>
+            <ul className="space-y-3 text-xs text-[var(--text-secondary)]">
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--status-success)]">✓</span>
+                <span>Code-backed evidence linking projects directly to candidate competencies.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--status-success)]">✓</span>
+                <span>Transparent role requirement catalogs showing exact missing gaps.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--status-success)]">✓</span>
+                <span>Interactive AI Mock Interview Studio with technical accuracy scoring.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--status-success)]">✓</span>
+                <span>Adaptive 30-day learning roadmaps that re-calibrate with every drill.</span>
+              </li>
             </ul>
           </div>
         </div>
       </section>
 
-      {/* ── 8. Student Placements ─────────────────────────────────── */}
-      <section className="landing-section" id="stories">
-        <div className="landing-section-head reveal-on-scroll">
-          <p className="eyebrow">Hall of Offers</p>
-          <h2>Engineers who turned evidence into dream placements.</h2>
-          <p>Real stories from candidates who stopped guessing and started proving.</p>
+      {/* ── 5. Student Placement Stories (#stories) ─────────────── */}
+      <section id="stories" className="landing-section reveal-on-scroll">
+        <div className="landing-section-head">
+          <span className="badge badge-mono mb-2">Verified Placements</span>
+          <h2>From Critical Gaps to Tier-1 Offers</h2>
+          <p>
+            Real engineering students who used HiPlacement to audit their resumes and pass technical interviews.
+          </p>
         </div>
 
-        <div className="testimonials-cards-grid">
-          {TESTIMONIALS.map((t, idx) => (
-            <div key={t.name} className={`testimonial-modern-card reveal-on-scroll stagger-${idx + 1}`}>
-              <div className="testi-user-row">
-                <div className="testi-avatar-circle">{t.avatar}</div>
-                <div>
-                  <h4 className="testi-author">{t.name}</h4>
-                  <p className="testi-college">{t.college} · {t.role}</p>
-                </div>
-              </div>
-              <p className="testi-text">"{t.quote}"</p>
-              <div className="testi-bottom-row">
-                <span className="verified-badge">✓ Verified Placement</span>
-                <strong className="pkg-text">{t.package}</strong>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mx-auto">
+          <div className="card flex flex-col justify-between gap-4">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-sm text-[var(--text-primary)]">Aakash Patel</span>
+              <span className="badge badge-mono">₹24 LPA · Razorpay</span>
             </div>
-          ))}
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic">
+              "The Cache Stampede interview drill was almost identical to Round 2 at Razorpay. Defending the XFetch algorithm got me the offer on the spot."
+            </p>
+            <span className="text-[11px] text-[var(--text-muted)] font-mono">
+              B.Tech CSE '25 · SDE-1 Backend
+            </span>
+          </div>
+
+          <div className="card flex flex-col justify-between gap-4">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-sm text-[var(--text-primary)]">Priya Sundaram</span>
+              <span className="badge badge-mono">₹22 LPA · Postman</span>
+            </div>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic">
+              "The ATS diagnostic pointed out that my third project had no quantified latency metrics. Fixing that took my resume score from 71 to 89."
+            </p>
+            <span className="text-[11px] text-[var(--text-muted)] font-mono">
+              NIT Trichy '25 · Full-Stack Track
+            </span>
+          </div>
+
+          <div className="card flex flex-col justify-between gap-4">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-sm text-[var(--text-primary)]">Rohan Verma</span>
+              <span className="badge badge-mono">₹28 LPA · Swiggy</span>
+            </div>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic">
+              "HiPlacement showed me that I was missing message queue evidence. I spent a weekend building the BullMQ task queue and got 3 immediate recruiter replies."
+            </p>
+            <span className="text-[11px] text-[var(--text-muted)] font-mono">
+              BITS Pilani '25 · Systems SDE
+            </span>
+          </div>
         </div>
       </section>
 
-      {/* ── 9. Interactive FAQ Accordion ──────────────────────────── */}
-      <section className="landing-section" id="faq">
-        <div className="landing-section-head reveal-on-scroll">
-          <p className="eyebrow">Frequently Asked Questions</p>
-          <h2>Everything you need to know about Pathway.</h2>
+      {/* ── 6. FAQ Accordion Section (#faq) ────────────────────── */}
+      <section id="faq" className="landing-section reveal-on-scroll">
+        <div className="landing-section-head">
+          <span className="badge badge-mono mb-2">Frequently Answered</span>
+          <h2>Everything You Need to Know</h2>
         </div>
 
-        <div className="faq-modern-accordion reveal-on-scroll stagger-1">
-          {FAQS.map((faq, index) => {
-            const isOpen = openFaq === index;
+        <div className="w-full max-w-3xl mx-auto space-y-3">
+          {FAQS.map((faq, idx) => {
+            const isOpen = openFaq === idx;
             return (
-              <div key={faq.q} className={`faq-card-row ${isOpen ? 'is-open' : ''}`}>
+              <div key={idx} className="faq-item">
                 <button
                   type="button"
-                  className="faq-question-btn"
-                  onClick={() => setOpenFaq(isOpen ? null : index)}
-                  aria-expanded={isOpen}
+                  className="faq-trigger"
+                  onClick={() => setOpenFaq(isOpen ? null : idx)}
                 >
                   <span>{faq.q}</span>
-                  <svg
-                    className={`faq-arrow-icon ${isOpen ? 'rotated' : ''}`}
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
+                  <span className="font-mono text-xs">{isOpen ? '▲' : '▼'}</span>
                 </button>
-                {isOpen && (
-                  <div className="faq-answer-body">
-                    <p>{faq.a}</p>
-                  </div>
-                )}
+                {isOpen && <div className="faq-content">{faq.a}</div>}
               </div>
             );
           })}
         </div>
       </section>
 
-      {/* ── 10. Mega Modern CTA Banner ────────────────────────────── */}
-      <section className="landing-section">
-        <div className="mega-modern-cta relative overflow-hidden reveal-on-scroll">
-          {/* Animated background image overlay with hero-network */}
-          <div className="cta-bg-layer" aria-hidden="true">
-            <img
-              src="/hero-network.jpg"
-              alt="CTA Background Pattern"
-              className="cta-bg-image"
-            />
-            <div className="cta-bg-overlay" />
-          </div>
-
-          <div className="cta-ambient-glow" />
-          <span className="cta-pill relative z-10">Ready to Start?</span>
-          <h2 className="relative z-10">Turn your preparation hours into offers.</h2>
-          <p className="relative z-10">
-            No credit card required. Free for engineering students. Sign in to your private workspace,
-            audit your first resume in 60 seconds, and uncover your true placement readiness score.
+      {/* ── 7. Mega Modern Monochrome CTA Banner ───────────────── */}
+      <section className="landing-section reveal-on-scroll">
+        <InteractiveSpotlightCard className="mega-cta-card w-full max-w-4xl mx-auto flex flex-col items-center gap-5">
+          <span className="badge badge-mono">Ready to Begin?</span>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[var(--text-primary)] max-w-2xl">
+            Turn your preparation hours into placement offers.
+          </h2>
+          <p className="text-sm text-[var(--text-secondary)] max-w-xl leading-relaxed">
+            No credit card required. Free for engineering students. Audit your first resume in 60 seconds
+            and uncover your verified placement readiness score.
           </p>
 
-          <div className="cta-buttons-row relative z-10">
-            <Link to="/dashboard" className="hero-primary-btn transition-transform hover:scale-105 duration-200 shadow-lg">
+          <div className="flex flex-col sm:flex-row items-center gap-3 mt-2">
+            <Link to="/dashboard" className="btn-primary py-3 px-6 text-sm">
               <span>Launch Workspace Free</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="7" y1="17" x2="17" y2="7" />
-                <polyline points="7 7 17 7 17 17" />
-              </svg>
+              <span aria-hidden="true">↗</span>
             </Link>
-            <Link to="/architecture" className="hero-secondary-btn transition-transform hover:scale-105 duration-200" style={{ background: 'rgba(255,255,255,0.1)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.2)' }}>
-              <span>Explore Tech Architecture</span>
-              <span aria-hidden="true">⚡</span>
+            <Link to="/architecture" className="btn-secondary py-3 px-6 text-sm">
+              <span>Inspect Tech Architecture ⚡</span>
             </Link>
           </div>
-        </div>
+        </InteractiveSpotlightCard>
       </section>
 
-      {/* ── 11. Footer ────────────────────────────────────────────── */}
+      {/* Global Footer */}
       <Footer />
     </div>
   );

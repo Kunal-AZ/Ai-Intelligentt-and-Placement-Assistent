@@ -1,212 +1,210 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 
-interface Message {
+interface ChatMessage {
   id: string;
   role: 'user' | 'ai';
   text: string;
-  timestamp: Date;
+  timestamp: string;
+  citations?: string[];
 }
 
-const SUGGESTIONS = [
-  'What should I learn first for a backend developer role?',
-  'Review the gaps in my resume',
-  'Which companies are hiring for my skill set?',
-  'Give me a 30-day preparation plan',
+const INITIAL_SUGGESTIONS = [
+  'What should I prioritize this week for Tier-1 backend roles?',
+  'Review the critical gaps found in my resume ATS scan',
+  'How do I explain my BullMQ queue project in a system design interview?',
+  'Which matched companies are hiring without DSA rounds?',
 ];
 
-/* ── AI avatar SVG ─────────────────────────────────── */
-function AiAvatar() {
-  return (
-    <div className="avatar ai-avatar" aria-hidden="true" title="Pathway AI">
-      ✦
-    </div>
-  );
-}
-
-/* ── User avatar ────────────────────────────────────── */
-function UserAvatar() {
-  return (
-    <div className="avatar user-avatar" aria-hidden="true" title="You">
-      👤
-    </div>
-  );
-}
-
-/* ── Format timestamp ───────────────────────────────── */
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-}
+const INITIAL_HISTORY: ChatMessage[] = [
+  {
+    id: 'msg-0',
+    role: 'ai',
+    text: "Hello Kunal. I am your HiPlacement AI Career Coach. I am calibrated against your verified SDE-1 Backend profile, your 88 ATS resume score, and recorded competencies in Redis, Node.js, and MongoDB.\n\nHow can I help accelerate your placement readiness today?",
+    timestamp: 'Just now',
+    citations: ['Profile: SDE-1 Track', 'Resume ATS: 88/100', 'Evidence: Redis BullMQ'],
+  },
+];
 
 export function ChatPage() {
-  const [inputValue, setInputValue] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_HISTORY);
+  const [inputVal, setInputVal] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  /* Auto-scroll to bottom on new messages */
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  /* Simulate AI response (replace with actual API/socket call) */
-  async function simulateAiResponse(userText: string) {
-    setIsTyping(true);
+  function getAiResponse(query: string): { text: string; citations: string[] } {
+    const q = query.toLowerCase();
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1200 + Math.random() * 800));
+    if (q.includes('prioritize') || q.includes('this week') || q.includes('plan')) {
+      return {
+        text: "Based on your active 30-day roadmap and SDE-1 calibration, here are your top 2 highest-yield focus areas for this week:\n\n1. **Distributed Caching & Concurrency (XFetch & Mutex Locks)**: Razorpay and Swiggy heavily test this in round 2. Complete the 30-min drill in the Mock Interview studio.\n2. **Kafka Event Streaming Architecture**: You have BullMQ in your profile, but adding Kafka streaming to your resume will boost your match score at top fintech firms by 14%.\n\nWould you like me to generate a 5-step implementation guide for an idempotent Kafka consumer?",
+        citations: ['Roadmap: Week 2 Sprint', 'Job Match: Razorpay 94%'],
+      };
+    }
 
-    const aiReply: Message = {
-      id: crypto.randomUUID(),
-      role: 'ai',
-      text: getAiReply(userText),
-      timestamp: new Date(),
+    if (q.includes('resume') || q.includes('gap') || q.includes('ats')) {
+      return {
+        text: "Your current resume score is **88/100 (Tier-1 Ready)**. The 2 critical gaps flagged by the parser are:\n\n- **Project #3 Lacks Quantified Metrics**: Add concrete percentage or latency improvements (e.g., 'Reduced cache misses by 38%').\n- **Missing Distributed Tracing Details**: Mention OpenTelemetry or Prometheus metrics to demonstrate production maturity.\n\nOnce updated, re-upload to Resume Studio to push past the 90+ threshold.",
+        citations: ['Resume Studio: ATS Audit v4.8'],
+      };
+    }
+
+    if (q.includes('bullmq') || q.includes('system design') || q.includes('interview')) {
+      return {
+        text: "When presenting your BullMQ project, follow this 3-step high-impact engineering narrative:\n\n1. **The Bottleneck**: Explain that synchronous resume parsing choked CPU cores, leading to 504 timeouts under sudden campus traffic bursts.\n2. **The Architecture**: You separated the REST gateway from BullMQ worker processes backed by Redis 7 with exponential backoff retries and dead-letter queues.\n3. **The Outcome**: OCR processing latency was cut by 42%, and the gateway maintained a sub-50ms p99 response time.",
+        citations: ['Evidence Ledger: BullMQ Queues', 'Mock Interview: Concurrency Drill'],
+      };
+    }
+
+    return {
+      text: "That is a great strategic question. Looking across your verified competencies and target company benchmarks, the fastest way to stand out is by demonstrating production-grade reliability patterns rather than just generic CRUD code.\n\nWould you like to drill into code examples or practice a simulated interview question on this topic?",
+      citations: ['HiPlacement Evidence Engine'],
     };
-
-    setMessages((prev) => [...prev, aiReply]);
-    setIsTyping(false);
   }
 
-  function getAiReply(question: string): string {
-    const q = question.toLowerCase();
-    if (q.includes('backend') || q.includes('learn first')) {
-      return "Based on your evidence profile, I'd recommend starting with Node.js and Express — they appear in 78% of backend roles that match your current skill set. After that, focus on databases (PostgreSQL or MongoDB) and REST API design patterns.";
-    }
-    if (q.includes('resume')) {
-      return "Your resume hasn't been uploaded yet. Once you upload it via Resume Studio, I can give you specific feedback on structure, keyword density, and ATS compatibility for your target roles.";
-    }
-    if (q.includes('30-day') || q.includes('plan')) {
-      return "A great 30-day plan: Week 1 — upload your resume and record 5 core skills. Week 2 — complete 3 mock interviews. Week 3 — apply to 10 matched jobs. Week 4 — revisit gaps and update your roadmap. Shall I break any week down further?";
-    }
-    if (q.includes('compan') || q.includes('hiring')) {
-      return "I can surface companies hiring for your skills once you've set a target role in your profile. Right now I can see you're interested in this platform — let's set that up first!";
-    }
-    return "That's a great question! Once your resume and skill evidence are uploaded, I'll be able to give you a much more precise and personalised answer. Would you like to start there?";
-  }
-
-  function handleSend(event: FormEvent) {
-    event.preventDefault();
-    const text = inputValue.trim();
+  function handleSend(e: FormEvent) {
+    e.preventDefault();
+    const text = inputVal.trim();
     if (!text || isTyping) return;
 
-    const userMessage: Message = {
+    const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: 'user',
       text,
-      timestamp: new Date(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInputValue('');
-    simulateAiResponse(text);
+    setMessages((prev) => [...prev, userMsg]);
+    setInputVal('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+      const response = getAiResponse(text);
+      const aiMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: 'ai',
+        text: response.text,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        citations: response.citations,
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+      setIsTyping(false);
+    }, 1000);
   }
 
-  function handleSuggestion(suggestion: string) {
-    setInputValue(suggestion);
+  function handleQuickPrompt(promptText: string) {
+    setInputVal(promptText);
     inputRef.current?.focus();
   }
 
   return (
-    <section className="feature-page chat-page fade-up" aria-labelledby="chat-title">
-      <p className="eyebrow">AI Career Coach</p>
-      <h2 id="chat-title">Ask from your actual evidence.</h2>
-      <p className="feature-description">
-        Your coach cites the resume, skills, target roles, and knowledge sources it used —
-        no black-box answers, ever.
-      </p>
-
-      {/* ── Chat window ─────────────────────────────── */}
-      <div
-        className="chat-window"
-        role="log"
-        aria-label="Conversation with Pathway AI"
-        aria-live="polite"
-        aria-relevant="additions"
-      >
-        {messages.length === 0 && !isTyping ? (
-          /* Empty state */
-          <div className="chat-empty">
-            <div className="chat-empty-icon" aria-hidden="true">✦</div>
-            <h3>Start a conversation</h3>
-            <p>Ask anything about your career preparation. Try one of these:</p>
-            <div className="chat-suggestions" role="list" aria-label="Suggested questions">
-              {SUGGESTIONS.map((suggestion) => (
-                <button
-                  key={suggestion}
-                  className="chat-suggestion-btn"
-                  type="button"
-                  role="listitem"
-                  onClick={() => handleSuggestion(suggestion)}
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
+    <div className="chat-page flex flex-col gap-6 max-w-4xl mx-auto h-[calc(100vh-140px)]">
+      {/* ── Page Header ────────────────────────────────────────── */}
+      <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)] shrink-0">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge badge-success">Online &amp; Calibrated</span>
           </div>
-        ) : (
-          <>
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`message-row ${msg.role}`}
-                aria-label={`${msg.role === 'user' ? 'You' : 'Pathway AI'}: ${msg.text}`}
-              >
-                {msg.role === 'ai' ? <AiAvatar /> : <UserAvatar />}
-                <div>
-                  <div className={`message-bubble ${msg.role}`}>{msg.text}</div>
-                  <p className="message-time" aria-label={`Sent at ${formatTime(msg.timestamp)}`}>
-                    {formatTime(msg.timestamp)}
-                  </p>
-                </div>
-              </div>
-            ))}
+          <h1 className="text-xl font-black tracking-tight">AI Career &amp; Placement Coach</h1>
+        </div>
 
-            {isTyping && (
-              <div className="message-row ai" aria-label="Pathway AI is typing">
-                <AiAvatar />
-                <div className="typing-indicator" role="status" aria-label="AI is composing a response">
-                  <span className="typing-dot" />
-                  <span className="typing-dot" />
-                  <span className="typing-dot" />
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Scroll anchor */}
-        <div ref={messagesEndRef} aria-hidden="true" />
+        <button
+          type="button"
+          className="btn-ghost text-xs"
+          onClick={() => setMessages(INITIAL_HISTORY)}
+        >
+          Clear Chat
+        </button>
       </div>
 
-      {/* ── Input area ──────────────────────────────── */}
-      <form className="chat-input-area" onSubmit={handleSend} aria-label="Send a message">
-        <div className="chat-input-wrap">
-          <input
-            ref={inputRef}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Ask about your career preparation…"
-            disabled={isTyping}
-            autoComplete="off"
-            aria-label="Your message"
-            maxLength={500}
-          />
-        </div>
+      {/* ── Messages Scroll Area ───────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`flex flex-col gap-1.5 ${
+              msg.role === 'user' ? 'items-end' : 'items-start'
+            }`}
+          >
+            <div className="flex items-center gap-2 text-[10px] text-[var(--text-muted)] font-mono px-1">
+              <span>{msg.role === 'user' ? 'You' : 'HiPlacement Coach AI'}</span>
+              <span>•</span>
+              <span>{msg.timestamp}</span>
+            </div>
+
+            <div
+              className={`p-4 rounded-xl text-xs leading-relaxed max-w-2xl whitespace-pre-line ${
+                msg.role === 'user'
+                  ? 'bg-[var(--text-primary)] text-[var(--text-inverse)] font-medium'
+                  : 'bg-[var(--bg-surface)] border border-[var(--border-default)] text-[var(--text-primary)] shadow-sm'
+              }`}
+            >
+              {msg.text}
+
+              {msg.citations && msg.citations.length > 0 && (
+                <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)] flex flex-wrap items-center gap-1.5">
+                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                    Cited Evidence:
+                  </span>
+                  {msg.citations.map((c) => (
+                    <span key={c} className="badge badge-mono text-[9px]">
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {isTyping && (
+          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] p-2">
+            <span className="w-2 h-2 rounded-full bg-[var(--text-primary)] animate-pulse" />
+            <span>Consulting candidate evidence dossier…</span>
+          </div>
+        )}
+
+        <div ref={scrollEndRef} />
+      </div>
+
+      {/* ── Quick Suggestions Bar ──────────────────────────────── */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 shrink-0">
+        {INITIAL_SUGGESTIONS.map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => handleQuickPrompt(s)}
+            className="px-3 py-1.5 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-default)] hover:border-[var(--border-strong)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] whitespace-nowrap transition-all shrink-0"
+          >
+            {s} ↗
+          </button>
+        ))}
+      </div>
+
+      {/* ── Input Box ──────────────────────────────────────────── */}
+      <form onSubmit={handleSend} className="shrink-0 flex items-center gap-2">
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputVal}
+          onChange={(e) => setInputVal(e.target.value)}
+          placeholder="Ask anything about your placement preparation, resume, or interview drills…"
+          className="form-input text-xs py-3"
+          disabled={isTyping}
+        />
         <button
-          className="btn-primary"
           type="submit"
-          disabled={!inputValue.trim() || isTyping}
-          aria-label="Send message"
-          style={{ padding: '14px 22px', whiteSpace: 'nowrap' }}
+          className="btn-primary py-3 px-5 text-xs"
+          disabled={!inputVal.trim() || isTyping}
         >
-          Send <span aria-hidden="true">↗</span>
+          <span>Ask Coach</span>
+          <span>↗</span>
         </button>
       </form>
-
-      {/* Hint text */}
-      <p style={{ fontSize: '0.75rem', color: '#888', fontWeight: 600, marginTop: 8 }}>
-        Pathway AI references only your uploaded evidence — responses improve as you add more data.
-      </p>
-    </section>
+    </div>
   );
 }

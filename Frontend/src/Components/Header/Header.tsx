@@ -1,130 +1,85 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ThemeToggle } from '../ThemeToggle';
+import { BrandLogo } from '../BrandLogo';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
     { label: 'Role Simulator', href: '#simulator' },
-    { label: 'Evidence Engine', href: '#features' },
     { label: 'Readiness Calculator', href: '#calculator' },
-    { label: 'Why Pathway', href: '#comparison' },
-    { label: 'Placements', href: '#stories' },
+    { label: 'Why HiPlacement', href: '#comparison' },
+    { label: 'Placement Proof', href: '#stories' },
     { label: 'FAQ', href: '#faq' },
   ];
 
   return (
-    <header className="site-header sticky top-0 z-50 backdrop-blur-md bg-white/80 transition-all duration-300">
-      <div className="header-container">
+    <header className="sticky top-0 z-50 w-full border-b border-[var(--border-subtle)] bg-[var(--glass-bg)] backdrop-blur-md transition-colors flex justify-center">
+      <div className="w-full max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Brand Logo */}
-        <Link to="/" className="header-brand group transition-transform duration-300 hover:scale-105" aria-label="Pathway Home">
-          <div className="brand-logo-icon group-hover:rotate-12 transition-transform duration-300 shadow-md shadow-indigo-500/25">
-            <span>✦</span>
-          </div>
-          <div className="flex flex-col text-left">
-            <div className="flex items-center gap-2">
-              <span className="brand-name font-black tracking-tight text-slate-900">Pathway</span>
-              <span className="brand-badge bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-bold px-2 py-0.5 rounded-full text-[10px] shadow-sm">
-                AI 2.0
-              </span>
-            </div>
-            <span className="text-[10px] font-semibold text-slate-400 -mt-0.5 tracking-wider uppercase">By Kunal Sharma</span>
-          </div>
+        <Link to="/" className="flex items-center gap-2.5 group" aria-label="HiPlacement Home">
+          <BrandLogo size={32} showText={true} badge="AI 2.0" />
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="header-nav" aria-label="Main Navigation">
-          <ul className="nav-list">
-            {navLinks.map((link) => (
-              <li key={link.label}>
-                <a href={link.href} className="nav-link transition-colors duration-200 hover:text-indigo-600">
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+        {/* Desktop Nav Links */}
+        <nav className="hidden lg:flex items-center gap-6" aria-label="Main Navigation">
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            >
+              {link.label}
+            </a>
+          ))}
         </nav>
 
-        {/* Action Buttons */}
-        <div className="header-actions">
-          <Link to="/login" className="btn-header-ghost transition-all duration-200 hover:bg-slate-100">
+        {/* Actions (Theme Toggle + Auth) */}
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+
+          <Link to="/login" className="btn-ghost text-xs hidden sm:inline-flex">
             Sign In
           </Link>
-          <Link to="/dashboard" className="btn-header-primary transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95">
-            Launch Workspace
-            <svg
-              className="action-arrow transition-transform duration-200 group-hover:translate-x-1"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="7" y1="17" x2="17" y2="7" />
-              <polyline points="7 7 17 7 17 17" />
-            </svg>
+
+          <Link to="/dashboard" className="btn-primary text-xs py-2 px-3.5">
+            <span>Launch Workspace</span>
+            <span aria-hidden="true">↗</span>
           </Link>
 
-          {/* Mobile Hamburger Button */}
-          <button
-            type="button"
-            className="mobile-toggle"
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={mobileMenuOpen}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="4" y1="7" x2="20" y2="7" />
-                <line x1="4" y1="12" x2="20" y2="12" />
-                <line x1="4" y1="17" x2="20" y2="17" />
-              </svg>
-            )}
-          </button>
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="mobile-menu-drawer">
-          <nav className="mobile-nav" aria-label="Mobile Navigation">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="mobile-nav-link"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.label}
-              </a>
-            ))}
-            <div className="mobile-menu-divider" />
-            <div className="mobile-menu-actions">
-              <Link
-                to="/login"
-                className="mobile-btn-ghost"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/dashboard"
-                className="btn-header-primary"
-                style={{ width: '100%', justifyContent: 'center' }}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Launch Workspace Free ↗
-              </Link>
-            </div>
-          </nav>
+        <div className="lg:hidden border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] px-6 py-4 flex flex-col gap-3">
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] py-1.5"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {link.label}
+            </a>
+          ))}
+          <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between">
+            <Link
+              to="/login"
+              className="text-xs font-bold text-[var(--text-primary)]"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Sign In to Account
+            </Link>
+            <Link
+              to="/dashboard"
+              className="btn-primary text-xs"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Launch Workspace Free ↗
+            </Link>
+          </div>
         </div>
       )}
     </header>

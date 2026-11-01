@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface AnimatedCounterProps {
   end: number;
@@ -11,69 +11,85 @@ interface AnimatedCounterProps {
 
 export function AnimatedCounter({
   end,
-  duration = 1800,
+  duration = 1600,
   prefix = '',
   suffix = '',
   decimals = 0,
   className = '',
 }: AnimatedCounterProps) {
-  const [count, setCount] = useState(0);
-  const [hasStarted, setHasStarted] = useState(false);
   const elementRef = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
     const el = elementRef.current;
     if (!el) return;
 
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const formatValue = (val: number) => {
+      const numStr = decimals > 0 ? val.toFixed(decimals) : Math.floor(val).toLocaleString();
+      return `${prefix}${numStr}${suffix}`;
+    };
+
+    if (prefersReducedMotion) {
+      el.textContent = formatValue(end);
+      return;
+    }
+
+    let started = false;
+    let animationFrameId: number;
+
+    const startAnimation = () => {
+      let startTime: number | null = null;
+
+      const step = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+
+        // Easing: easeOutCubic
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        const currentVal = easedProgress * end;
+
+        if (el) {
+          el.textContent = formatValue(currentVal);
+        }
+
+        if (progress < 1) {
+          animationFrameId = requestAnimationFrame(step);
+        } else if (el) {
+          el.textContent = formatValue(end);
+        }
+      };
+
+      animationFrameId = requestAnimationFrame(step);
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasStarted) {
-          setHasStarted(true);
+        if (entry.isIntersecting && !started) {
+          started = true;
+          observer.disconnect();
+          startAnimation();
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.15 }
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
-  }, [hasStarted]);
 
-  useEffect(() => {
-    if (!hasStarted) return;
-
-    let startTime: number | null = null;
-    let animationFrameId: number;
-
-    const step = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      
-      // Easing: easeOutCubic
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-      
-      const currentVal = easedProgress * end;
-      setCount(currentVal);
-
-      if (progress < 1) {
-        animationFrameId = requestAnimationFrame(step);
-      } else {
-        setCount(end);
-      }
+    return () => {
+      observer.disconnect();
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
+  }, [end, duration, prefix, suffix, decimals]);
 
-    animationFrameId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [hasStarted, end, duration]);
-
-  const formatted = decimals > 0 
-    ? count.toFixed(decimals)
-    : Math.floor(count).toLocaleString();
+  // Initial SSR / first-paint text content
+  const initialText = `${prefix}${decimals > 0 ? (0).toFixed(decimals) : '0'}${suffix}`;
 
   return (
-    <span ref={elementRef} className={className}>
-      {prefix}
-      {formatted}
-      {suffix}
+    <span ref={elementRef} className={`tabular-nums ${className}`}>
+      {initialText}
     </span>
   );
 }

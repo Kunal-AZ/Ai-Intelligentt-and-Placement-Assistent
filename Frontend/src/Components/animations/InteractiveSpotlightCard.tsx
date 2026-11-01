@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 interface InteractiveSpotlightCardProps {
   children: React.ReactNode;
@@ -16,56 +16,75 @@ export function InteractiveSpotlightCard({
   style = {},
 }: InteractiveSpotlightCardProps) {
   const cardRef = useRef<HTMLDivElement | null>(null);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+  const spotlightRef = useRef<HTMLDivElement | null>(null);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    setCoords({ x, y });
+  useEffect(() => {
+    const card = cardRef.current;
+    const spotlight = spotlightRef.current;
+    if (!card || !spotlight) return;
 
-    if (enableTilt) {
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -5; // max 5 deg tilt
-      const rotateY = ((x - centerX) / centerX) * 5;
-      setTilt({ rx: rotateX, ry: rotateY });
-    }
-  };
+    let rafId: number | null = null;
+    let rect = card.getBoundingClientRect();
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
+    const handleMouseEnter = () => {
+      rect = card.getBoundingClientRect();
+      spotlight.style.opacity = '1';
+    };
 
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setTilt({ rx: 0, ry: 0 });
-  };
+    const handleMouseMove = (e: MouseEvent) => {
+      if (rafId) return;
+
+      rafId = requestAnimationFrame(() => {
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        spotlight.style.background = `radial-gradient(450px circle at ${x}px ${y}px, ${spotlightColor}, transparent 70%)`;
+
+        if (enableTilt) {
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotateX = ((y - centerY) / centerY) * -5;
+          const rotateY = ((x - centerX) / centerX) * 5;
+          card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-3px)`;
+        }
+
+        rafId = null;
+      });
+    };
+
+    const handleMouseLeave = () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      spotlight.style.opacity = '0';
+      if (enableTilt) {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+      }
+    };
+
+    card.addEventListener('mouseenter', handleMouseEnter, { passive: true });
+    card.addEventListener('mousemove', handleMouseMove, { passive: true });
+    card.addEventListener('mouseleave', handleMouseLeave, { passive: true });
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      card.removeEventListener('mouseenter', handleMouseEnter);
+      card.removeEventListener('mousemove', handleMouseMove);
+      card.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [enableTilt, spotlightColor]);
 
   return (
     <div
       ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className={`relative overflow-hidden transition-transform duration-300 ease-out ${className}`}
-      style={{
-        ...style,
-        transform: enableTilt && isHovered
-          ? `perspective(1000px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) translateY(-4px)`
-          : 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)',
-      }}
+      className={`w-full relative overflow-hidden transition-transform duration-300 ease-out will-change-transform ${className}`}
+      style={style}
     >
       {/* Dynamic Cursor Spotlight Radial Glow */}
       <div
-        className="pointer-events-none absolute -inset-px transition-opacity duration-300 z-10"
-        style={{
-          opacity: isHovered ? 1 : 0,
-          background: `radial-gradient(450px circle at ${coords.x}px ${coords.y}px, ${spotlightColor}, transparent 70%)`,
-        }}
+        ref={spotlightRef}
+        className="pointer-events-none absolute -inset-px transition-opacity duration-300 z-10 opacity-0"
         aria-hidden="true"
       />
       {children}

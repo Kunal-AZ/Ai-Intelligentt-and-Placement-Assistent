@@ -1,20 +1,21 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { ThemeToggle } from '../ThemeToggle';
+import { BrandLogo } from '../BrandLogo';
 
 interface AppHeaderProps {
   onToggleSidebar?: () => void;
   title?: string;
-  subtitle?: string;
 }
 
-export function AppHeader({ onToggleSidebar, title = "Hey, let's make progress.", subtitle = "Career Workspace" }: AppHeaderProps) {
+export function AppHeader({ onToggleSidebar, title = 'Command center' }: AppHeaderProps) {
   const [unreadCount, setUnreadCount] = useState(3);
   const [showNotifications, setShowNotifications] = useState(false);
 
   const notifications = [
-    { id: 1, title: 'Resume Parsed', time: '10m ago', text: '4 key strengths and 2 critical skill gaps identified.' },
-    { id: 2, title: 'New Job Match', time: '1h ago', text: 'Razorpay SDE-1 Backend match score updated to 88%.' },
-    { id: 3, title: 'Mock Interview Ready', time: 'Yesterday', text: 'AI evaluated your Cache Stampede response (94%).' },
+    { id: 1, title: 'Resume ATS Audit Complete', time: '10m ago', text: 'Score improved to 88/100. 4 core strengths verified.' },
+    { id: 2, title: 'New Job Match: Razorpay', time: '1h ago', text: 'SDE-1 Backend match score computed at 94% coverage.' },
+    { id: 3, title: 'Mock Interview Evaluated', time: 'Yesterday', text: 'Scored 94% on Redis Cache Stampede & Distributed Locking.' },
   ];
 
   return (
@@ -23,11 +24,11 @@ export function AppHeader({ onToggleSidebar, title = "Hey, let's make progress."
         {onToggleSidebar && (
           <button
             type="button"
-            className="sidebar-mobile-toggle"
+            className="topbar-icon-btn lg:hidden"
             onClick={onToggleSidebar}
             aria-label="Toggle navigation menu"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="4" y1="6" x2="20" y2="6" />
               <line x1="4" y1="12" x2="20" y2="12" />
               <line x1="4" y1="18" x2="20" y2="18" />
@@ -35,65 +36,65 @@ export function AppHeader({ onToggleSidebar, title = "Hey, let's make progress."
           </button>
         )}
 
-        <div className="app-topbar-headings">
-          <span className="app-topbar-eyebrow">{subtitle}</span>
-          <h1 className="app-topbar-title">{title}</h1>
+        <div className="lg:hidden flex items-center">
+          <BrandLogo size={22} showText={false} />
         </div>
+
+        <h1 className="topbar-page-title">{title}</h1>
       </div>
 
       <div className="app-topbar-right">
-        {/* Search Bar */}
-        <div className="topbar-search">
-          <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <input
-            type="search"
-            placeholder="Search skills, roles, metrics…"
-            className="topbar-search-input"
-            aria-label="Search within workspace"
-          />
-          <kbd className="search-kbd">⌘K</kbd>
-        </div>
+        {/* Instant Theme Toggle */}
+        <ThemeToggle />
 
-        {/* Notifications Dropdown */}
-        <div className="notification-wrapper">
+        {/* Global Search Shortcut */}
+        <div className="hidden sm:flex items-center">
           <button
             type="button"
-            className={`topbar-icon-btn ${unreadCount > 0 ? 'has-badge' : ''}`}
+            className="topbar-search-btn"
+            onClick={() => alert('Search command palette: Type to find any skill, role, or interview drill.')}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <span>Search workspace…</span>
+            <kbd className="topbar-kbd">⌘K</kbd>
+          </button>
+        </div>
+
+        {/* Notifications Popover */}
+        <div className="relative">
+          <button
+            type="button"
+            className="topbar-icon-btn"
             onClick={() => {
               setShowNotifications(!showNotifications);
               if (unreadCount > 0) setUnreadCount(0);
             }}
-            title="Notifications"
-            aria-label="View notifications"
-            aria-expanded={showNotifications}
+            aria-label="Notifications"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
-            {unreadCount > 0 && <span className="notif-badge-dot" />}
+            {unreadCount > 0 && <span className="notification-dot" />}
           </button>
 
           {showNotifications && (
-            <div className="notification-popover">
-              <div className="popover-header">
-                <h3>Notifications</h3>
-                <span className="popover-tag">Activity</span>
+            <div className="popover-card">
+              <div className="p-3 border-b border-[var(--border-subtle)] flex items-center justify-between">
+                <span className="text-xs font-bold text-[var(--text-primary)]">Notifications</span>
+                <span className="badge badge-mono text-[9px]">Activity Stream</span>
               </div>
-              <div className="popover-list">
-                {notifications.map((item) => (
-                  <div key={item.id} className="popover-item">
-                    <div className="popover-item-dot" />
-                    <div className="popover-item-content">
-                      <div className="popover-item-header">
-                        <strong>{item.title}</strong>
-                        <span>{item.time}</span>
-                      </div>
-                      <p>{item.text}</p>
+              <div className="divide-y divide-[var(--border-subtle)] max-h-72 overflow-y-auto">
+                {notifications.map((n) => (
+                  <div key={n.id} className="p-3 text-xs flex flex-col gap-1 hover:bg-[var(--bg-subtle)] transition-colors">
+                    <div className="flex items-center justify-between">
+                      <strong className="text-[var(--text-primary)]">{n.title}</strong>
+                      <span className="text-[10px] text-[var(--text-muted)]">{n.time}</span>
                     </div>
+                    <p className="text-[var(--text-secondary)] leading-relaxed">{n.text}</p>
                   </div>
                 ))}
               </div>
@@ -101,15 +102,17 @@ export function AppHeader({ onToggleSidebar, title = "Hey, let's make progress."
           )}
         </div>
 
-        {/* User Profile Pill */}
-        <NavLink to="/profile" className="profile-chip" title="Go to profile">
-          <div className="avatar-chip">
-            <span>KS</span>
+        {/* User Pill */}
+        <NavLink
+          to="/profile"
+          className="flex items-center gap-2 p-1.5 pr-3 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-default)] hover:border-[var(--border-strong)] transition-all"
+        >
+          <div className="w-6 h-6 rounded-full bg-[var(--text-primary)] text-[var(--text-inverse)] font-bold text-[10px] flex items-center justify-center">
+            KS
           </div>
-          <span className="profile-chip-name">Kunal Sharma</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
+          <span className="text-xs font-semibold text-[var(--text-primary)] hidden md:inline">
+            Kunal Sharma
+          </span>
         </NavLink>
       </div>
     </header>
