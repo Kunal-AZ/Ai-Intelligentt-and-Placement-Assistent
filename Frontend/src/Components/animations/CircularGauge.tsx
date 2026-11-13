@@ -24,7 +24,7 @@ export function CircularGauge({
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    let startScore = displayScore;
+    const startScore = displayScore;
     const duration = 750;
     const startTime = performance.now();
 

@@ -44,3 +44,30 @@ export async function saveDeclaredSkills(
   }
   return saved;
 }
+
+/**
+ * Stores skills identified by the resume agent separately from self-reported
+ * skills.  This distinction matters: a resume supports that a skill was
+ * claimed in a document, but it is not proof of a particular proficiency.
+ */
+export async function saveResumeSkills(userId: string, resumeId: string, skills: string[]) {
+  const uniqueSkills = [...new Map(skills.map((name) => [canonicalSkillName(name), name.trim()])).values()]
+    .filter(Boolean)
+    .slice(0, 50);
+  const saved = [];
+  for (const name of uniqueSkills) {
+    const canonicalName = canonicalSkillName(name);
+    const skill = await Skill.findOneAndUpdate(
+      { userId, canonicalName },
+      { $setOnInsert: { userId, canonicalName }, $set: { displayName: name } },
+      { new: true, upsert: true, runValidators: true },
+    );
+    await SkillEvidence.findOneAndUpdate(
+      { userId, skillId: skill._id, source: 'RESUME', sourceRef: resumeId },
+      { $set: { summary: 'Identified in the analyzed resume.' } },
+      { new: true, upsert: true, runValidators: true },
+    );
+    saved.push(skill);
+  }
+  return saved;
+}

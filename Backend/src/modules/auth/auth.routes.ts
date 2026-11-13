@@ -4,7 +4,7 @@ import rateLimit from 'express-rate-limit';
 import { env } from '../../config/env.js';
 import { Profile } from '../profile/profile.model.js';
 import { loginSchema, registerSchema } from './auth.schemas.js';
-import { authenticate, register, revokeRefreshToken, rotateRefreshToken } from './auth.service.js';
+import { authenticate, issueTokenPairForUserId, register, revokeRefreshToken, rotateRefreshToken } from './auth.service.js';
 
 export const authRouter = Router();
 const refreshCookieName = 'placement_refresh';
@@ -27,7 +27,8 @@ authRouter.post('/register', authenticationLimiter, async (request, response, ne
     const input = registerSchema.parse(request.body);
     const result = await register(input.email, input.password, input.firstName);
     await Profile.create({ userId: result.user.id, firstName: result.firstName });
-    response.status(201).json({ success: true, data: { user: result.user } });
+    const tokens = await issueTokenPairForUserId(result.user.id);
+    response.status(201).json({ success: true, data: { user: result.user, accessToken: sendSession(response, tokens) } });
   } catch (error) { next(error); }
 });
 

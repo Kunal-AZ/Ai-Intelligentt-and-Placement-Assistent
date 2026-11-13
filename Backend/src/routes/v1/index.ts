@@ -9,6 +9,7 @@ import { knowledgeRouter } from '../../modules/knowledge/knowledge.routes.js';
 import { chatRouter } from '../../modules/chat/chat.routes.js';
 import { jobRouter } from '../../modules/jobs/job.routes.js';
 import { interviewRouter } from '../../modules/interviews/interview.routes.js';
+import { aiRouter } from '../../modules/ai/ai.routes.js';
 import { healthRouter } from './health.routes.js';
 
 export const v1Router = Router();
@@ -22,4 +23,5 @@ v1Router.use('/knowledge', knowledgeRouter);
 v1Router.use('/chat', chatRouter);
 v1Router.use('/jobs', jobRouter);
 v1Router.use('/interviews', interviewRouter);
+v1Router.use('/ai', aiRouter);
 v1Router.use('/', recommendationRouter);

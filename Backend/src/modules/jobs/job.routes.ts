@@ -7,11 +7,45 @@ import { getSkillSignals } from '../skills/skill.service.js';
 import { Company } from './company.model.js';
 import { Job } from './job.model.js';
 import { JobMatch } from './job-match.model.js';
-import { createCompanySchema, createJobSchema, matchJobSchema } from './job.schemas.js';
+import { createCompanySchema, createJobSchema, liveJobsQuerySchema, matchJobSchema } from './job.schemas.js';
+import { getLiveJobs } from './live-job.service.js';
 
 export const jobRouter = Router();
 jobRouter.use(requireAuthentication);
-jobRouter.get('/', async (_request, response, next) => { try { response.status(200).json({ success: true, data: { jobs: await Job.find({ isActive: true }).sort({ createdAt: -1 }).populate('companyId', 'name website industry').lean() } }); } catch (error) { next(error); } });
+jobRouter.get('/live', async (request, response, next) => {
+  try {
+    const input = liveJobsQuerySchema.parse(request.query);
+    const [live, analysis, signals] = await Promise.all([
+      getLiveJobs(input.query, input.country),
+      ResumeAnalysis.findOne({ userId: request.auth!.userId }).sort({ updatedAt: -1 }).lean(),
+      getSkillSignals(request.auth!.userId),
+    ]);
+    response.status(200).json({ success: true, data: {
+      ...live,
+      jobs: live.jobs.map((job) => ({ ...job, matchPreview: analyzeJobMatch(job, signals, analysis?.analysis.skills ?? []) })),
+    } });
+  } catch (error) { next(error); }
+});
+jobRouter.get('/', async (request, response, next) => {
+  try {
+    const [jobs, analysis, signals] = await Promise.all([
+      Job.find({ isActive: true }).sort({ createdAt: -1 }).populate('companyId', 'name website industry').lean(),
+      ResumeAnalysis.findOne({ userId: request.auth!.userId }).sort({ updatedAt: -1 }).lean(),
+      getSkillSignals(request.auth!.userId),
+    ]);
+    // Previews let the openings list be ranked from the candidate's current
+    // profile/resume evidence without requiring a separate click per job.
+    const jobsWithPreviews = jobs.map((job) => ({
+      ...job,
+      matchPreview: analyzeJobMatch(job, signals, analysis?.analysis.skills ?? []),
+    })).sort((left, right) => {
+      const leftCoverage = left.matchPreview.requiredSkillCoverage;
+      const rightCoverage = right.matchPreview.requiredSkillCoverage;
+      return (rightCoverage.required ? rightCoverage.evidenced / rightCoverage.required : 1) - (leftCoverage.required ? leftCoverage.evidenced / leftCoverage.required : 1);
+    });
+    response.status(200).json({ success: true, data: { jobs: jobsWithPreviews } });
+  } catch (error) { next(error); }
+});
 jobRouter.post('/companies', requireRole('ADMIN'), async (request, response, next) => { try { response.status(201).json({ success: true, data: { company: await Company.create(createCompanySchema.parse(request.body)) } }); } catch (error) { next(error); } });
 jobRouter.post('/', requireRole('ADMIN'), async (request, response, next) => { try { const input = createJobSchema.parse(request.body); const company = await Company.exists({ _id: input.companyId }); if (!company) throw new AppError(404, 'COMPANY_NOT_FOUND', 'Company was not found.'); response.status(201).json({ success: true, data: { job: await Job.create({ ...input, createdBy: request.auth!.userId }) } }); } catch (error) { next(error); } });
 jobRouter.post('/match', async (request, response, next) => {

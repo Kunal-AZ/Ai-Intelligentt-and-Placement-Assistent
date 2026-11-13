@@ -12,12 +12,16 @@ const environmentSchema = z.object({
   JWT_REFRESH_TTL_DAYS: z.coerce.number().int().positive().max(30).default(7),
   UPLOAD_MAX_BYTES: z.coerce.number().int().positive().max(20 * 1024 * 1024).default(5 * 1024 * 1024),
   LOCAL_STORAGE_PATH: z.string().min(1).default('./uploads'),
-  EMBEDDING_API_KEY: z.string().trim().optional().transform((value) => value || undefined),
-  EMBEDDING_MODEL: z.string().min(1).default('text-embedding-3-small'),
-  EMBEDDING_DIMENSIONS: z.coerce.number().int().positive().max(4096).default(1536),
   ATLAS_VECTOR_INDEX: z.string().min(1).default('knowledge_vector_index'),
-  LLM_API_KEY: z.string().trim().optional().transform((value) => value || undefined),
-  LLM_MODEL: z.string().min(1).default('gpt-4.1-mini'),
+  GEMINI_API_KEY: z.string().trim().optional().transform((value) => value || undefined),
+  GEMINI_MODEL: z.string().min(1).default('gemini-flash-latest'),
+  GEMINI_EMBEDDING_MODEL: z.string().min(1).default('gemini-embedding-2'),
+  GEMINI_EMBEDDING_DIMENSIONS: z.coerce.number().int().min(128).max(3072).default(1536),
+  AI_SERVICE_URL: z.string().url().default('http://localhost:8000'),
+  AI_SERVICE_TIMEOUT_MS: z.coerce.number().int().positive().max(120_000).default(60_000),
+  ADZUNA_APP_ID: z.string().trim().optional().transform((value) => value || undefined),
+  ADZUNA_APP_KEY: z.string().trim().optional().transform((value) => value || undefined),
+  JOB_FETCH_TIMEOUT_MS: z.coerce.number().int().positive().max(30_000).default(10_000),
 });
 
 export type Environment = z.infer<typeof environmentSchema>;

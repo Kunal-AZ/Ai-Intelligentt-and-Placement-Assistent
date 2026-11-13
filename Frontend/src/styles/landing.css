@@ -200,6 +200,35 @@
 }
 
 @media (max-width: 768px) {
+  .landing-section {
+    padding: 56px 16px;
+  }
+
+  .hero-terminal-header {
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .hero-terminal-header .terminal-dots,
+  .hero-terminal-header > .badge {
+    display: none;
+  }
+
+  .hero-terminal-header > div:last-of-type {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .hero-terminal-header button {
+    flex: 0 0 auto;
+  }
+
+  .terminal-body {
+    padding: 16px;
+  }
+
   .comparison-grid {
     grid-template-columns: 1fr;
   }

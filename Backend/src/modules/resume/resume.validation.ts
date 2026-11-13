@@ -11,7 +11,7 @@ const pdfMagic = Buffer.from('%PDF-');
 const zipMagic = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
 
 function safeFileName(fileName: string): string {
-  const baseName = path.basename(fileName).replace(/[\u0000-\u001f<>:"/\\|?*]/g, '_').trim();
+  const baseName = path.basename(fileName).replace(/[\p{Cc}<>:"/\\|?*]/gu, '_').trim();
   return baseName.slice(0, 180) || 'resume';
 }
 

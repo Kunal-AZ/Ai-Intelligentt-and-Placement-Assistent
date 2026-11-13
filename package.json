@@ -1,6 +1,7 @@
 {
   "name": "placement-assistant",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "description": "AI-powered intelligent placement and career assistant",
   "workspaces": ["packages/*", "Backend", "Frontend"],
@@ -10,12 +11,14 @@
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run build"
   },
   "engines": { "node": ">=22.0.0", "npm": ">=10.0.0" },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
     "eslint": "^9.34.0",
+    "typescript": "5.9.3",
     "typescript-eslint": "^8.41.0"
   }
 }

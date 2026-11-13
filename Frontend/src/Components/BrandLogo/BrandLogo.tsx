@@ -7,7 +7,7 @@ export interface BrandLogoProps {
   showText?: boolean;
   /** Optional badge text, e.g. 'AI 2.0' */
   badge?: string;
-  /** Optional subtitle below the brand title, e.g. 'By Kunal Sharma' */
+  /** Optional subtitle below the brand title. */
   subtitle?: string;
   /** Whether sidebar is in collapsed icon-only mode */
   isCollapsed?: boolean;

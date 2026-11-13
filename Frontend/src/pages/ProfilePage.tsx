@@ -21,22 +21,9 @@ interface UserProfile {
 }
 
 const DEFAULT_PROFILE: UserProfile = {
-  firstName: 'Kunal',
-  lastName: 'Sharma',
-  email: 'kunal.sharma@placement.edu',
-  university: 'National Institute of Technology',
-  degree: 'B.Tech in Computer Science & Engineering',
-  gradYear: '2025',
-  cgpa: '8.9 / 10.0',
-  targetRole: 'Backend Systems Engineer (SDE-1)',
-  secondaryRole: 'Full-Stack Software Engineer',
-  expectedLpa: '₹18 - ₹28 LPA',
-  githubUrl: 'https://github.com/kunal-sharma',
-  linkedinUrl: 'https://linkedin.com/in/kunal-sharma',
-  portfolioUrl: 'https://kunalsharma.dev',
-  allowRecruiterSharing: true,
-  notifyJobMatches: true,
-  notifyRoadmapReminders: true,
+  firstName: '', lastName: '', email: '', university: '', degree: '', gradYear: '', cgpa: '',
+  targetRole: '', secondaryRole: '', expectedLpa: '', githubUrl: '', linkedinUrl: '', portfolioUrl: '',
+  allowRecruiterSharing: false, notifyJobMatches: false, notifyRoadmapReminders: false,
 };
 
 export function ProfilePage() {
@@ -48,12 +35,12 @@ export function ProfilePage() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const res = await api<{ profile: Partial<UserProfile> }>('/profile');
+        const res = await api<{ profile: Partial<UserProfile> & { college?: string; graduationYear?: number; targetRoles?: string[] } }>('/profile');
         if (res?.profile) {
-          setProfile((prev) => ({ ...prev, ...res.profile }));
+          setProfile((prev) => ({ ...prev, ...res.profile, university: res.profile.college ?? prev.university, gradYear: res.profile.graduationYear?.toString() ?? prev.gradYear, targetRole: res.profile.targetRoles?.[0] ?? prev.targetRole }));
         }
       } catch {
-        // use default profile
+        // Keep the neutral, empty form state when no profile exists yet.
       }
     }
     fetchProfile();
@@ -67,27 +54,21 @@ export function ProfilePage() {
     try {
       await api('/profile', {
         method: 'PUT',
-        body: JSON.stringify(profile),
-      }).catch(() => undefined);
-
-      setTimeout(() => {
-        setIsSaving(false);
-        setSaveStatus('✓ Profile changes saved to secure evidence vault.');
-      }, 600);
+        body: JSON.stringify({
+          firstName: profile.firstName, lastName: profile.lastName, college: profile.university, degree: profile.degree,
+          cgpa: profile.cgpa, graduationYear: profile.gradYear ? Number(profile.gradYear) : undefined,
+          targetRoles: profile.targetRole ? [profile.targetRole] : [], secondaryRole: profile.secondaryRole,
+          expectedLpa: profile.expectedLpa, githubUrl: profile.githubUrl, linkedinUrl: profile.linkedinUrl,
+          portfolioUrl: profile.portfolioUrl, allowRecruiterSharing: profile.allowRecruiterSharing,
+          notifyJobMatches: profile.notifyJobMatches, notifyRoadmapReminders: profile.notifyRoadmapReminders,
+        }),
+      });
+      setIsSaving(false);
+      setSaveStatus(profile.targetRole ? 'Profile saved. Job matches, skill gaps, roadmap, and interviews now use this target role.' : 'Profile changes saved. Select a target role to personalise jobs, gaps, and roadmap.');
     } catch {
       setIsSaving(false);
-      setSaveStatus('✓ Saved locally.');
+      setSaveStatus('Unable to save profile changes. Please try again.');
     }
-  }
-
-  function handleExportDossier() {
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(profile, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', `HiPlacement_Evidence_Dossier_${profile.firstName}_${profile.lastName}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
   }
 
   return (
@@ -102,16 +83,6 @@ export function ProfilePage() {
           <p className="text-sm text-[var(--text-secondary)] mt-0.5">Manage your profile and preferences.</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={handleExportDossier}
-            title="Download verified candidate dossier"
-          >
-            <span>📥 Export Dossier JSON</span>
-          </button>
-        </div>
       </div>
 
       {/* ── Tabs Navigation ────────────────────────────────────── */}
@@ -174,9 +145,8 @@ export function ProfilePage() {
                 <input
                   type="email"
                   value={profile.email}
-                  onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                   className="form-input"
-                  required
+                    readOnly
                 />
               </div>
 
@@ -263,10 +233,10 @@ export function ProfilePage() {
                 onChange={(e) => setProfile({ ...profile, targetRole: e.target.value })}
                 className="form-select font-semibold"
               >
-                <option value="Backend Systems Engineer (SDE-1)">Backend Systems Engineer (SDE-1)</option>
-                <option value="Full-Stack Software Engineer">Full-Stack Software Engineer</option>
-                <option value="AI & Generative Systems Engineer">AI &amp; Generative Systems Engineer</option>
-                <option value="DevOps & Cloud Systems Engineer">DevOps &amp; Cloud Systems Engineer</option>
+                <option value="">Select a target role</option>
+                <option value="Backend Developer">Backend Developer</option>
+                <option value="Frontend Developer">Frontend Developer</option>
+                <option value="Data Analyst">Data Analyst</option>
               </select>
             </div>
 
@@ -277,9 +247,10 @@ export function ProfilePage() {
                 onChange={(e) => setProfile({ ...profile, secondaryRole: e.target.value })}
                 className="form-select"
               >
-                <option value="Full-Stack Software Engineer">Full-Stack Software Engineer</option>
-                <option value="Backend Systems Engineer (SDE-1)">Backend Systems Engineer (SDE-1)</option>
-                <option value="AI & Generative Systems Engineer">AI &amp; Generative Systems Engineer</option>
+                <option value="">No secondary track</option>
+                <option value="Backend Developer">Backend Developer</option>
+                <option value="Frontend Developer">Frontend Developer</option>
+                <option value="Data Analyst">Data Analyst</option>
               </select>
             </div>
 

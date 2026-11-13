@@ -7,17 +7,34 @@ Phase 6 foundation for an AI-powered placement and career platform.
 - `Frontend`: React + TypeScript client
 - `Backend`: Express API and BullMQ worker runtime
 - `packages`: shared types, validation, configuration, database, and AI contracts
-- `docker-compose.yml`: local web, API, worker, MongoDB, and Redis services
+- `Multi-agent AI/backend`: protected FastAPI/LangGraph agent service
+- `docker-compose.yml`: local web, API, worker, FastAPI AI service, MongoDB, and Redis services
 
 ## Local development
 
-1. Copy `.env.example` to `.env` and replace the secret placeholders with values of at least 32 characters.
+1. Copy the single root `.env.example` to `.env`, set `GEMINI_API_KEY`, and replace the JWT secret placeholders with values of at least 32 characters.
 2. Install dependencies with `npm install` at the repository root.
 3. Start MongoDB and Redis: `docker compose up mongodb redis`.
-4. In two terminals, run `npm run dev:api` and `npm run dev:web`.
-5. Visit `http://localhost:5173`; API health is at `http://localhost:4000/api/v1/health`.
+4. In three terminals, run `npm run dev:api`, `npm run worker --workspace=@placement-assistant/api`, and `npm run dev:web`.
+5. In a fourth terminal, from `Multi-agent AI/backend`, run `python -m uvicorn main:app --reload --port 8000`.
+6. Visit `http://localhost:5173`; API health is at `http://localhost:4000/api/v1/health`.
 
-Run `npm run typecheck`, `npm run lint`, and `npm run build` before merging changes.
+Run `npm run verify` (runs `typecheck`, `lint`, `test`, and `build`) or `npm test` before pushing changes.
+
+## Verification and CI/CD Pipeline
+
+The repository features a unified multi-service CI workflow (`.github/workflows/ci.yml`):
+- **Node.js Quality**: Runs across all workspaces (`packages/*`, `Backend`, `Frontend`) with strict type-checking, ESLint validation, Vitest unit tests, and production artifact builds.
+- **Python Quality**: Validates the Multi-Agent AI service (`Multi-agent AI/backend`) by compiling the 8-node LangGraph workflow, verifying 18 registered REST endpoints, and testing all 5 failure/exception scenarios.
+- **Docker Compose Validation**: Ensures Docker service definitions, networks, volumes, health checks, and build contexts remain syntactically sound.
+
+## Environment configuration
+
+The root `.env` is the single runtime configuration file for the Express API, BullMQ worker, Docker Compose services, and FastAPI service. `GEMINI_API_KEY` is server-only: do not put it in a `VITE_*` variable or any frontend file. The Express API reaches FastAPI through `AI_SERVICE_URL`; the browser never calls FastAPI or Gemini directly.
+
+## Multi-agent AI integration
+
+Authenticated users access the protected FastAPI system only through Express: `POST /api/v1/ai/workflow`, `/api/v1/ai/interview/questions`, `/api/v1/ai/interview/evaluate`, and `/api/v1/ai/careers`. Configure `AI_SERVICE_URL` and `AI_SERVICE_TIMEOUT_MS`; for Docker Compose, the API automatically uses `http://ai-service:8000`.
 
 ## Phase 2 API
 
@@ -33,11 +50,11 @@ Declare skills with `PUT /api/v1/skills`, select a supported target role in the 
 
 ## Phase 4 Resume Agent
 
-After text extraction is `READY`, call `POST /api/v1/resumes/:id/analyze`, then retrieve a validated stored analysis from `GET /api/v1/resumes/:id/analysis`. Configure `LLM_API_KEY` and `LLM_MODEL`; no analysis is fabricated when the provider is unavailable.
+After text extraction is `READY`, call `POST /api/v1/resumes/:id/analyze`, then retrieve a validated stored analysis from `GET /api/v1/resumes/:id/analysis`. Configure `GEMINI_API_KEY` and `GEMINI_MODEL`; no analysis is fabricated when the provider is unavailable.
 
 ## Phase 6 RAG setup
 
-Set `EMBEDDING_API_KEY` to an OpenAI-compatible embeddings key, then create the Atlas Vector Search index described in [mongodb-vector-index.json](docs/ai/mongodb-vector-index.json). An ADMIN can queue knowledge documents at `POST /api/v1/knowledge/documents`; authenticated requests to `POST /api/v1/knowledge/search` retrieve source-attributed chunks.
+Gemini embeddings use the same `GEMINI_API_KEY`; configure `GEMINI_EMBEDDING_MODEL` and `GEMINI_EMBEDDING_DIMENSIONS`, then create the Atlas Vector Search index described in [mongodb-vector-index.json](docs/ai/mongodb-vector-index.json). An ADMIN can queue knowledge documents at `POST /api/v1/knowledge/documents`; authenticated requests to `POST /api/v1/knowledge/search` retrieve source-attributed chunks.
 
 ## Phase 7 AI career chat
 

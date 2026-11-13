@@ -14,6 +14,8 @@ export interface ResumeDocument {
   analysisStatus: 'NOT_REQUESTED' | 'QUEUED' | 'PROCESSING' | 'READY' | 'FAILED';
   analysisErrorCode?: string;
   latestAnalysisId?: Schema.Types.ObjectId;
+  workflowReport?: Record<string, unknown>;
+  workflowCompletedAt?: Date;
   extractedText?: string;
   processingErrorCode?: string;
   processedAt?: Date;
@@ -33,6 +35,8 @@ const resumeSchema = new Schema<ResumeDocument>(
     analysisStatus: { type: String, required: true, enum: ['NOT_REQUESTED', 'QUEUED', 'PROCESSING', 'READY', 'FAILED'], default: 'NOT_REQUESTED', index: true },
     analysisErrorCode: { type: String, maxlength: 80 },
     latestAnalysisId: { type: Schema.Types.ObjectId, ref: 'ResumeAnalysis' },
+    workflowReport: { type: Schema.Types.Mixed },
+    workflowCompletedAt: { type: Date },
     extractedText: { type: String, maxlength: 100000, select: false },
     processingErrorCode: { type: String, maxlength: 80 },
     processedAt: { type: Date },

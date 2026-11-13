@@ -1,11 +1,33 @@
+# Node
 node_modules/
 dist/
 coverage/
+*.tsbuildinfo
+
+# Python
+venv/
+.venv/
+**/venv/
+**/.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Environment
 .env
 .env.*
 !.env.example
+
+# Runtime & Uploads
 uploads/
 *.log
+vite-preview.*.log
+
+# Operating Systems & IDEs
 .DS_Store
 .idea/
 .vscode/*

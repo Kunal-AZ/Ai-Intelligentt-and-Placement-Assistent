@@ -42,9 +42,15 @@ async function issueTokenPair(user: UserDocument): Promise<TokenPair> {
   return { accessToken, refreshToken };
 }
 
+export async function issueTokenPairForUserId(userId: string): Promise<TokenPair> {
+  const user = await User.findById(userId);
+  if (!user) throw new AppError(404, 'USER_NOT_FOUND', 'The account could not be found.');
+  return issueTokenPair(user);
+}
+
 export async function register(email: string, password: string, firstName?: string) {
   const existingUser = await User.exists({ email });
-  if (existingUser) throw new AppError(409, 'EMAIL_IN_USE', 'An account with this email already exists.');
+  if (existingUser) throw new AppError(409, 'EMAIL_IN_USE', 'This email is already registered. Please sign in instead.');
 
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await User.create({ email, passwordHash, passwordChangedAt: new Date() });

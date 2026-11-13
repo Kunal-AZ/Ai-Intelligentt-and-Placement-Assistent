@@ -1,7 +1,17 @@
 **/node_modules
 **/dist
+**/venv
+**/.venv
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache
+*.tsbuildinfo
 .git
 .env
+.env.*
+!.env.example
 coverage
 *.log
 SRS.pdf

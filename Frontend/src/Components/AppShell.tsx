@@ -10,13 +10,12 @@ export function AppShell() {
 
   const pageNames: Record<string, string> = {
     '/dashboard': 'Command Center',
-    '/architecture': 'Platform Architecture',
     '/resume': 'Resume Studio & ATS Audit',
     '/skills': 'Skill Evidence & Gaps',
     '/careers': 'Skill Evidence & Gaps',
-    '/jobs': 'Verified Job Recommendations',
+    '/jobs': 'Job Matches',
     '/interviews': 'AI Mock Interviews',
-    '/roadmap': '30-Day Placement Roadmap',
+    '/roadmap': 'Learning Roadmap',
     '/profile': 'Student Profile & Settings',
     '/chat': 'AI Career Coach',
   };

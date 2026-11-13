@@ -4,7 +4,7 @@ COPY package.json tsconfig.base.json ./
 COPY Backend/package.json Backend/package.json
 COPY packages ./packages
 COPY Backend ./Backend
-RUN npm install --workspaces --include-workspace-root && npm run build --workspace=@placement-assistant/api
+RUN npm install --workspaces --include-workspace-root && npm run build --workspaces --if-present
 
 FROM node:22-alpine
 WORKDIR /app

@@ -12,6 +12,7 @@ import { Resume } from './resume.model.js';
 import { ResumeAnalysis } from './resume-analysis.model.js';
 import { deleteResume, readResume, storeResume } from './resume.storage.js';
 import { validateResumeFile } from './resume.validation.js';
+import { extractResumeText } from './resume-extractor.js';
 
 export const resumeRouter = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: env.UPLOAD_MAX_BYTES, files: 1, fields: 4 } });
@@ -28,6 +29,15 @@ resumeRouter.post('/', uploadOne('resume'), async (request, response, next) => {
   try {
     const file = validateResumeFile(request.file);
     storageKey = await storeResume(request.file!.buffer, file.extension);
+
+    // Attempt direct synchronous extraction for instant readiness
+    let extractedText: string | undefined;
+    try {
+      extractedText = await extractResumeText(file.mimeType, request.file!.buffer);
+    } catch {
+      // Fallback to background worker processing
+    }
+
     const resume = await Resume.create({
       userId: request.auth!.userId,
       originalFileName: file.originalFileName,
@@ -35,9 +45,29 @@ resumeRouter.post('/', uploadOne('resume'), async (request, response, next) => {
       sizeBytes: request.file!.size,
       sha256: crypto.createHash('sha256').update(request.file!.buffer).digest('hex'),
       storageKey,
+      extractedText: extractedText || undefined,
+      // `UPLOADED` is the queued state accepted by the model.  `PENDING` is
+      // not part of the schema enum and caused every resume whose synchronous
+      // extraction failed to be rejected by Mongoose before it could be queued.
+      processingStatus: extractedText ? 'READY' : 'UPLOADED',
+      processedAt: extractedText ? new Date() : undefined,
     });
     resumeId = resume._id.toString();
-    await enqueueResumeProcessing({ resumeId: resume._id.toString(), userId: request.auth!.userId });
+
+    if (!extractedText) {
+      try {
+        await enqueueResumeProcessing({ resumeId: resume._id.toString(), userId: request.auth!.userId });
+      } catch {
+        // Do not leave the resume in an indefinite "uploaded" state when
+        // Redis is unavailable. The client can now report a meaningful error
+        // rather than polling until it times out.
+        await Resume.updateOne(
+          { _id: resume._id },
+          { processingStatus: 'FAILED', processingErrorCode: 'RESUME_QUEUE_UNAVAILABLE' },
+        );
+        resume.processingStatus = 'FAILED';
+      }
+    }
     response.status(202).json({ success: true, data: { resume: { id: resume._id, processingStatus: resume.processingStatus } } });
   } catch (error) {
     if (storageKey) await deleteResume(storageKey).catch(() => undefined);

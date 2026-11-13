@@ -6,6 +6,11 @@ services:
       - '27017:27017'
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -15,6 +20,25 @@ services:
       - '6379:6379'
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ai-service:
+    build:
+      context: ./Multi-agent AI
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      MONGODB_URL: mongodb://mongodb:27017
+      MONGODB_DATABASE: placement_assistant
+    ports:
+      - '8000:8000'
+    depends_on:
+      mongodb:
+        condition: service_healthy
 
   api:
     build:
@@ -24,11 +48,16 @@ services:
     environment:
       MONGODB_URI: mongodb://mongodb:27017/placement_assistant
       REDIS_URL: redis://redis:6379
+      AI_SERVICE_URL: http://ai-service:8000
     ports:
       - '4000:4000'
     depends_on:
-      - mongodb
-      - redis
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
     volumes:
       - resume-uploads:/app/Backend/uploads
 
@@ -42,8 +71,10 @@ services:
       MONGODB_URI: mongodb://mongodb:27017/placement_assistant
       REDIS_URL: redis://redis:6379
     depends_on:
-      - mongodb
-      - redis
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - resume-uploads:/app/Backend/uploads
 

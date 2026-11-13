@@ -1,14 +1,15 @@
 import { Suspense, lazy } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AppShell } from './Components/AppShell';
+import { hasAccessToken } from './lib/api';
 
 // Lazy-load route pages to enable route-level code splitting and minimize initial bundle size
 const LandingPage = lazy(() => import('./pages/LandingPage').then((m) => ({ default: m.LandingPage })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const DashboardPage = lazy(() => import('./pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
-const ArchitecturePage = lazy(() => import('./pages/ArchitecturePage').then((m) => ({ default: m.ArchitecturePage })));
 const ResumeStudioPage = lazy(() => import('./pages/ResumeStudioPage').then((m) => ({ default: m.ResumeStudioPage })));
 const SkillEvidencePage = lazy(() => import('./pages/SkillEvidencePage').then((m) => ({ default: m.SkillEvidencePage })));
+const CareerRecommendationsPage = lazy(() => import('./pages/CareerRecommendationsPage').then((m) => ({ default: m.CareerRecommendationsPage })));
 const JobMatchesPage = lazy(() => import('./pages/JobMatchesPage').then((m) => ({ default: m.JobMatchesPage })));
 const MockInterviewsPage = lazy(() => import('./pages/MockInterviewsPage').then((m) => ({ default: m.MockInterviewsPage })));
 const LearningRoadmapPage = lazy(() => import('./pages/LearningRoadmapPage').then((m) => ({ default: m.LearningRoadmapPage })));
@@ -24,6 +25,11 @@ function RouteLoader() {
   );
 }
 
+function RequireAuthentication() {
+  const location = useLocation();
+  return hasAccessToken() ? <AppShell /> : <Navigate to="/login" replace state={{ from: location }} />;
+}
+
 export default function App() {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -35,12 +41,11 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
 
         {/* Protected shell routes */}
-        <Route element={<AppShell />}>
+        <Route element={<RequireAuthentication />}>
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/architecture" element={<ArchitecturePage />} />
           <Route path="/resume" element={<ResumeStudioPage />} />
           <Route path="/skills" element={<SkillEvidencePage />} />
-          <Route path="/careers" element={<SkillEvidencePage />} />
+          <Route path="/careers" element={<CareerRecommendationsPage />} />
           <Route path="/jobs" element={<JobMatchesPage />} />
           <Route path="/interviews" element={<MockInterviewsPage />} />
           <Route path="/roadmap" element={<LearningRoadmapPage />} />

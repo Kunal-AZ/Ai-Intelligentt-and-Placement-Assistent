@@ -1,263 +1,71 @@
-import { useState, useRef, type ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 
-interface CategoryScore {
-  name: string;
-  score: number;
-}
-
-const CATEGORIES: CategoryScore[] = [
-  { name: 'Formatting & Layout', score: 95 },
-  { name: 'Impact & Metrics', score: 84 },
-  { name: 'Technical Keywords', score: 92 },
-  { name: 'System Architecture', score: 81 },
-];
-
-const EXTRACTED_SKILLS = [
-  'Node.js', 'Express', 'TypeScript', 'Redis 7', 'BullMQ',
-  'MongoDB Atlas', 'Vector Search', 'Docker', 'PostgreSQL', 'Zod'
-];
+type WorkflowReport = {
+  status?: string; resume_quality_score?: number;
+  resume_analysis?: { summary?: string; extracted_skills?: string[]; strengths?: string[]; improvement_areas?: string[]; missing_skills?: string[]; roadmap?: Array<{ week: string; topic: string; description: string }> };
+  skill_gap_analysis?: { overall_recommendation?: string }; warnings?: string[] | null;
+};
+type Resume = { id: string; processingStatus: string };
+type StoredResume = { _id: string; workflowReport?: { final_report?: WorkflowReport; workflow_status?: string; resume_feedback?: string } };
 
 export function ResumeStudioPage() {
   const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [score, setScore] = useState<number>(88);
-  const [statusMsg, setStatusMsg] = useState('');
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [message, setMessage] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [report, setReport] = useState<WorkflowReport | null>(null);
 
-  function handleFileSelect(e: ChangeEvent<HTMLInputElement>) {
-    const selected = e.target.files?.[0] ?? null;
-    if (selected) {
-      setFile(selected);
-      setStatusMsg('');
+  useEffect(() => {
+    api<{ resumes: StoredResume[] }>('/resumes').then(({ resumes }) => {
+      const latest = resumes.find((resume) => resume.workflowReport);
+      if (!latest?.workflowReport) return;
+      setReport(latest.workflowReport.final_report ?? {
+        status: latest.workflowReport.workflow_status,
+        warnings: latest.workflowReport.resume_feedback ? [String(latest.workflowReport.resume_feedback)] : null,
+      });
+      setMessage('Showing your latest saved resume analysis.');
+    }).catch(() => undefined);
+  }, []);
+
+  async function waitForExtraction(id: string): Promise<void> {
+    for (let attempt = 0; attempt < 30; attempt += 1) {
+      const { resume } = await api<{ resume: { processingStatus: string } }>(`/resumes/${id}`);
+      if (resume.processingStatus === 'READY') return;
+      if (resume.processingStatus === 'FAILED') throw new Error('We could not extract text from this resume. Please upload a readable PDF or DOCX.');
+      await new Promise((resolve) => window.setTimeout(resolve, 1000));
     }
+    throw new Error('Resume extraction is still running. Please try the analysis again shortly.');
   }
 
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragging(false);
-    const dropped = e.dataTransfer.files?.[0];
-    if (dropped) {
-      setFile(dropped);
-      setStatusMsg('');
-    }
-  }
-
-  async function handleScan() {
+  async function handleAnalyze() {
     if (!file) return;
-    setIsUploading(true);
-    setStatusMsg('Running ATS evaluation…');
-
+    setBusy(true); setReport(null);
     try {
-      const formData = new FormData();
-      formData.append('resume', file);
-      await api('/resumes', { method: 'POST', body: formData }).catch(() => undefined);
-      setTimeout(() => {
-        setScore(91);
-        setStatusMsg('✓ Audit complete: 91/100');
-        setIsUploading(false);
-      }, 800);
-    } catch {
-      setTimeout(() => {
-        setScore(90);
-        setStatusMsg('✓ Diagnostic verified.');
-        setIsUploading(false);
-      }, 600);
-    }
+      setMessage('Uploading your resume…');
+      const form = new FormData(); form.append('resume', file);
+      const { resume } = await api<{ resume: Resume }>('/resumes', { method: 'POST', body: form });
+      setMessage('Extracting text from your resume…');
+      await waitForExtraction(resume.id);
+      setMessage('Running the multi-agent placement analysis…');
+      const { result, syncedSkills } = await api<{ result: { final_report?: WorkflowReport; workflow_status?: string; resume_feedback?: string }; syncedSkills: number }>('/ai/workflow', { method: 'POST', body: JSON.stringify({ resumeId: resume.id }) });
+      setReport(result.final_report ?? { status: result.workflow_status, warnings: result.resume_feedback ? [result.resume_feedback] : null });
+      setMessage(syncedSkills ? `Analysis complete. ${syncedSkills} resume skills were added to your evidence profile.` : 'Analysis complete.');
+    } catch (error) { setMessage(error instanceof Error ? error.message : 'The analysis could not be completed. Please try again.'); }
+    finally { setBusy(false); }
   }
 
-  function handleLoadSample() {
-    setScore(88);
-    setStatusMsg('✓ Sample SDE-1 Resume loaded.');
-  }
-
-  return (
-    <div className="resume-studio-page flex flex-col gap-6">
-      {/* ── Top Header ────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border-subtle)]">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="badge badge-success">ATS Model v4.8</span>
-          </div>
-          <h1 className="text-2xl font-black tracking-tight">Resume ATS Intelligence</h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button type="button" className="btn-secondary text-xs" onClick={handleLoadSample}>
-            Sample Resume
-          </button>
-          <button type="button" className="btn-primary text-xs" onClick={() => window.print()}>
-            Export Report ↗
-          </button>
-        </div>
-      </div>
-
-      {/* ── Visual Grid ───────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Upload Dropzone (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="card p-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-[var(--text-primary)]">Upload Document</span>
-              <span className="text-[var(--text-muted)] font-mono">PDF, DOCX</span>
-            </div>
-
-            <label
-              className={`upload-dropzone py-8 ${isDragging ? 'is-dragging' : ''} ${file ? 'has-file' : ''}`}
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.docx"
-                className="hidden"
-                onChange={handleFileSelect}
-                disabled={isUploading}
-              />
-              <div className="upload-icon-circle text-lg">
-                {file ? '📄' : '☁️'}
-              </div>
-
-              {file ? (
-                <div className="text-center">
-                  <p className="font-bold text-xs text-[var(--text-primary)]">{file.name}</p>
-                  <p className="text-[10px] text-[var(--text-muted)] mt-0.5">
-                    {(file.size / 1024).toFixed(0)} KB · Ready
-                  </p>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <p className="font-semibold text-xs text-[var(--text-primary)]">
-                    Drag &amp; drop resume file
-                  </p>
-                  <p className="text-[10px] text-[var(--text-muted)] mt-0.5">
-                    or click to browse
-                  </p>
-                </div>
-              )}
-            </label>
-
-            <button
-              type="button"
-              className="btn-primary w-full text-xs py-2.5"
-              disabled={!file || isUploading}
-              onClick={handleScan}
-            >
-              {isUploading ? 'Auditing…' : 'Run ATS Diagnostic Scan ⚡'}
-            </button>
-
-            {statusMsg && (
-              <p className="text-[11px] font-mono text-[var(--text-secondary)] text-center">
-                {statusMsg}
-              </p>
-            )}
-          </div>
-
-          {/* Extracted Skills Cloud */}
-          <div className="card p-5 flex flex-col gap-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-              Extracted Competencies
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {EXTRACTED_SKILLS.map((s) => (
-                <span key={s} className="badge badge-mono text-[10px]">
-                  {s}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Visual ATS Score & Categories (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
-          {/* Visual Score Card */}
-          <div className="card-hero p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex flex-col gap-2">
-              <span className="badge badge-mono">ATS Audit Outcome</span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-5xl font-black text-[var(--text-primary)]">{score}</span>
-                <span className="text-base text-[var(--text-muted)] font-bold">/ 100</span>
-              </div>
-              <span className="badge badge-success text-[10px]">Tier-1 Ready (Top 12%)</span>
-            </div>
-
-            {/* Circular Gauge */}
-            <div className="relative flex items-center justify-center w-28 h-28 shrink-0">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="var(--bg-subtle)" strokeWidth="8" fill="none" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  stroke="var(--text-primary)"
-                  strokeWidth="8"
-                  strokeDasharray="251"
-                  strokeDashoffset={251 - (251 * score) / 100}
-                  strokeLinecap="round"
-                  fill="none"
-                />
-              </svg>
-              <span className="absolute font-mono font-bold text-base text-[var(--text-primary)]">
-                {score}%
-              </span>
-            </div>
-          </div>
-
-          {/* 4 Category Progress Bars */}
-          <div className="card p-6 flex flex-col gap-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-              Diagnostic Rubrics
-            </span>
-
-            <div className="space-y-3">
-              {CATEGORIES.map((cat) => (
-                <div key={cat.name} className="flex flex-col gap-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-semibold text-[var(--text-primary)]">{cat.name}</span>
-                    <span className="font-mono font-bold text-[var(--text-primary)]">{cat.score}%</span>
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-[var(--bg-subtle)] overflow-hidden">
-                    <div
-                      className="h-full bg-[var(--text-primary)] rounded-full transition-all duration-500"
-                      style={{ width: `${cat.score}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Actionable Gaps Summary (Compact) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-3.5 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-[var(--status-success)] uppercase">
-                ✓ Verified Strength
-              </span>
-              <p className="text-xs font-semibold text-[var(--text-primary)]">
-                Redis BullMQ Concurrency
-              </p>
-              <p className="text-[11px] text-[var(--text-muted)]">
-                Quantified 42% latency reduction
-              </p>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-[var(--status-warning)] uppercase">
-                ▲ Recommended Fix
-              </span>
-              <p className="text-xs font-semibold text-[var(--text-primary)]">
-                Add Distributed Tracing
-              </p>
-              <p className="text-[11px] text-[var(--text-muted)]">
-                Cite OpenTelemetry or Prometheus
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+  return <div className="resume-studio-page flex flex-col gap-6">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border-subtle)]"><div><span className="badge badge-success">Multi-Agent Analysis</span><h1 className="text-2xl font-black tracking-tight mt-2">Resume Intelligence</h1><p className="text-sm text-[var(--text-muted)] mt-1">Upload a resume to receive grounded feedback, skill gaps, interview preparation, and a learning roadmap.</p></div></div>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <section className="card p-6 flex flex-col gap-4 lg:col-span-1"><label className="upload-dropzone py-8 cursor-pointer"><input type="file" accept=".pdf,.docx" className="hidden" disabled={busy} onChange={(event: ChangeEvent<HTMLInputElement>) => { setFile(event.target.files?.[0] ?? null); setMessage(''); }} /><div className="upload-icon-circle text-lg">{file ? '📄' : '☁️'}</div><div className="text-center"><p className="font-bold text-xs">{file?.name ?? 'Choose a PDF or DOCX resume'}</p><p className="text-[10px] text-[var(--text-muted)] mt-1">Maximum file size follows your account policy.</p></div></label><button className="btn-primary w-full" disabled={!file || busy} onClick={handleAnalyze}>{busy ? 'Analyzing…' : 'Run AI Analysis'}</button>{message && <p className="text-xs text-[var(--text-secondary)]" role="status">{message}</p>}</section>
+      <section className="card p-6 flex flex-col gap-5 lg:col-span-2">{!report ? <p className="text-sm text-[var(--text-muted)]">Your verified analysis will appear here after the workflow finishes.</p> : <><div className="flex items-center justify-between"><div><span className="badge badge-success">{report.status ?? 'COMPLETED'}</span><h2 className="text-lg font-bold mt-2">Placement readiness report</h2></div>{typeof report.resume_quality_score === 'number' && <span className="text-3xl font-black">{report.resume_quality_score}<span className="text-sm text-[var(--text-muted)]">/100</span></span>}</div>{report.resume_analysis?.summary && <p className="text-sm text-[var(--text-secondary)]">{report.resume_analysis.summary}</p>}<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs"><ResultList title="Strengths" items={report.resume_analysis?.strengths} /><ResultList title="Areas to improve" items={report.resume_analysis?.improvement_areas ?? report.resume_analysis?.missing_skills} /></div><ResultList title="Extracted skills" items={report.resume_analysis?.extracted_skills} tags />{report.resume_analysis?.roadmap?.length ? <div><h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">Learning roadmap</h3><div className="space-y-2">{report.resume_analysis.roadmap.map((step, index) => <div className="p-3 rounded-lg bg-[var(--bg-subtle)] text-xs" key={`${step.week}-${index}`}><strong>{step.week}: {step.topic}</strong><p className="text-[var(--text-muted)] mt-1">{step.description}</p></div>)}</div></div> : null}{report.skill_gap_analysis?.overall_recommendation && <p className="text-xs p-3 rounded-lg bg-[var(--bg-subtle)]"><strong>Recommendation: </strong>{report.skill_gap_analysis.overall_recommendation}</p>}{report.warnings?.length ? <ResultList title="Workflow notes" items={report.warnings} /> : null}</>}</section>
     </div>
-  );
+    {report && <div className="card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><h2 className="font-bold text-sm">Continue your placement plan</h2><p className="text-xs text-[var(--text-muted)] mt-1">Review openings ranked by your evidence, then generate a roadmap from the gaps in a role you choose.</p></div><div className="flex gap-2 shrink-0"><Link className="btn-secondary text-xs" to="/jobs">See matched jobs</Link><Link className="btn-primary text-xs" to="/roadmap">Open my roadmap</Link></div></div>}
+  </div>;
+}
+
+function ResultList({ title, items, tags = false }: { title: string; items?: string[]; tags?: boolean }) {
+  if (!items?.length) return null;
+  return <div><h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">{title}</h3>{tags ? <div className="flex flex-wrap gap-1">{items.map((item) => <span className="badge badge-mono" key={item}>{item}</span>)}</div> : <ul className="space-y-1 text-[var(--text-secondary)]">{items.map((item) => <li key={item}>• {item}</li>)}</ul>}</div>;
 }

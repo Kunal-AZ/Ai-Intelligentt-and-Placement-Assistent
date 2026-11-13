@@ -1,11 +1,12 @@
 import { FormEvent, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { api, setAccessToken } from '../lib/api';
 import { ThemeToggle } from '../Components/ThemeToggle';
 import { BrandLogo } from '../Components/BrandLogo';
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
 
   // Sign In fields
@@ -34,11 +35,10 @@ export function LoginPage() {
       setAccessToken(res.accessToken);
       navigate('/dashboard');
     } catch (err) {
-      // If server is not running or invalid credentials, provide helpful message but also demo shortcut
       setError(
         err instanceof Error
           ? err.message
-          : 'Unable to connect to authentication server. You can also click "Enter as Demo Student" below.'
+          : 'Unable to connect to the authentication server. Please try again.'
       );
     } finally {
       setIsLoading(false);
@@ -59,26 +59,24 @@ export function LoginPage() {
           firstName,
         }),
       });
-      if (res?.accessToken) {
-        setAccessToken(res.accessToken);
-      } else {
-        setAccessToken('demo-token');
-      }
-      navigate('/dashboard');
+      setAccessToken(res.accessToken);
+      navigate((location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/dashboard');
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Registration failed. You can also explore directly using "Enter as Demo Student".'
-      );
+      const msg = err instanceof Error ? err.message : 'Registration failed. Please try again.';
+      if (
+        msg.toLowerCase().includes('already exists') ||
+        msg.toLowerCase().includes('already registered') ||
+        msg.includes('409') ||
+        msg.includes('EMAIL_IN_USE')
+      ) {
+        setError('This email is already registered.');
+        setEmail(signupEmail);
+      } else {
+        setError(msg);
+      }
     } finally {
       setIsLoading(false);
     }
-  }
-
-  function handleDemoAccess() {
-    setAccessToken('demo_placement_student_session');
-    navigate('/dashboard');
   }
 
   return (
@@ -150,8 +148,21 @@ export function LoginPage() {
             </div>
 
             {error && (
-              <div className="p-3 rounded-lg bg-[var(--status-danger-bg)] border border-[var(--status-danger-border)] text-xs text-[var(--status-danger)]">
-                {error}
+              <div className="p-3 rounded-lg bg-[var(--status-danger-bg)] border border-[var(--status-danger-border)] text-xs text-[var(--status-danger)] flex items-center justify-between gap-2">
+                <span>{error}</span>
+                {authMode === 'signup' && (error.toLowerCase().includes('already') || error.toLowerCase().includes('registered')) && (
+                  <button
+                    type="button"
+                    className="underline font-bold text-xs whitespace-nowrap cursor-pointer hover:opacity-80"
+                    onClick={() => {
+                      setAuthMode('signin');
+                      setEmail(signupEmail);
+                      setError('');
+                    }}
+                  >
+                    Sign In Now →
+                  </button>
+                )}
               </div>
             )}
 
@@ -200,7 +211,7 @@ export function LoginPage() {
                       type="text"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Kunal"
+                      placeholder="Your first name"
                       className="form-input"
                       required
                     />
@@ -211,7 +222,7 @@ export function LoginPage() {
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Sharma"
+                      placeholder="Surname "
                       className="form-input"
                     />
                   </div>
@@ -235,7 +246,7 @@ export function LoginPage() {
                     type="password"
                     value={signupPassword}
                     onChange={(e) => setSignupPassword(e.target.value)}
-                    placeholder="Min 8 characters"
+                    placeholder="Min 6 characters"
                     className="form-input"
                     required
                   />
@@ -251,23 +262,9 @@ export function LoginPage() {
               </form>
             )}
 
-            {/* Quick Demo Access Divider */}
-            <div className="flex items-center gap-3 pt-3 border-t border-[var(--border-subtle)]">
-              <div className="h-px bg-[var(--border-subtle)] flex-1" />
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Instant Portfolio &amp; Recruiter Preview
-              </span>
-              <div className="h-px bg-[var(--border-subtle)] flex-1" />
-            </div>
-
-            <button
-              type="button"
-              className="btn-secondary w-full py-2.5 flex items-center justify-center gap-2"
-              onClick={handleDemoAccess}
-            >
-              <span>✦ Enter as Demo Student (1-Click Launch)</span>
-              <span>→</span>
-            </button>
+            <p className="pt-3 border-t border-[var(--border-subtle)] text-center text-xs text-[var(--text-muted)]">
+              Your workspace is private and saved to your account.
+            </p>
           </div>
         </div>
       </div>

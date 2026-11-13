@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
+import { api } from '../lib/api';
 
 interface ChatMessage {
   id: string;
@@ -19,9 +20,9 @@ const INITIAL_HISTORY: ChatMessage[] = [
   {
     id: 'msg-0',
     role: 'ai',
-    text: "Hello Kunal. I am your HiPlacement AI Career Coach. I am calibrated against your verified SDE-1 Backend profile, your 88 ATS resume score, and recorded competencies in Redis, Node.js, and MongoDB.\n\nHow can I help accelerate your placement readiness today?",
+    text: 'Welcome to HiPlacement AI Career Coach. Complete your profile, resume analysis, and learning activities to receive increasingly personalized guidance.\n\nHow can I help with your placement preparation today?',
     timestamp: 'Just now',
-    citations: ['Profile: SDE-1 Track', 'Resume ATS: 88/100', 'Evidence: Redis BullMQ'],
+    citations: ['HiPlacement Career Coach'],
   },
 ];
 
@@ -31,42 +32,21 @@ export function ChatPage() {
   const [isTyping, setIsTyping] = useState(false);
   const scrollEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const conversationId = useRef<string | null>(null);
+  const [connectionError, setConnectionError] = useState('');
 
   useEffect(() => {
     scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  function getAiResponse(query: string): { text: string; citations: string[] } {
-    const q = query.toLowerCase();
+  useEffect(() => {
+    api<{ conversation: { _id: string } }>('/chat/conversations', {
+      method: 'POST', body: JSON.stringify({ title: 'Career coaching' }),
+    }).then(({ conversation }) => { conversationId.current = conversation._id; })
+      .catch((error: unknown) => setConnectionError(error instanceof Error ? error.message : 'Unable to start the AI coach.'));
+  }, []);
 
-    if (q.includes('prioritize') || q.includes('this week') || q.includes('plan')) {
-      return {
-        text: "Based on your active 30-day roadmap and SDE-1 calibration, here are your top 2 highest-yield focus areas for this week:\n\n1. **Distributed Caching & Concurrency (XFetch & Mutex Locks)**: Razorpay and Swiggy heavily test this in round 2. Complete the 30-min drill in the Mock Interview studio.\n2. **Kafka Event Streaming Architecture**: You have BullMQ in your profile, but adding Kafka streaming to your resume will boost your match score at top fintech firms by 14%.\n\nWould you like me to generate a 5-step implementation guide for an idempotent Kafka consumer?",
-        citations: ['Roadmap: Week 2 Sprint', 'Job Match: Razorpay 94%'],
-      };
-    }
-
-    if (q.includes('resume') || q.includes('gap') || q.includes('ats')) {
-      return {
-        text: "Your current resume score is **88/100 (Tier-1 Ready)**. The 2 critical gaps flagged by the parser are:\n\n- **Project #3 Lacks Quantified Metrics**: Add concrete percentage or latency improvements (e.g., 'Reduced cache misses by 38%').\n- **Missing Distributed Tracing Details**: Mention OpenTelemetry or Prometheus metrics to demonstrate production maturity.\n\nOnce updated, re-upload to Resume Studio to push past the 90+ threshold.",
-        citations: ['Resume Studio: ATS Audit v4.8'],
-      };
-    }
-
-    if (q.includes('bullmq') || q.includes('system design') || q.includes('interview')) {
-      return {
-        text: "When presenting your BullMQ project, follow this 3-step high-impact engineering narrative:\n\n1. **The Bottleneck**: Explain that synchronous resume parsing choked CPU cores, leading to 504 timeouts under sudden campus traffic bursts.\n2. **The Architecture**: You separated the REST gateway from BullMQ worker processes backed by Redis 7 with exponential backoff retries and dead-letter queues.\n3. **The Outcome**: OCR processing latency was cut by 42%, and the gateway maintained a sub-50ms p99 response time.",
-        citations: ['Evidence Ledger: BullMQ Queues', 'Mock Interview: Concurrency Drill'],
-      };
-    }
-
-    return {
-      text: "That is a great strategic question. Looking across your verified competencies and target company benchmarks, the fastest way to stand out is by demonstrating production-grade reliability patterns rather than just generic CRUD code.\n\nWould you like to drill into code examples or practice a simulated interview question on this topic?",
-      citations: ['HiPlacement Evidence Engine'],
-    };
-  }
-
-  function handleSend(e: FormEvent) {
+  async function handleSend(e: FormEvent) {
     e.preventDefault();
     const text = inputVal.trim();
     if (!text || isTyping) return;
@@ -82,18 +62,26 @@ export function ChatPage() {
     setInputVal('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const response = getAiResponse(text);
+    try {
+      if (!conversationId.current) throw new Error('The AI coach is still starting. Please try again in a moment.');
+      const result = await api<{ assistantMessage: { content: string; sources?: Array<{ label: string }> } }>(`/chat/conversations/${conversationId.current}/messages`, {
+        method: 'POST', body: JSON.stringify({ message: text }),
+      });
       const aiMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'ai',
-        text: response.text,
+        text: result.assistantMessage.content,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        citations: response.citations,
+        citations: result.assistantMessage.sources?.map((source) => source.label),
       };
       setMessages((prev) => [...prev, aiMsg]);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'The AI coach could not answer right now.';
+      setConnectionError(message);
+      setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'ai', text: message, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    } finally {
       setIsTyping(false);
-    }, 1000);
+    }
   }
 
   function handleQuickPrompt(promptText: string) {
@@ -123,6 +111,7 @@ export function ChatPage() {
 
       {/* ── Messages Scroll Area ───────────────────────────────── */}
       <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+        {connectionError && <p className="text-xs text-[var(--status-warning)]">{connectionError}</p>}
         {messages.map((msg) => (
           <div
             key={msg.id}

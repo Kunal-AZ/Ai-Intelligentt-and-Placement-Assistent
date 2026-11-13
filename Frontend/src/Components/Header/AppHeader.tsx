@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { ThemeToggle } from '../ThemeToggle';
 import { BrandLogo } from '../BrandLogo';
+import { api } from '../../lib/api';
 
 interface AppHeaderProps {
   onToggleSidebar?: () => void;
@@ -9,14 +10,12 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ onToggleSidebar, title = 'Command center' }: AppHeaderProps) {
-  const [unreadCount, setUnreadCount] = useState(3);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
-
-  const notifications = [
-    { id: 1, title: 'Resume ATS Audit Complete', time: '10m ago', text: 'Score improved to 88/100. 4 core strengths verified.' },
-    { id: 2, title: 'New Job Match: Razorpay', time: '1h ago', text: 'SDE-1 Backend match score computed at 94% coverage.' },
-    { id: 3, title: 'Mock Interview Evaluated', time: 'Yesterday', text: 'Scored 94% on Redis Cache Stampede & Distributed Locking.' },
-  ];
+  const [profile, setProfile] = useState<{ firstName?: string; lastName?: string }>({});
+  useEffect(() => { api<{ profile: { firstName?: string; lastName?: string } }>('/profile').then((result) => setProfile(result.profile ?? {})).catch(() => setProfile({})); }, []);
+  const name = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+  const initials = [profile.firstName, profile.lastName].filter(Boolean).map((part) => part![0]).join('').slice(0, 2).toUpperCase() || 'U';
 
   return (
     <header className="app-topbar">
@@ -87,16 +86,8 @@ export function AppHeader({ onToggleSidebar, title = 'Command center' }: AppHead
                 <span className="text-xs font-bold text-[var(--text-primary)]">Notifications</span>
                 <span className="badge badge-mono text-[9px]">Activity Stream</span>
               </div>
-              <div className="divide-y divide-[var(--border-subtle)] max-h-72 overflow-y-auto">
-                {notifications.map((n) => (
-                  <div key={n.id} className="p-3 text-xs flex flex-col gap-1 hover:bg-[var(--bg-subtle)] transition-colors">
-                    <div className="flex items-center justify-between">
-                      <strong className="text-[var(--text-primary)]">{n.title}</strong>
-                      <span className="text-[10px] text-[var(--text-muted)]">{n.time}</span>
-                    </div>
-                    <p className="text-[var(--text-secondary)] leading-relaxed">{n.text}</p>
-                  </div>
-                ))}
+              <div className="p-4 text-xs text-[var(--text-muted)]">
+                Notifications will appear here as activity is recorded.
               </div>
             </div>
           )}
@@ -108,10 +99,10 @@ export function AppHeader({ onToggleSidebar, title = 'Command center' }: AppHead
           className="flex items-center gap-2 p-1.5 pr-3 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-default)] hover:border-[var(--border-strong)] transition-all"
         >
           <div className="w-6 h-6 rounded-full bg-[var(--text-primary)] text-[var(--text-inverse)] font-bold text-[10px] flex items-center justify-center">
-            KS
+            {initials}
           </div>
           <span className="text-xs font-semibold text-[var(--text-primary)] hidden md:inline">
-            Kunal Sharma
+            {name || 'Profile'}
           </span>
         </NavLink>
       </div>

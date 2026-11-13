@@ -20,7 +20,7 @@ import { AppError } from '../utils/app-error.js';
 const maximumExtractedCharacters = 100000;
 
 function normalizeText(value: string): string {
-  return value.replace(/\u0000/g, '').replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim().slice(0, maximumExtractedCharacters);
+  return value.replaceAll('\0', '').replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim().slice(0, maximumExtractedCharacters);
 }
 
 async function extractText(mimeType: string, file: Buffer): Promise<string> {
@@ -73,7 +73,7 @@ async function processResumeAnalysis(job: { data: ResumeAnalysisJob }): Promise<
     const analysis = await analyzeResumeText(resume.extractedText);
     const storedAnalysis = await ResumeAnalysis.findOneAndUpdate(
       { resumeId: resume._id },
-      { $set: { userId: resume.userId, model: env.LLM_MODEL, promptVersion: resumeAgentPromptVersion, analysis } },
+      { $set: { userId: resume.userId, model: env.GEMINI_MODEL, promptVersion: resumeAgentPromptVersion, analysis } },
       { new: true, upsert: true, runValidators: true },
     );
     if (!storedAnalysis) throw new Error('RESUME_ANALYSIS_STORAGE_FAILED');

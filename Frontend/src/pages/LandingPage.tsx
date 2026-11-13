@@ -607,40 +607,40 @@ export function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mx-auto">
           <div className="card flex flex-col justify-between gap-4">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-sm text-[var(--text-primary)]">Aakash Patel</span>
-              <span className="badge badge-mono">₹24 LPA · Razorpay</span>
+              <span className="font-bold text-sm text-[var(--text-primary)]">Yash Gidde</span>
+              <span className="badge badge-mono">₹40 LPA · Razorpay</span>
             </div>
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic">
               "The Cache Stampede interview drill was almost identical to Round 2 at Razorpay. Defending the XFetch algorithm got me the offer on the spot."
             </p>
             <span className="text-[11px] text-[var(--text-muted)] font-mono">
-              B.Tech CSE '25 · SDE-1 Backend
+              B.Tech CSE '27 · Data Analyst
             </span>
           </div>
 
           <div className="card flex flex-col justify-between gap-4">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-sm text-[var(--text-primary)]">Priya Sundaram</span>
-              <span className="badge badge-mono">₹22 LPA · Postman</span>
+              <span className="font-bold text-sm text-[var(--text-primary)]">Samarth Rampure</span>
+              <span className="badge badge-mono">₹22 LPA · Sugar Factory</span>
             </div>
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic">
               "The ATS diagnostic pointed out that my third project had no quantified latency metrics. Fixing that took my resume score from 71 to 89."
             </p>
             <span className="text-[11px] text-[var(--text-muted)] font-mono">
-              NIT Trichy '25 · Full-Stack Track
+              B.Tech '27 · Full-Stack Track
             </span>
           </div>
 
           <div className="card flex flex-col justify-between gap-4">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-sm text-[var(--text-primary)]">Rohan Verma</span>
+              <span className="font-bold text-sm text-[var(--text-primary)]">Parth Mukkawar</span>
               <span className="badge badge-mono">₹28 LPA · Swiggy</span>
             </div>
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic">
               "HiPlacement showed me that I was missing message queue evidence. I spent a weekend building the BullMQ task queue and got 3 immediate recruiter replies."
             </p>
             <span className="text-[11px] text-[var(--text-muted)] font-mono">
-              BITS Pilani '25 · Systems SDE
+              Vishwakarma University '27 · Systems SDE
             </span>
           </div>
         </div>
@@ -690,8 +690,8 @@ export function LandingPage() {
               <span>Launch Workspace Free</span>
               <span aria-hidden="true">↗</span>
             </Link>
-            <Link to="/architecture" className="btn-secondary py-3 px-6 text-sm">
-              <span>Inspect Tech Architecture ⚡</span>
+            <Link to="/roadmap" className="btn-secondary py-3 px-6 text-sm">
+              <span>Explore Learning Roadmap</span>
             </Link>
           </div>
         </InteractiveSpotlightCard>

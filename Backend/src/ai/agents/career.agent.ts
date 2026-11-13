@@ -17,3 +17,5 @@ export function generateCareerPaths(targetRoles: string[], skillSignals: SkillSi
       missingSkills: analysis.requirements.filter((requirement) => requirement.status === 'MISSING').map((requirement) => requirement.skill),
       methodology: analysis.methodology,
     }));
+}
+

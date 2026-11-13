@@ -1,164 +1,73 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { api } from '../lib/api';
 
-interface RoadmapTask {
-  id: string;
-  title: string;
-  duration: string;
-  completed: boolean;
-  impactTag: string;
+type Requirement = { skill: string; category: 'FOUNDATIONAL' | 'CORE'; status: 'PRESENT' | 'MISSING' | 'NEEDS_REINFORCEMENT' };
+type Gap = { role: string; requirements: Requirement[] };
+type Profile = { targetRoles?: string[] };
+type JobMatch = { missingRequirements: string[] };
+type RoadmapTask = { id: string; title: string; detail: string; priority: 'HIGH' | 'MEDIUM'; completed: boolean };
+
+const lessonConcepts: Record<string, string> = {
+  typescript: 'Practice types, interfaces, generics, narrowing, and typing an API response.',
+  sql: 'Learn SELECT, JOIN, GROUP BY, window functions, indexing, and solve query drills.',
+  javascript: 'Revise closures, promises, async/await, event loop behaviour, and array methods.',
+  'node.js': 'Build an API with routing, middleware, validation, error handling, and async patterns.',
+  react: 'Practice components, state, effects, forms, data fetching, and performance basics.',
+  mongodb: 'Model documents, write queries and aggregation pipelines, then add indexes.',
+  'rest apis': 'Design endpoints, status codes, pagination, authentication, and validation.',
+  git: 'Practice branching, pull requests, merge conflicts, and a clean commit history.',
+  python: 'Practice functions, collections, virtual environments, and data-processing exercises.',
+  statistics: 'Cover distributions, hypothesis testing, correlation, and practical interpretation.',
+};
+const conceptFor = (skill: string) => lessonConcepts[skill.toLocaleLowerCase()] ?? `Learn the core concepts, build one small project exercise, and record the result as evidence.`;
+
+function savedProgress(role: string): string[] {
+  try { return JSON.parse(localStorage.getItem(`placement-roadmap:${role}`) ?? '[]') as string[]; } catch { return []; }
 }
-
-interface RoadmapWeek {
-  weekNumber: number;
-  title: string;
-  status: 'DONE' | 'ACTIVE' | 'NEXT';
-  tasks: RoadmapTask[];
-}
-
-const INITIAL_WEEKS: RoadmapWeek[] = [
-  {
-    weekNumber: 1,
-    title: 'ATS Resume Verification',
-    status: 'DONE',
-    tasks: [
-      { id: 't1', title: 'Single-Column ATS Layout Rewrite', duration: '2h', completed: true, impactTag: '+15 ATS' },
-      { id: 't2', title: 'Runtime Zod Payload Validation', duration: '3h', completed: true, impactTag: 'Core SDE' },
-    ],
-  },
-  {
-    weekNumber: 2,
-    title: 'Concurrency & Task Queues',
-    status: 'ACTIVE',
-    tasks: [
-      { id: 't3', title: 'BullMQ Worker Async OCR Pipeline', duration: '4h', completed: true, impactTag: 'Production' },
-      { id: 't4', title: 'Cache Stampede & Mutex Locking Drill', duration: '2.5h', completed: false, impactTag: 'High Yield Gap' },
-      { id: 't5', title: 'MongoDB Vector HNSW Indexing', duration: '3h', completed: false, impactTag: 'AI Placement' },
-    ],
-  },
-  {
-    weekNumber: 3,
-    title: 'Mock Interview Calibration',
-    status: 'NEXT',
-    tasks: [
-      { id: 't6', title: 'Idempotency Payment Webhook Simulation', duration: '45m', completed: false, impactTag: 'Mock Lab' },
-      { id: 't7', title: 'Node.js Event Loop Microtasks Defense', duration: '45m', completed: false, impactTag: 'Core Drill' },
-    ],
-  },
-  {
-    weekNumber: 4,
-    title: 'Tier-1 Recruiter Outreach',
-    status: 'NEXT',
-    tasks: [
-      { id: 't8', title: 'Submit Dossier to Razorpay & Swiggy', duration: '1h', completed: false, impactTag: 'Direct Apply' },
-    ],
-  },
-];
 
 export function LearningRoadmapPage() {
-  const [weeks, setWeeks] = useState<RoadmapWeek[]>(INITIAL_WEEKS);
+  const [gaps, setGaps] = useState<Gap[]>([]);
+  const [selectedRole, setSelectedRole] = useState('');
+  const [jobMatches, setJobMatches] = useState<JobMatch[]>([]);
+  const [completed, setCompleted] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [planDays, setPlanDays] = useState(28);
 
-  function toggleTask(taskId: string) {
-    setWeeks(
-      weeks.map((week) => ({
-        ...week,
-        tasks: week.tasks.map((task) =>
-          task.id === taskId ? { ...task, completed: !task.completed } : task
-        ),
-      }))
-    );
-  }
+  useEffect(() => {
+    Promise.allSettled([api<{ profile: Profile }>('/profile'), api<{ gaps: Gap[] }>('/skill-gaps'), api<{ matches: JobMatch[] }>('/jobs/matches')])
+      .then(([profileResult, gapsResult, matchesResult]) => {
+        const loadedGaps = gapsResult.status === 'fulfilled' ? gapsResult.value.gaps ?? [] : [];
+        const role = profileResult.status === 'fulfilled' ? profileResult.value.profile.targetRoles?.[0] ?? loadedGaps[0]?.role ?? '' : loadedGaps[0]?.role ?? '';
+        setGaps(loadedGaps); setSelectedRole(role); setCompleted(savedProgress(role));
+        if (matchesResult.status === 'fulfilled') setJobMatches(matchesResult.value.matches ?? []);
+        if (!loadedGaps.length) setError('Choose a target role and record skills first, then your personalized roadmap will appear here.');
+      }).finally(() => setLoading(false));
+  }, []);
 
-  const allTasks = weeks.flatMap((w) => w.tasks);
-  const completedCount = allTasks.filter((t) => t.completed).length;
-  const progressPct = Math.round((completedCount / allTasks.length) * 100);
+  const activeGap = gaps.find((gap) => gap.role === selectedRole) ?? gaps[0];
+  const tasks = useMemo<RoadmapTask[]>(() => {
+    if (!activeGap) return [];
+    const jobGaps = new Set(jobMatches.flatMap((match) => match.missingRequirements).map((skill) => skill.toLocaleLowerCase()));
+    return activeGap.requirements.filter((item) => item.status !== 'PRESENT').map((item) => ({
+      id: item.skill.toLocaleLowerCase(), title: `Build evidence for ${item.skill}`,
+      detail: `${jobGaps.has(item.skill.toLocaleLowerCase()) ? 'Required by an opening you analyzed. ' : item.status === 'NEEDS_REINFORCEMENT' ? 'Strengthen your current beginner-level evidence. ' : ''}${conceptFor(item.skill)}`,
+      priority: (jobGaps.has(item.skill.toLocaleLowerCase()) || item.category === 'CORE' ? 'HIGH' : 'MEDIUM') as 'HIGH' | 'MEDIUM',
+      completed: completed.includes(item.skill.toLocaleLowerCase()),
+    })).sort((a, b) => Number(b.priority === 'HIGH') - Number(a.priority === 'HIGH'));
+  }, [activeGap, completed, jobMatches]);
 
-  return (
-    <div className="learning-roadmap-page flex flex-col gap-6">
-      {/* ── Page Header ────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border-subtle)]">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="badge badge-success">30-Day Sprint</span>
-          </div>
-          <h1 className="text-2xl font-black tracking-tight">Placement Preparation Sprint</h1>
-        </div>
+  function selectRole(role: string) { setSelectedRole(role); setCompleted(savedProgress(role)); }
+  function toggle(id: string) { const next = completed.includes(id) ? completed.filter((item) => item !== id) : [...completed, id]; setCompleted(next); localStorage.setItem(`placement-roadmap:${selectedRole}`, JSON.stringify(next)); }
+  const progress = tasks.length ? Math.round(tasks.filter((task) => task.completed).length / tasks.length * 100) : 0;
+  const weeks = Math.max(2, Math.ceil(planDays / 7));
+  const weeklyTasks = Array.from({ length: weeks }, (_, index) => tasks.filter((_, taskIndex) => taskIndex % weeks === index));
 
-        {/* Visual Progress Pill */}
-        <div className="flex items-center gap-3">
-          <div className="w-28 h-2 rounded-full bg-[var(--bg-subtle)] overflow-hidden">
-            <div
-              className="h-full bg-[var(--text-primary)] rounded-full transition-all duration-500"
-              style={{ width: `${progressPct}%` }}
-            />
-          </div>
-          <span className="font-mono font-bold text-xs text-[var(--text-primary)]">
-            {progressPct}% Done
-          </span>
-        </div>
-      </div>
-
-      {/* ── Weeks Grid (Visual & Concise) ──────────────────────── */}
-      <div className="space-y-4">
-        {weeks.map((week) => (
-          <div key={week.weekNumber} className="card p-5 flex flex-col gap-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[var(--border-subtle)]">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono font-bold text-[var(--text-muted)]">
-                  W0{week.weekNumber}
-                </span>
-                <h2 className="text-sm font-bold text-[var(--text-primary)]">{week.title}</h2>
-              </div>
-              <span
-                className={`badge text-[9px] ${
-                  week.status === 'DONE'
-                    ? 'badge-success'
-                    : week.status === 'ACTIVE'
-                    ? 'badge-mono'
-                    : 'badge-info'
-                }`}
-              >
-                {week.status}
-              </span>
-            </div>
-
-            {/* Tasks */}
-            <div className="space-y-1.5">
-              {week.tasks.map((task) => (
-                <div
-                  key={task.id}
-                  onClick={() => toggleTask(task.id)}
-                  className={`p-2.5 rounded-lg border text-xs flex items-center justify-between gap-3 cursor-pointer transition-all ${
-                    task.completed
-                      ? 'bg-[var(--bg-subtle)] border-[var(--border-subtle)] opacity-70'
-                      : 'bg-[var(--bg-surface)] border-[var(--border-default)] hover:border-[var(--border-strong)]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <input
-                      type="checkbox"
-                      checked={task.completed}
-                      onChange={() => toggleTask(task.id)}
-                      className="w-3.5 h-3.5 rounded cursor-pointer accent-[var(--text-primary)]"
-                    />
-                    <span
-                      className={`font-medium ${
-                        task.completed ? 'line-through text-[var(--text-muted)]' : 'text-[var(--text-primary)]'
-                      }`}
-                    >
-                      {task.title}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono text-[var(--text-muted)]">{task.duration}</span>
-                    <span className="badge badge-mono text-[9px]">{task.impactTag}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  return <div className="learning-roadmap-page flex flex-col gap-6">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border-subtle)]"><div><span className="badge badge-success">Gap-driven plan</span><h1 className="text-2xl font-black tracking-tight mt-2">Your Learning Roadmap</h1><p className="text-sm text-[var(--text-muted)] mt-1">Priorities come from your selected role and the gaps in jobs you have analyzed.</p></div><div className="flex items-center gap-3"><div className="w-28 h-2 rounded-full bg-[var(--bg-subtle)] overflow-hidden"><div className="h-full bg-[var(--text-primary)] transition-all" style={{ width: `${progress}%` }}/></div><span className="font-mono text-xs font-bold">{progress}% done</span></div></div>
+    <div className="card p-4 flex flex-col sm:flex-row gap-3 sm:items-end"><div className="form-group flex-1"><label className="form-label">Target role</label><select className="form-select" value={selectedRole} onChange={(event) => selectRole(event.target.value)}>{gaps.map((gap) => <option key={gap.role} value={gap.role}>{gap.role}</option>)}</select></div><div className="form-group flex-1"><label className="form-label">Plan duration</label><select className="form-select" value={planDays} onChange={(event) => setPlanDays(Number(event.target.value))}><option value={14}>14 days · focused</option><option value={28}>28 days · balanced</option><option value={42}>42 days · steady</option></select></div><p className="text-xs text-[var(--text-muted)] pb-2">{weeks} weekly milestones</p></div>
+    {loading ? <p className="text-sm text-[var(--text-muted)]">Building your roadmap from recorded evidence…</p> : error ? <div className="card p-6 text-sm text-[var(--text-muted)] flex flex-col gap-3"><span>{error}</span><Link className="btn-primary text-xs self-start" to="/profile">Set target role</Link></div> : tasks.length ? <div className="space-y-4">{weeklyTasks.map((weekTasks, weekIndex) => <section className="card p-5 flex flex-col gap-3" key={weekIndex}><div className="flex justify-between text-xs border-b border-[var(--border-subtle)] pb-3"><span className="font-bold">Week {weekIndex + 1}</span><span className="text-[var(--text-muted)]">{weekTasks.length ? `${Math.ceil(planDays / Math.max(tasks.length, 1))} days per concept` : 'Review and practice'}</span></div>{weekTasks.length ? weekTasks.map((task) => <label key={task.id} className={`p-3 rounded-lg border flex items-center gap-3 cursor-pointer ${task.completed ? 'bg-[var(--bg-subtle)] opacity-70 border-[var(--border-subtle)]' : 'border-[var(--border-default)]'}`}><input type="checkbox" checked={task.completed} onChange={() => toggle(task.id)} /><div className="flex-1"><p className={`text-sm font-bold ${task.completed ? 'line-through' : ''}`}>{task.title}</p><p className="text-xs text-[var(--text-muted)] mt-1">{task.detail}</p></div><span className={`badge text-[9px] ${task.priority === 'HIGH' ? 'badge-warning' : 'badge-mono'}`}>{task.priority}</span></label>) : <p className="text-xs text-[var(--text-muted)]">Use this week for project work, revision, and mock-interview practice.</p>}</section>)}</div> : <div className="card p-6 text-sm flex flex-col gap-3"><p>Great work — no skill gaps are currently recorded for {selectedRole}.</p><Link className="btn-secondary text-xs self-start" to="/jobs">Analyze an opening</Link></div>}
+    <div className="card p-5 text-xs text-[var(--text-muted)]">To make this job-specific, open an opportunity in <Link className="underline font-bold" to="/jobs">Job Matches</Link> and select “Analyze match.” Its missing requirements move to the top of this roadmap.</div>
+  </div>;
 }

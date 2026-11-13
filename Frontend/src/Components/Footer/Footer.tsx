@@ -52,9 +52,6 @@ export function Footer() {
             <Link to="/chat" className="hover:text-[var(--text-primary)] transition-colors">
               AI Career Coach
             </Link>
-            <Link to="/architecture" className="hover:text-[var(--text-primary)] transition-colors">
-              Architecture &amp; Microservices
-            </Link>
             <Link to="/profile" className="hover:text-[var(--text-primary)] transition-colors">
               Student Profile Settings
             </Link>
@@ -86,7 +83,7 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--text-muted)]">
-          <p>© {currentYear} HiPlacement. Created by Kunal Sharma. All rights reserved.</p>
+          <p>© {currentYear} HiPlacement. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <span>Built with Swiss Precision</span>
             <span>Zero Tracking Blackboxes</span>

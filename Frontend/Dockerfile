@@ -1,9 +1,9 @@
 FROM node:22-alpine AS build
-WORKDIR /app
-COPY Frontend/package.json Frontend/package.json
-COPY package.json ./
-COPY Frontend ./Frontend
-RUN npm install --workspace=@placement-assistant/web && npm run build --workspace=@placement-assistant/web
+WORKDIR /app/Frontend
+COPY Frontend/package.json ./
+RUN npm install
+COPY Frontend ./
+RUN npm run build
 
 FROM nginx:1.27-alpine
 COPY --from=build /app/Frontend/dist /usr/share/nginx/html

@@ -1,12 +1,16 @@
 import crypto from 'node:crypto';
+import { createRequire } from 'node:module';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
-import pinoHttp from 'pino-http';
+import type { HttpLogger, Options as PinoHttpOptions } from 'pino-http';
 import { env } from './config/env.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { v1Router } from './routes/v1/index.js';
+
+const require = createRequire(import.meta.url);
+const pinoHttp = require('pino-http') as (options?: PinoHttpOptions) => HttpLogger;
 
 export function createApp() {
   const app = express();

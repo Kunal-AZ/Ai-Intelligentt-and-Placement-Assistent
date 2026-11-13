@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { setAccessToken } from '../../lib/api';
+import { api } from '../../lib/api';
 import { BrandLogo } from '../BrandLogo';
 
 interface NavItem {
@@ -18,8 +20,7 @@ const navSections: NavSection[] = [
   {
     title: 'Workspace',
     items: [
-      { label: 'Command Center', path: '/dashboard', icon: '⌂' },
-      { label: 'Architecture', path: '/architecture', icon: '⚡' },
+      { label: 'Home', path: '/dashboard', icon: '⌂' },
     ],
   },
   {
@@ -27,7 +28,7 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Resume Studio', path: '/resume', icon: '📄', badge: 'AI' },
       { label: 'Skill Evidence & Gaps', path: '/skills', icon: '🎯' },
-      { label: 'Job Matches', path: '/jobs', icon: '💼', badge: '12' },
+      { label: 'Job Matches', path: '/jobs', icon: '💼' },
     ],
   },
   {
@@ -35,7 +36,12 @@ const navSections: NavSection[] = [
     items: [
       { label: 'AI Mock Interviews', path: '/interviews', icon: '🎤' },
       { label: 'Learning Roadmap', path: '/roadmap', icon: '🛣️' },
-      { label: 'AI Career Coach', path: '/chat', icon: '✦', badge: 'Pro' },
+      { label: 'AI Career Coach', path: '/chat', icon: '✦' },
+    ],
+  },
+  {
+    title: 'Account',
+    items: [
       { label: 'Student Profile', path: '/profile', icon: '👤' },
     ],
   },
@@ -50,8 +56,13 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onClose, isCollapsed, onCollapse }: SidebarProps) {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<{ firstName?: string; lastName?: string; targetRoles?: string[] }>({});
+  useEffect(() => { api<{ profile: { firstName?: string; lastName?: string; targetRoles?: string[] } }>('/profile').then((result) => setProfile(result.profile ?? {})).catch(() => setProfile({})); }, []);
+  const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+  const initials = [profile.firstName, profile.lastName].filter(Boolean).map((part) => part![0]).join('').slice(0, 2).toUpperCase() || 'U';
 
-  function handleSignOut() {
+  async function handleSignOut() {
+    try { await api('/auth/logout', { method: 'POST' }); } catch { /* The local session must still be cleared. */ }
     setAccessToken(null);
     navigate('/login');
   }
@@ -65,20 +76,9 @@ export function Sidebar({ isOpen, onClose, isCollapsed, onCollapse }: SidebarPro
         {/* Brand Header */}
         <div className="sidebar-brand-wrapper">
           <NavLink className="sidebar-brand" to="/dashboard" onClick={onClose} title="HiPlacement Home">
-            <BrandLogo size={28} isCollapsed={isCollapsed} badge="2.0" subtitle="AI Placement Engine" />
+            <BrandLogo size={28} isCollapsed={isCollapsed}  />
           </NavLink>
 
-          {/* Close for mobile */}
-          {onClose && (
-            <button
-              type="button"
-              className="topbar-icon-btn lg:hidden w-7 h-7"
-              onClick={onClose}
-              aria-label="Close sidebar"
-            >
-              ✕
-            </button>
-          )}
 
           {/* Collapse for desktop */}
           {onCollapse && (
@@ -136,11 +136,11 @@ export function Sidebar({ isOpen, onClose, isCollapsed, onCollapse }: SidebarPro
             className="sidebar-user-card"
             title="Manage profile"
           >
-            <div className="user-avatar-circle">KS</div>
+            <div className="user-avatar-circle">{initials}</div>
             {!isCollapsed && (
               <div className="user-meta-text">
-                <span className="user-meta-name">Kunal Sharma</span>
-                <span className="user-meta-role">SDE-1 Backend Track</span>
+                <span className="user-meta-name">{fullName || 'Complete your profile'}</span>
+                <span className="user-meta-role">{profile.targetRoles?.[0] || 'No target role selected'}</span>
               </div>
             )}
           </NavLink>

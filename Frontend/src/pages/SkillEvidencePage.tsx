@@ -16,45 +16,27 @@ interface RoleRequirement {
   requiredSkills: { name: string; priority: 'CRITICAL' | 'IMPORTANT'; matched: boolean }[];
 }
 
-const INITIAL_SKILLS: SkillItem[] = [
-  { id: '1', name: 'Node.js & Express Architecture', category: 'Backend', level: 'Production', evidenceSource: 'GitHub: hiplacement-api' },
-  { id: '2', name: 'MongoDB Atlas Vector Search', category: 'Database', level: 'Production', evidenceSource: 'Cosine Index Unit Tests' },
-  { id: '3', name: 'Redis 7 & BullMQ Queues', category: 'Systems', level: 'Advanced', evidenceSource: 'GitHub: redis-workers' },
-  { id: '4', name: 'React 19 & TypeScript', category: 'Frontend', level: 'Advanced', evidenceSource: 'Client App Repo' },
-  { id: '5', name: 'Zod Runtime Schema Validation', category: 'Backend', level: 'Competent', evidenceSource: 'PR #14' },
-  { id: '6', name: 'Docker Containerization', category: 'DevOps', level: 'Competent', evidenceSource: 'Dockerfile' },
-];
-
 const ROLES_CATALOG: RoleRequirement[] = [
   {
-    roleId: 'backend-sde1',
-    roleName: 'Backend Systems Engineer',
-    avgLpa: '₹14 - ₹26 LPA',
+    roleId: 'Backend Developer',
+    roleName: 'Backend Developer',
+    avgLpa: 'Role requirements',
     requiredSkills: [
-      { name: 'Node.js & Express Architecture', priority: 'CRITICAL', matched: true },
-      { name: 'MongoDB Atlas Vector Search', priority: 'CRITICAL', matched: true },
-      { name: 'Redis 7 & BullMQ Queues', priority: 'CRITICAL', matched: true },
-      { name: 'Distributed Caching Concurrency', priority: 'CRITICAL', matched: false },
-      { name: 'Kafka Event Streaming', priority: 'IMPORTANT', matched: false },
-      { name: 'Docker Containerization', priority: 'IMPORTANT', matched: true },
+      ...['JavaScript', 'TypeScript', 'Node.js', 'Express.js', 'SQL', 'MongoDB', 'REST APIs', 'Git'].map((name) => ({ name, priority: 'CRITICAL' as const, matched: false })),
     ],
   },
   {
-    roleId: 'fullstack-sde',
-    roleName: 'Full-Stack Web Architect',
-    avgLpa: '₹12 - ₹24 LPA',
+    roleId: 'Frontend Developer', roleName: 'Frontend Developer', avgLpa: 'Role requirements',
     requiredSkills: [
-      { name: 'React 19 & TypeScript', priority: 'CRITICAL', matched: true },
-      { name: 'Node.js & Express Architecture', priority: 'CRITICAL', matched: true },
-      { name: 'MongoDB Atlas Vector Search', priority: 'IMPORTANT', matched: true },
-      { name: 'Playwright E2E Testing', priority: 'IMPORTANT', matched: false },
+      ...['JavaScript', 'TypeScript', 'React', 'HTML', 'CSS', 'REST APIs', 'Git'].map((name) => ({ name, priority: 'CRITICAL' as const, matched: false })),
     ],
   },
+  { roleId: 'Data Analyst', roleName: 'Data Analyst', avgLpa: 'Role requirements', requiredSkills: [...['SQL', 'Python', 'Excel', 'Statistics', 'Data Visualization', 'Git'].map((name) => ({ name, priority: 'CRITICAL' as const, matched: false }))] },
 ];
 
 export function SkillEvidencePage() {
-  const [skills, setSkills] = useState<SkillItem[]>(INITIAL_SKILLS);
-  const [selectedRole, setSelectedRole] = useState<string>('backend-sde1');
+  const [skills, setSkills] = useState<SkillItem[]>([]);
+  const [selectedRole, setSelectedRole] = useState<string>('Backend Developer');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newSkillName, setNewSkillName] = useState('');
   const [newSkillCategory, setNewSkillCategory] = useState<SkillItem['category']>('Backend');
@@ -64,19 +46,26 @@ export function SkillEvidencePage() {
   useEffect(() => {
     async function load() {
       try {
-        await api<{ skills: { name: string }[] }>('/skills');
+        const result = await api<{ skills: Array<{ _id: string; displayName: string }>; evidence: Array<{ skillId: string; source: string; proficiency?: string; summary?: string }> }>('/skills');
+        const evidenceBySkill = new Map(result.evidence.map((item) => [item.skillId, item]));
+        setSkills(result.skills.map((skill) => {
+          const evidence = evidenceBySkill.get(skill._id);
+          return { id: skill._id, name: skill.displayName, category: 'Backend', level: evidence?.proficiency === 'ADVANCED' ? 'Advanced' : evidence?.proficiency === 'INTERMEDIATE' ? 'Competent' : 'Foundational', evidenceSource: evidence?.summary || evidence?.source || 'Recorded evidence' };
+        }));
       } catch {
-        // use local
+        setSkills([]);
       }
     }
     load();
   }, []);
 
   const activeRole = ROLES_CATALOG.find((r) => r.roleId === selectedRole) ?? ROLES_CATALOG[0];
-  const matchedCount = activeRole.requiredSkills.filter((s) => s.matched).length;
-  const coveragePct = Math.round((matchedCount / activeRole.requiredSkills.length) * 100);
+  const normalizedSkills = new Set(skills.map((skill) => skill.name.toLocaleLowerCase().replace(/\./g, '')));
+  const requirements = activeRole.requiredSkills.map((requirement) => ({ ...requirement, matched: normalizedSkills.has(requirement.name.toLocaleLowerCase().replace(/\./g, '')) }));
+  const matchedCount = requirements.filter((s) => s.matched).length;
+  const coveragePct = Math.round((matchedCount / requirements.length) * 100);
 
-  function handleAddSkill(e: React.FormEvent) {
+  async function handleAddSkill(e: React.FormEvent) {
     e.preventDefault();
     if (!newSkillName.trim()) return;
 
@@ -88,7 +77,10 @@ export function SkillEvidencePage() {
       evidenceSource: newSkillEvidence.trim() || 'Self-verified commit',
     };
 
-    setSkills([added, ...skills]);
+    try {
+      await api('/skills', { method: 'PUT', body: JSON.stringify({ skills: [{ name: added.name, proficiency: newSkillLevel === 'Advanced' || newSkillLevel === 'Production' ? 'ADVANCED' : newSkillLevel === 'Competent' ? 'INTERMEDIATE' : 'BEGINNER', summary: added.evidenceSource }] }) });
+      setSkills([added, ...skills]);
+    } catch { return; }
     setNewSkillName('');
     setNewSkillEvidence('');
     setIsAddModalOpen(false);
@@ -152,7 +144,7 @@ export function SkillEvidencePage() {
 
         {/* Requirements Grid (Visual Cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-          {activeRole.requiredSkills.map((req) => (
+          {requirements.map((req) => (
             <div
               key={req.name}
               className={`p-3 rounded-lg border flex items-center justify-between gap-2 text-xs transition-all ${

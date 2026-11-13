@@ -5,10 +5,18 @@ import { requireAuthentication } from '../auth/auth.middleware.js';
 import { InterviewResponse } from './interview-response.model.js';
 import { InterviewSession } from './interview-session.model.js';
 import { createInterviewSchema, interviewAnswerSchema, sessionIdSchema } from './interview.schemas.js';
+import { Profile } from '../profile/profile.model.js';
 
 export const interviewRouter = Router();
 interviewRouter.use(requireAuthentication);
-interviewRouter.post('/', async (request, response, next) => { try { const input = createInterviewSchema.parse(request.body); const session = await InterviewSession.create({ userId: request.auth!.userId, ...input, currentQuestionNumber: 1 }); const question = await generateInterviewQuestion({ ...input, questionNumber: 1 }); const interviewResponse = await InterviewResponse.create({ sessionId: session._id, userId: request.auth!.userId, questionNumber: 1, question }); response.status(201).json({ success: true, data: { session, question: interviewResponse } }); } catch (error) { next(error); } });
+interviewRouter.get('/', async (request, response, next) => {
+  try {
+    const sessions = await InterviewSession.find({ userId: request.auth!.userId }).sort({ updatedAt: -1 }).lean();
+    const responses = await InterviewResponse.find({ userId: request.auth!.userId }).sort({ updatedAt: -1 }).lean();
+    response.status(200).json({ success: true, data: { sessions, responses } });
+  } catch (error) { next(error); }
+});
+interviewRouter.post('/', async (request, response, next) => { try { const input = createInterviewSchema.parse(request.body); const profile = input.role ? undefined : await Profile.findOne({ userId: request.auth!.userId }).lean(); const context = { ...input, role: input.role ?? profile?.targetRoles?.[0] }; const session = await InterviewSession.create({ userId: request.auth!.userId, ...context, currentQuestionNumber: 1 }); const question = await generateInterviewQuestion({ ...context, questionNumber: 1 }); const interviewResponse = await InterviewResponse.create({ sessionId: session._id, userId: request.auth!.userId, questionNumber: 1, question }); response.status(201).json({ success: true, data: { session, question: interviewResponse } }); } catch (error) { next(error); } });
 interviewRouter.post('/:id/respond', async (request, response, next) => {
   try {
     const id = sessionIdSchema.parse(request.params.id); const { answer } = interviewAnswerSchema.parse(request.body); const session = await InterviewSession.findOne({ _id: id, userId: request.auth!.userId, status: 'ACTIVE' });
