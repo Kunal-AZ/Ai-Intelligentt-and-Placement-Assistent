@@ -15,6 +15,9 @@ const MockInterviewsPage = lazy(() => import('./pages/MockInterviewsPage').then(
 const LearningRoadmapPage = lazy(() => import('./pages/LearningRoadmapPage').then((m) => ({ default: m.LearningRoadmapPage })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then((m) => ({ default: m.ProfilePage })));
 const ChatPage = lazy(() => import('./pages/ChatPage').then((m) => ({ default: m.ChatPage })));
+const ApplicationsPage = lazy(() => import('./pages/ApplicationsPage').then((m) => ({ default: m.ApplicationsPage })));
+const SettingsPage = lazy(() => import('./pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
+const PlansPage = lazy(() => import('./pages/PlansPage').then((m) => ({ default: m.PlansPage })));
 
 function RouteLoader() {
   return (
@@ -47,9 +50,12 @@ export default function App() {
           <Route path="/skills" element={<SkillEvidencePage />} />
           <Route path="/careers" element={<CareerRecommendationsPage />} />
           <Route path="/jobs" element={<JobMatchesPage />} />
+          <Route path="/applications" element={<ApplicationsPage />} />
           <Route path="/interviews" element={<MockInterviewsPage />} />
           <Route path="/roadmap" element={<LearningRoadmapPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/plans" element={<PlansPage />} />
           <Route path="/chat" element={<ChatPage />} />
         </Route>
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { setAccessToken } from '../../lib/api';
+import { NavLink } from 'react-router-dom';
 import { api } from '../../lib/api';
 import { BrandLogo } from '../BrandLogo';
 
@@ -29,6 +28,7 @@ const navSections: NavSection[] = [
       { label: 'Resume Studio', path: '/resume', icon: '📄', badge: 'AI' },
       { label: 'Skill Evidence & Gaps', path: '/skills', icon: '🎯' },
       { label: 'Job Matches', path: '/jobs', icon: '💼' },
+      { label: 'Application Tracker', path: '/applications', icon: '📌' },
     ],
   },
   {
@@ -43,6 +43,8 @@ const navSections: NavSection[] = [
     title: 'Account',
     items: [
       { label: 'Student Profile', path: '/profile', icon: '👤' },
+      { label: 'Settings', path: '/settings', icon: '⚙️' },
+      { label: 'Plans & Billing', path: '/plans', icon: '✦' },
     ],
   },
 ];
@@ -55,17 +57,10 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onClose, isCollapsed, onCollapse }: SidebarProps) {
-  const navigate = useNavigate();
   const [profile, setProfile] = useState<{ firstName?: string; lastName?: string; targetRoles?: string[] }>({});
   useEffect(() => { api<{ profile: { firstName?: string; lastName?: string; targetRoles?: string[] } }>('/profile').then((result) => setProfile(result.profile ?? {})).catch(() => setProfile({})); }, []);
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
   const initials = [profile.firstName, profile.lastName].filter(Boolean).map((part) => part![0]).join('').slice(0, 2).toUpperCase() || 'U';
-
-  async function handleSignOut() {
-    try { await api('/auth/logout', { method: 'POST' }); } catch { /* The local session must still be cleared. */ }
-    setAccessToken(null);
-    navigate('/login');
-  }
 
   return (
     <>
@@ -144,19 +139,6 @@ export function Sidebar({ isOpen, onClose, isCollapsed, onCollapse }: SidebarPro
               </div>
             )}
           </NavLink>
-
-          <button
-            type="button"
-            className="btn-ghost text-xs justify-start py-2 w-full text-[var(--status-danger)]"
-            onClick={handleSignOut}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-            {!isCollapsed && <span>Sign Out</span>}
-          </button>
         </div>
       </aside>
     </>

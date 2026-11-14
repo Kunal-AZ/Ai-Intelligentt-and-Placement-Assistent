@@ -8,6 +8,8 @@ import { AppError } from '../../utils/app-error.js';
 import { enqueueResumeProcessing } from '../../queues/resume.queue.js';
 import { enqueueResumeAnalysis } from '../../queues/resume-analysis.queue.js';
 import { requireAuthentication } from '../auth/auth.middleware.js';
+import { Profile } from '../profile/profile.model.js';
+import { profileCompletion } from '../profile/profile-readiness.js';
 import { Resume } from './resume.model.js';
 import { ResumeAnalysis } from './resume-analysis.model.js';
 import { deleteResume, readResume, storeResume } from './resume.storage.js';
@@ -23,10 +25,16 @@ function uploadOne(fieldName: string): RequestHandler {
 
 resumeRouter.use(requireAuthentication);
 
+async function requireCompleteProfile(userId: string): Promise<void> {
+  const completion = profileCompletion(await Profile.findOne({ userId }).lean());
+  if (!completion.complete) throw new AppError(409, 'PROFILE_INCOMPLETE', `Complete your profile before uploading a resume. Missing: ${completion.missing.join(', ')}.`);
+}
+
 resumeRouter.post('/', uploadOne('resume'), async (request, response, next) => {
   let storageKey: string | undefined;
   let resumeId: string | undefined;
   try {
+    await requireCompleteProfile(request.auth!.userId);
     const file = validateResumeFile(request.file);
     storageKey = await storeResume(request.file!.buffer, file.extension);
 
@@ -104,6 +112,7 @@ resumeRouter.get('/:id/download', async (request, response, next) => {
 
 resumeRouter.post('/:id/analyze', async (request, response, next) => {
   try {
+    await requireCompleteProfile(request.auth!.userId);
     const id = objectIdSchema.parse(request.params.id);
     const resume = await Resume.findOne({ _id: id, userId: request.auth!.userId }).select('+extractedText');
     if (!resume) throw new AppError(404, 'RESUME_NOT_FOUND', 'Resume was not found.');

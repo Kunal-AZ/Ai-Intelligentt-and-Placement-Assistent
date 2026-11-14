@@ -21,9 +21,9 @@ export const interviewEvaluationRequestSchema = z.object({
 }).strict();
 
 export const careerRequestSchema = z.object({
-  education: z.string().trim().min(2).max(200),
-  interests: z.array(z.string().trim().min(1).max(100)).min(1).max(20),
+  education: z.string().trim().max(200).default(''),
+  interests: z.array(z.string().trim().min(1).max(100)).max(20).default([]),
   projects: z.array(z.string().trim().min(1).max(300)).max(10).default([]),
-  preferredWork: z.string().trim().min(2).max(200),
+  preferredWork: z.string().trim().max(200).default(''),
   experienceLevel: z.enum(['Fresher', 'Beginner', 'Intermediate', 'Experienced']).default('Fresher'),
 }).strict();

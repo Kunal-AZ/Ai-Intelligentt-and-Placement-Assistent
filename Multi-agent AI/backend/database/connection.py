@@ -16,8 +16,10 @@ async def mongo_lifespan(app: FastAPI):
     FastAPI lifespan context manager for MongoDB connection.
     Gracefully connects if configured, with non-blocking error handling.
     """
-    mongo_url = os.getenv("MONGODB_URL") or os.getenv("MONGODB_URI")
-    database_name = os.getenv("MONGODB_DATABASE", "ipca_db")
+    # MONGODB_URI is the single source of truth for Atlas and local setups.
+    # MONGODB_URL remains a backwards-compatible fallback only.
+    mongo_url = os.getenv("MONGODB_URI") or os.getenv("MONGODB_URL")
+    database_name = os.getenv("MONGODB_DATABASE", "placement_assistant")
 
     client = None
     if mongo_url:

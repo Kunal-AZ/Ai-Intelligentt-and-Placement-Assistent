@@ -10,6 +10,7 @@
     "dev:api": "npm run dev --workspace=@placement-assistant/api",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
+    "pretypecheck": "npm run build --workspace=@placement-assistant/ai-core && npm run build --workspace=@placement-assistant/config && npm run build --workspace=@placement-assistant/database && npm run build --workspace=@placement-assistant/types && npm run build --workspace=@placement-assistant/validation",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "verify": "npm run typecheck && npm run lint && npm run test && npm run build"

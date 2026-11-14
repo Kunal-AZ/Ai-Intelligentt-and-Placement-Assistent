@@ -9,6 +9,12 @@ export interface RoleProfile {
 }
 
 export const roleProfiles: RoleProfile[] = [
+  { role: 'Software Engineer', requirements: [
+    { skill: 'JavaScript', category: 'FOUNDATIONAL' }, { skill: 'TypeScript', category: 'CORE' },
+    { skill: 'Data Structures', category: 'CORE' }, { skill: 'Algorithms', category: 'CORE' },
+    { skill: 'Git', category: 'FOUNDATIONAL' }, { skill: 'REST APIs', category: 'CORE' },
+    { skill: 'Testing', category: 'CORE' }, { skill: 'Cloud Deployment', category: 'CORE' },
+  ] },
   { role: 'Backend Developer', requirements: [
     { skill: 'JavaScript', category: 'FOUNDATIONAL' }, { skill: 'TypeScript', category: 'CORE' },
     { skill: 'Node.js', category: 'CORE' }, { skill: 'Express.js', category: 'CORE' },
@@ -29,5 +35,12 @@ export const roleProfiles: RoleProfile[] = [
 ];
 
 export function getRoleProfile(role: string): RoleProfile | undefined {
-  return roleProfiles.find((profile) => profile.role.toLocaleLowerCase() === role.trim().toLocaleLowerCase());
+  const selected = roleProfiles.find((profile) => profile.role.toLocaleLowerCase() === role.trim().toLocaleLowerCase());
+  // The platform accepts the broader technology-role catalog. These baseline
+  // requirements keep gap analysis useful even before a specialist catalog is added.
+  return selected ?? { role: role.trim(), requirements: [
+    { skill: 'Data Structures', category: 'CORE' }, { skill: 'Algorithms', category: 'CORE' },
+    { skill: 'Git', category: 'FOUNDATIONAL' }, { skill: 'Testing', category: 'CORE' },
+    { skill: 'Communication', category: 'FOUNDATIONAL' },
+  ] };
 }

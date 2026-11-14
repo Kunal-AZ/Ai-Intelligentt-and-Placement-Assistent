@@ -26,15 +26,18 @@ def run_ipca_workflow(
         student_name = student.get("student_name", "")
         resume_text = student.get("resume_text", "")
         target_role = student.get("target_role", "")
+        current_skills = student.get("current_skills", [])
     else:
         student_name = student.student_name
         resume_text = student.resume_text
         target_role = student.target_role
+        current_skills = getattr(student, "current_skills", [])
 
     initial_state = {
         "student_name": student_name,
         "resume_text": resume_text,
         "target_role": target_role,
+        "current_skills": current_skills,
         "resume_analysis": None,
         "resume_quality_score": None,
         "missing_sections": [],

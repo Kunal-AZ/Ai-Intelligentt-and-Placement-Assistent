@@ -6,6 +6,7 @@ class IPCAState(TypedDict, total=False):
     student_name: str
     resume_text: str
     target_role: str
+    current_skills: List[str]
 
     # Resume Agent
     resume_analysis: Optional[dict[str, Any]]

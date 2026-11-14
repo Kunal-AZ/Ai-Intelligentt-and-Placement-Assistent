@@ -5,7 +5,7 @@ interface SkillItem {
   id: string;
   name: string;
   category: 'Backend' | 'Frontend' | 'Database' | 'Systems' | 'DevOps' | 'AI/ML';
-  level: 'Foundational' | 'Competent' | 'Advanced' | 'Production';
+  level: 'Resume mention' | 'Foundational' | 'Competent' | 'Advanced' | 'Production';
   evidenceSource: string;
 }
 
@@ -25,6 +25,13 @@ const ROLES_CATALOG: RoleRequirement[] = [
       ...['JavaScript', 'TypeScript', 'Node.js', 'Express.js', 'SQL', 'MongoDB', 'REST APIs', 'Git'].map((name) => ({ name, priority: 'CRITICAL' as const, matched: false })),
     ],
   },
+  { roleId: 'Software Engineer', roleName: 'Software Engineer', avgLpa: 'Role requirements', requiredSkills: [...['Data Structures', 'Algorithms', 'Git', 'Testing', 'REST APIs'].map((name) => ({ name, priority: 'CRITICAL' as const, matched: false }))] },
+  { roleId: 'Full-Stack Developer', roleName: 'Full-Stack Developer', avgLpa: 'Role requirements', requiredSkills: [...['JavaScript', 'React', 'Node.js', 'SQL', 'Git'].map((name) => ({ name, priority: 'CRITICAL' as const, matched: false }))] },
+  { roleId: 'Mobile Developer', roleName: 'Mobile Developer', avgLpa: 'Role requirements', requiredSkills: [...['JavaScript', 'React Native', 'Mobile UI', 'REST APIs', 'Git'].map((name) => ({ name, priority: 'CRITICAL' as const, matched: false }))] },
+  { roleId: 'DevOps Engineer', roleName: 'DevOps Engineer', avgLpa: 'Role requirements', requiredSkills: [...['Linux', 'Docker', 'CI/CD', 'Cloud Deployment', 'Git'].map((name) => ({ name, priority: 'CRITICAL' as const, matched: false }))] },
+  { roleId: 'Cybersecurity Analyst', roleName: 'Cybersecurity Analyst', avgLpa: 'Role requirements', requiredSkills: [...['Networking', 'Linux', 'Security Fundamentals', 'Python', 'Git'].map((name) => ({ name, priority: 'CRITICAL' as const, matched: false }))] },
+  { roleId: 'Data Scientist', roleName: 'Data Scientist', avgLpa: 'Role requirements', requiredSkills: [...['Python', 'SQL', 'Statistics', 'Machine Learning', 'Data Visualization'].map((name) => ({ name, priority: 'CRITICAL' as const, matched: false }))] },
+  { roleId: 'AI Engineer', roleName: 'AI Engineer', avgLpa: 'Role requirements', requiredSkills: [...['Python', 'Machine Learning', 'LLMs', 'APIs', 'Git'].map((name) => ({ name, priority: 'CRITICAL' as const, matched: false }))] },
   {
     roleId: 'Frontend Developer', roleName: 'Frontend Developer', avgLpa: 'Role requirements',
     requiredSkills: [
@@ -50,7 +57,8 @@ export function SkillEvidencePage() {
         const evidenceBySkill = new Map(result.evidence.map((item) => [item.skillId, item]));
         setSkills(result.skills.map((skill) => {
           const evidence = evidenceBySkill.get(skill._id);
-          return { id: skill._id, name: skill.displayName, category: 'Backend', level: evidence?.proficiency === 'ADVANCED' ? 'Advanced' : evidence?.proficiency === 'INTERMEDIATE' ? 'Competent' : 'Foundational', evidenceSource: evidence?.summary || evidence?.source || 'Recorded evidence' };
+          const resumeOnly = evidence?.source === 'RESUME' && !evidence.proficiency;
+          return { id: skill._id, name: skill.displayName, category: 'Backend', level: resumeOnly ? 'Resume mention' : evidence?.proficiency === 'ADVANCED' ? 'Advanced' : evidence?.proficiency === 'INTERMEDIATE' ? 'Competent' : 'Foundational', evidenceSource: evidence?.summary || evidence?.source || 'Recorded evidence' };
         }));
       } catch {
         setSkills([]);
@@ -162,7 +170,7 @@ export function SkillEvidencePage() {
                 </span>
               </div>
               <span className={`badge text-[9px] ${req.matched ? 'badge-success' : 'badge-warning'}`}>
-                {req.matched ? 'VERIFIED' : 'GAP'}
+                {req.matched ? 'RECORDED' : 'GAP'}
               </span>
             </div>
           ))}
@@ -173,7 +181,7 @@ export function SkillEvidencePage() {
       <div className="card p-5 flex flex-col gap-3">
         <div className="flex items-center justify-between pb-2 border-b border-[var(--border-subtle)] text-xs">
           <span className="font-bold text-[var(--text-primary)] uppercase tracking-wider">
-            Verified Evidence Ledger ({skills.length})
+            Evidence Ledger ({skills.length})
           </span>
           <span className="text-[var(--text-muted)] font-mono">Accepted Proof Trails</span>
         </div>
