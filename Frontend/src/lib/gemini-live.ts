@@ -103,7 +103,9 @@ export class GeminiLiveInterview {
       if (level > 0.018) this.callbacks.onActivity('CANDIDATE');
       else if (!this.playbackSources.size) this.callbacks.onActivity('IDLE');
       const pcm = downsampleToPcm16(samples, this.context?.sampleRate ?? 48_000);
-      this.socket.send(JSON.stringify({ realtimeInput: { mediaChunks: [{ mimeType: 'audio/pcm;rate=16000', data: toBase64(pcm) }] } }));
+      // `mediaChunks` is deprecated (and newer Live models ignore it), so the AI never
+      // heard the candidate. Current API: realtimeInput.audio.
+      this.socket.send(JSON.stringify({ realtimeInput: { audio: { mimeType: 'audio/pcm;rate=16000', data: toBase64(pcm) } } }));
     };
     this.inputSource.connect(this.processor);
     this.processor.connect(this.silentSink);
@@ -146,7 +148,9 @@ export class GeminiLiveInterview {
     void this.context.resume();
     const binary = atob(base64); const bytes = new Uint8Array(binary.length);
     for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
-    const pcm = new Int16Array(bytes.buffer); const audio = this.context.createBuffer(1, pcm.length, 24_000);
+    // Int16Array throws on an odd byte length; drop the trailing byte instead of losing the chunk.
+    const pcm = new Int16Array(bytes.buffer, 0, Math.floor(bytes.length / 2)); if (!pcm.length) return;
+    const audio = this.context.createBuffer(1, pcm.length, 24_000);
     const channel = audio.getChannelData(0);
     for (let index = 0; index < pcm.length; index += 1) channel[index] = pcm[index] / 0x8000;
     const source = this.context.createBufferSource(); source.buffer = audio; source.connect(this.context.destination); this.playbackSources.add(source);
@@ -177,6 +181,10 @@ export class GeminiLiveInterview {
 
   setMuted(muted: boolean) {
     this.muted = muted;
-    if (muted) this.callbacks.onActivity('IDLE');
+    if (muted) {
+      this.callbacks.onActivity('IDLE');
+      // Flush buffered audio so the model can finish its turn; streaming resumes on unmute.
+      if (this.socket?.readyState === WebSocket.OPEN) this.socket.send(JSON.stringify({ realtimeInput: { audioStreamEnd: true } }));
+    }
   }
 }
