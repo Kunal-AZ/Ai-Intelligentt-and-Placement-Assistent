@@ -8,6 +8,7 @@
   "scripts": {
     "dev:web": "npm run dev --workspace=@placement-assistant/web",
     "dev:api": "npm run dev --workspace=@placement-assistant/api",
+    "dev:worker": "npm run worker --workspace=@placement-assistant/api",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "pretypecheck": "npm run build --workspace=@placement-assistant/ai-core && npm run build --workspace=@placement-assistant/config && npm run build --workspace=@placement-assistant/database && npm run build --workspace=@placement-assistant/types && npm run build --workspace=@placement-assistant/validation",

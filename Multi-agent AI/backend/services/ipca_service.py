@@ -12,6 +12,7 @@ from schemas.api_schema import IPCARequest
 from workflow.input_schema import StudentInput
 from workflow.graph import ipca_graph
 from utils.logger import logger
+from core.exceptions import IPCAException
 
 
 def run_ipca_workflow(
@@ -50,6 +51,8 @@ def run_ipca_workflow(
         "final_report": None,
         "workflow_status": "started",
         "error": None,
+        "error_code": None,
+        "error_status": None,
         "errors": []
     }
 
@@ -64,6 +67,13 @@ def run_ipca_workflow(
     try:
         result = ipca_graph.invoke(initial_state, config=config)
 
+        if result.get("workflow_status") == "failed":
+            raise IPCAException(
+                message=result.get("error") or "Workflow execution failed.",
+                status_code=result.get("error_status") or 500,
+                error_code=result.get("error_code") or "WORKFLOW_EXECUTION_ERROR",
+            )
+
         return {
             "thread_id": thread_id,
             "workflow_status": result.get("workflow_status", "completed"),
@@ -72,6 +82,9 @@ def run_ipca_workflow(
             "error": result.get("error")
         }
 
+    except IPCAException:
+        # Keep quota, authentication and timeout codes intact for HTTP clients.
+        raise
     except Exception as error:
         logger.exception("IPCA Workflow Execution Error (thread_id: %s): %s", thread_id, str(error))
         return {

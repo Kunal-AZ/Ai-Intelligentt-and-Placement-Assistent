@@ -54,13 +54,14 @@ export class GeminiLiveInterview {
   }
 
   async connect(setup: Setup): Promise<void> {
+    if (this.closed) throw new Error('This interview connection has been closed. Start a new session.');
     this.callbacks.onStatus('connecting');
     this.setup = setup;
     return new Promise<void>((resolve, reject) => {
       this.resolveConnected = resolve; this.rejectConnected = reject;
       this.connectTimeout = window.setTimeout(() => {
         const error = new Error('Gemini Live did not confirm the session within 12 seconds. Check Live API access, the configured model, and your network.');
-        this.rejectConnected?.(error); this.callbacks.onError(error.message); this.socket?.close();
+        this.fail(error);
       }, 12_000);
       this.socket = new WebSocket(`wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained?access_token=${encodeURIComponent(setup.token)}`);
       this.socket.onopen = () => {
@@ -72,20 +73,23 @@ export class GeminiLiveInterview {
       }}));
       };
       this.socket.onmessage = (event) => void this.handleServerMessage(event.data);
-      this.socket.onerror = () => { const error = new Error('The live interview connection failed. Check that your Gemini project has Live API access.'); this.rejectConnected?.(error); this.callbacks.onError(error.message); };
+      this.socket.onerror = () => this.fail(new Error('The live interview connection failed. Please check your connection and try again.'));
       this.socket.onclose = (event) => {
         if (!this.closed) {
           const reason = event.reason ? `Gemini Live closed the session: ${event.reason}` : `Gemini Live closed the session (code ${event.code}).`;
-          this.rejectConnected?.(new Error(reason)); this.callbacks.onError(reason); this.callbacks.onStatus('closed');
+          this.fail(new Error(reason));
         }
       };
     });
   }
 
   private async startMic(): Promise<void> {
-    this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    if (this.closed) { stream.getTracks().forEach((track) => track.stop()); return; }
+    this.stream = stream;
     this.context ??= new AudioContext();
     if (this.context.state !== 'running') await this.context.resume();
+    if (this.closed) return;
     this.inputSource = this.context.createMediaStreamSource(this.stream);
     this.processor = this.context.createScriptProcessor(2048, 1, 1);
     // Keep the processor alive without sending the user's microphone back to
@@ -97,6 +101,7 @@ export class GeminiLiveInterview {
       const samples = event.inputBuffer.getChannelData(0);
       const level = Math.sqrt(samples.reduce((sum, sample) => sum + sample * sample, 0) / samples.length);
       if (level > 0.018) this.callbacks.onActivity('CANDIDATE');
+      else if (!this.playbackSources.size) this.callbacks.onActivity('IDLE');
       const pcm = downsampleToPcm16(samples, this.context?.sampleRate ?? 48_000);
       this.socket.send(JSON.stringify({ realtimeInput: { mediaChunks: [{ mimeType: 'audio/pcm;rate=16000', data: toBase64(pcm) }] } }));
     };
@@ -106,17 +111,20 @@ export class GeminiLiveInterview {
   }
 
   private async handleServerMessage(raw: unknown) {
+    if (this.closed) return;
     let message: { setupComplete?: Record<string, never>; error?: { message?: string }; serverContent?: { interrupted?: boolean; inputTranscription?: { text?: string }; outputTranscription?: { text?: string }; modelTurn?: { parts?: Array<{ inlineData?: { data?: string; mimeType?: string } }> } } };
     try { message = JSON.parse(raw instanceof Blob ? await raw.text() : String(raw)) as typeof message; } catch { return; }
-    if (message.error?.message) { const error = new Error(message.error.message); this.rejectConnected?.(error); this.callbacks.onError(error.message); return; }
+    if (this.closed) return;
+    if (message.error?.message) { this.fail(new Error(message.error.message)); return; }
     if (message.setupComplete) {
       try {
         if (this.connectTimeout !== null) { window.clearTimeout(this.connectTimeout); this.connectTimeout = null; }
         await this.startMic();
+        if (this.closed) return;
         this.socket?.send(JSON.stringify({ clientContent: { turns: [{ role: 'user', parts: [{ text: 'Start the interview now. Introduce yourself briefly and ask the first question.' }] }], turnComplete: true } }));
-        this.resolveConnected?.(); this.callbacks.onStatus('live');
+        this.resolveConnected?.(); this.resolveConnected = null; this.rejectConnected = null; this.callbacks.onStatus('live');
       } catch {
-        const error = new Error('Microphone access is required for the live interview. Allow microphone permission and start again.'); this.rejectConnected?.(error); this.callbacks.onError(error.message); this.close();
+        this.fail(new Error('Microphone access is required for the live interview. Allow microphone permission and start again.'));
       }
       return;
     }
@@ -146,13 +154,25 @@ export class GeminiLiveInterview {
     const startAt = Math.max(this.context.currentTime, this.nextPlaybackTime); source.start(startAt); this.nextPlaybackTime = startAt + audio.duration; this.callbacks.onActivity('INTERVIEWER');
   }
 
+  private fail(error: Error) {
+    if (this.closed) return;
+    this.rejectConnected?.(error);
+    this.rejectConnected = null;
+    this.close();
+    this.callbacks.onError(error.message);
+  }
+
   close() {
+    if (this.closed) return;
     this.closed = true;
+    this.rejectConnected?.(new Error('Interview connection cancelled.'));
+    this.rejectConnected = null; this.resolveConnected = null;
     if (this.connectTimeout !== null) window.clearTimeout(this.connectTimeout);
     this.playbackSources.forEach((source) => source.stop()); this.playbackSources.clear();
     this.inputSource?.disconnect(); this.processor?.disconnect(); this.silentSink?.disconnect();
     this.stream?.getTracks().forEach((track) => track.stop());
-    void this.context?.close(); this.socket?.close(); this.callbacks.onActivity('IDLE'); this.callbacks.onStatus('closed');
+    if (this.context && this.context.state !== 'closed') void this.context.close().catch(() => {});
+    this.socket?.close(); this.callbacks.onActivity('IDLE'); this.callbacks.onStatus('closed');
   }
 
   setMuted(muted: boolean) {

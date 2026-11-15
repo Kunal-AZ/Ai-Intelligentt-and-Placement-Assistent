@@ -1,12 +1,12 @@
 import { createApp } from './app.js';
 import { connectToDatabase } from './config/database.js';
 import { env } from './config/env.js';
-import { redisConnection } from './config/redis.js';
+import { queueConnection } from './config/redis.js';
 
 async function start(): Promise<void> {
   await connectToDatabase();
   try {
-    await redisConnection.ping();
+    await queueConnection.ping();
     console.info('Connected to Redis');
   } catch {
     console.warn('Warning: Redis is unreachable. Background queue workers will wait until Redis is online.');

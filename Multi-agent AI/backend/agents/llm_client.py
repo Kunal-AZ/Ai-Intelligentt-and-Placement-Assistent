@@ -142,26 +142,13 @@ def call_gemini(
         raw_candidates.append((_RESOLVED_MODEL, _RESOLVED_API_VERSION))
 
     if configured_model:
-        raw_candidates.extend([
-            (configured_model, "v1beta"),
-            (configured_model, "v1"),
-        ])
+        raw_candidates.append((configured_model, "v1beta"))
 
-    raw_candidates.extend([
-        ("gemini-flash-latest", "v1beta"),
-        ("gemini-flash-latest", "v1"),
-        ("gemini-flash-lite-latest", "v1beta"),
-        ("gemini-flash-lite-latest", "v1"),
-        ("gemini-pro-latest", "v1beta"),
-        ("gemini-pro-latest", "v1"),
-        ("gemini-2.5-flash", "v1"),
-        ("gemini-2.5-flash", "v1beta"),
-    ])
-
-    # Append any other available models from the account's model list
-    available = get_available_models(api_key)
-    for m in available:
-        raw_candidates.append((m["name"], m["version"]))
+    # Use at most one alternative for a missing or overloaded model. Never
+    # rotate models after authentication/quota errors or connection failures.
+    fallback_model = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-flash-lite-latest").strip()
+    if fallback_model:
+        raw_candidates.append((fallback_model, "v1beta"))
 
     # Deduplicate while preserving order
     candidates: List[Tuple[str, str]] = []
@@ -176,28 +163,35 @@ def call_gemini(
     successful_ver = None
     timed_out = False
 
-    for model_name, ver in candidates:
+    for model_name, ver in candidates[:2]:
         try:
             r = _execute_request(model_name, ver)
-            if r.status_code == 404:
-                continue
-            
             resp = r
             successful_model = model_name
             successful_ver = ver
+            if r.status_code in (404, 502, 503, 504):
+                continue
             break
-        except (httpx.TimeoutException, httpx.ReadTimeout, httpx.ConnectTimeout):
-            # Scenario 3: Request timeout on attempt
+        except httpx.ReadTimeout:
+            # An overloaded model can accept the connection but never produce
+            # a response. Allow the same single fallback as for HTTP 503.
+            # The two-candidate limit bounds total generation wait to 90s.
+            resp = None
             timed_out = True
             continue
+        except httpx.TimeoutException:
+            timed_out = True
+            break
         except Exception:
-            continue
+            # Transport failures are likewise independent of the selected
+            # model. Keep a 404-only fallback for invalid model aliases.
+            break
 
     # Scenario 1 & 3: If no candidates responded
     if resp is None:
         if timed_out:
             raise LLMTimeoutError(
-                f"{agent_name} request timed out after {REQUEST_TIMEOUT.read} seconds.",
+                f"{agent_name} exceeded the provider response timeout.",
                 timeout_seconds=REQUEST_TIMEOUT.read
             )
         raise LLMAPIError(

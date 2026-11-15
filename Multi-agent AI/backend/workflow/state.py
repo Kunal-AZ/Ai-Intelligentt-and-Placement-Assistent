@@ -1,4 +1,5 @@
-from typing import TypedDict, Optional, Any, List
+from typing import TypedDict, Optional, Any, List, Annotated
+import operator
 
 
 class IPCAState(TypedDict, total=False):
@@ -33,7 +34,9 @@ class IPCAState(TypedDict, total=False):
     # Workflow status and error tracking
     workflow_status: str
     error: Optional[str]
-    errors: List[str]
+    error_code: Optional[str]
+    error_status: Optional[int]
+    errors: Annotated[List[str], operator.add]
     resume_execution_time: float
 skill_gap_execution_time: float
 interview_execution_time: float

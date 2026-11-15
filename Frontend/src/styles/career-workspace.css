@@ -1,0 +1,20 @@
+.career-workspace { max-width: 1200px; margin: 0 auto; width: 100%; }
+.career-hero { padding: clamp(24px, 4vw, 42px); border: 1px solid var(--border-default); border-radius: 22px; background: radial-gradient(ellipse at top right, var(--status-info-bg), transparent 65%), var(--bg-surface); }
+.career-eyebrow { color: var(--status-info); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .16em; margin-bottom: 12px; }
+.career-hero h1 { font-size: clamp(26px, 3vw, 36px); line-height: 1.2; font-weight: 800; letter-spacing: -.04em; }
+.career-hero p { color: var(--text-secondary); max-width: 680px; line-height: 1.7; margin-top: 12px; font-size: 14px; }
+.career-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.career-stat { padding: 20px; border: 1px solid var(--border-subtle); border-radius: 16px; background: var(--bg-surface); }
+.career-stat strong { display: block; font-size: 26px; letter-spacing: -.04em; }
+.career-stat span { font-size: 12px; color: var(--text-secondary); }
+.career-workspace .card { border-radius: 16px; }
+.career-notice { padding: 16px 20px; background: var(--status-info-bg); border: 1px solid var(--status-info-border); border-radius: 12px; font-size: 13px; line-height: 1.7; }
+.career-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.career-empty { padding: 36px; text-align: center; border: 1px dashed var(--border-strong); border-radius: 16px; }
+.career-empty p { margin: 10px auto 20px; max-width: 540px; color: var(--text-secondary); font-size: 14px; line-height: 1.7; }
+.career-workspace button:focus-visible, .career-workspace a:focus-visible { outline: 2px solid var(--status-info); outline-offset: 3px; }
+.coach-prompts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.coach-prompts button { text-align: left; padding: 12px 16px; border: 1px solid var(--border-default); border-radius: 12px; font-size: 12px; background: var(--bg-surface); }
+.coach-prompts button:hover { background: var(--bg-hover); }
+.coach-composer { padding: 12px; border: 1px solid var(--border-strong); border-radius: 16px; background: var(--bg-surface); }
+@media (max-width: 640px) { .career-stats { gap: 6px; } .career-stat { padding: 12px; } .career-stat strong { font-size: 22px; } .coach-prompts { grid-template-columns: 1fr; } .career-actions > * { flex-grow: 1; } }

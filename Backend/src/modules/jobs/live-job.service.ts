@@ -19,7 +19,7 @@ type AdzunaResponse = { results?: Array<{ id: string; title: string; description
 type RemotiveResponse = { jobs?: Array<{ id: number; title: string; description?: string; url: string; publication_date?: string; company_name?: string; company_logo_url?: string; candidate_required_location?: string; job_type?: string }> };
 type JobicyResponse = { jobs?: Array<{ id: number | string; jobTitle?: string; companyName?: string; jobGeo?: string; url?: string; pubDate?: string; jobDescription?: string; jobType?: string; jobIndustry?: string }> };
 
-const cache = new Map<string, { expiresAt: number; jobs: LiveJob[] }>();
+const cache = new Map<string, { expiresAt: number; jobs: LiveJob[]; providers: string[] }>();
 const knownSkills = [...new Set(roleProfiles.flatMap((profile) => profile.requirements.map((requirement) => requirement.skill)))];
 
 function cleanText(value: string): string { return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); }
@@ -72,11 +72,12 @@ async function jobicyJobs(query: string): Promise<LiveJob[]> {
 export async function getLiveJobs(query: string, country: string): Promise<{ jobs: LiveJob[]; providers: string[] }> {
   const key = `${query.toLocaleLowerCase()}:${country.toLocaleLowerCase()}`;
   const cached = cache.get(key);
-  if (cached && cached.expiresAt > Date.now()) return { jobs: cached.jobs, providers: ['JOBICY', 'REMOTIVE', ...(env.ADZUNA_APP_ID && env.ADZUNA_APP_KEY ? ['ADZUNA'] : [])] };
+  if (cached && cached.expiresAt > Date.now()) return { jobs: cached.jobs, providers: cached.providers };
   const [adzuna, remotive, jobicy] = await Promise.allSettled([adzunaJobs(query, country), remotiveJobs(query), jobicyJobs(query)]);
   const jobs = [...(adzuna.status === 'fulfilled' ? adzuna.value : []), ...(remotive.status === 'fulfilled' ? remotive.value : []), ...(jobicy.status === 'fulfilled' ? jobicy.value : [])];
   const unique = [...new Map(jobs.map((job) => [`${job.title.toLocaleLowerCase()}:${job.company.name.toLocaleLowerCase()}:${job.location.toLocaleLowerCase()}`, job])).values()];
   // Remotive advises consumers not to fetch more than four times per day.
-  cache.set(key, { jobs: unique, expiresAt: Date.now() + 6 * 60 * 60 * 1000 });
-  return { jobs: unique, providers: [adzuna.status === 'fulfilled' && env.ADZUNA_APP_ID ? 'ADZUNA' : '', remotive.status === 'fulfilled' ? 'REMOTIVE' : '', jobicy.status === 'fulfilled' ? 'JOBICY' : ''].filter(Boolean) };
+  const providers = [adzuna.status === 'fulfilled' && env.ADZUNA_APP_ID ? 'ADZUNA' : '', remotive.status === 'fulfilled' ? 'REMOTIVE' : '', jobicy.status === 'fulfilled' ? 'JOBICY' : ''].filter(Boolean);
+  if (providers.length) cache.set(key, { jobs: unique, providers, expiresAt: Date.now() + 6 * 60 * 60 * 1000 });
+  return { jobs: unique, providers };
 }

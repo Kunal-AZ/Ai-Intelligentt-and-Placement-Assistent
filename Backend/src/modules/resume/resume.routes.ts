@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import type { RequestHandler } from 'express';
 import { Router } from 'express';
 import multer from 'multer';
+import rateLimit from 'express-rate-limit';
 import { objectIdSchema } from '@placement-assistant/validation';
 import { env } from '../../config/env.js';
 import { AppError } from '../../utils/app-error.js';
@@ -18,6 +19,7 @@ import { extractResumeText } from './resume-extractor.js';
 
 export const resumeRouter = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: env.UPLOAD_MAX_BYTES, files: 1, fields: 4 } });
+const resumeMutationLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: 'draft-8', legacyHeaders: false, message: { success: false, error: { code: 'RESUME_RATE_LIMITED', message: 'Too many resume requests. Please try again later.' } } });
 
 function uploadOne(fieldName: string): RequestHandler {
   return (request, response, next) => upload.single(fieldName)(request, response, next);
@@ -30,7 +32,7 @@ async function requireCompleteProfile(userId: string): Promise<void> {
   if (!completion.complete) throw new AppError(409, 'PROFILE_INCOMPLETE', `Complete your profile before uploading a resume. Missing: ${completion.missing.join(', ')}.`);
 }
 
-resumeRouter.post('/', uploadOne('resume'), async (request, response, next) => {
+resumeRouter.post('/', resumeMutationLimiter, uploadOne('resume'), async (request, response, next) => {
   let storageKey: string | undefined;
   let resumeId: string | undefined;
   try {
@@ -107,6 +109,18 @@ resumeRouter.get('/:id/download', async (request, response, next) => {
     if (!resume) throw new AppError(404, 'RESUME_NOT_FOUND', 'Resume was not found.');
     const content = await readResume(resume.storageKey);
     response.type(resume.mimeType).attachment(resume.originalFileName).send(content);
+  } catch (error) { next(error); }
+});
+
+resumeRouter.delete('/:id', resumeMutationLimiter, async (request, response, next) => {
+  try {
+    const id = objectIdSchema.parse(request.params.id);
+    const resume = await Resume.findOne({ _id: id, userId: request.auth!.userId }).select('+storageKey');
+    if (!resume) throw new AppError(404, 'RESUME_NOT_FOUND', 'Resume was not found.');
+    await deleteResume(resume.storageKey);
+    await ResumeAnalysis.deleteOne({ resumeId: resume._id, userId: request.auth!.userId });
+    await Resume.deleteOne({ _id: resume._id, userId: request.auth!.userId });
+    response.status(204).send();
   } catch (error) { next(error); }
 });
 

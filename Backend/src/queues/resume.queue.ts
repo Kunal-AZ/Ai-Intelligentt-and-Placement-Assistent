@@ -1,11 +1,11 @@
 import { Queue } from 'bullmq';
-import { redisConnection } from '../config/redis.js';
+import { queueConnection } from '../config/redis.js';
 
 export const resumeQueueName = 'resume-processing';
 export type ResumeProcessingJob = { resumeId: string; userId: string };
 
 export const resumeProcessingQueue = new Queue<ResumeProcessingJob>(resumeQueueName, {
-  connection: redisConnection,
+  connection: queueConnection,
   defaultJobOptions: { attempts: 3, backoff: { type: 'exponential', delay: 1000 }, removeOnComplete: 100, removeOnFail: 1000 },
 });
 

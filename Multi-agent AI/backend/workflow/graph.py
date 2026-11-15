@@ -18,7 +18,7 @@ from agents.resume_agent import analyze_resume_with_ai
 from agents.skill_gap_agent import analyze_skill_gaps
 from agents.interview_agent import generate_interview_questions
 from agents.career_agent import generate_career_recommendations
-from core.exceptions import WorkflowExecutionError
+from core.exceptions import IPCAException, WorkflowExecutionError
 
 
 # =================================
@@ -47,11 +47,12 @@ def resume_node(state: IPCAState):
 
     except Exception as e:
         print(f"[IPCA ERROR in Resume Node]: {str(e)}")
-        errors = list(state.get("errors") or [])
-        errors.append(f"Resume analysis failed: {str(e)}")
+        errors = [f"Resume analysis failed: {str(e)}"]
         return {
             "resume_analysis": None,
             "error": str(e),
+            "error_code": e.error_code if isinstance(e, IPCAException) else "WORKFLOW_EXECUTION_ERROR",
+            "error_status": e.status_code if isinstance(e, IPCAException) else 500,
             "errors": errors,
             "workflow_status": "failed"
         }
@@ -156,8 +157,7 @@ def skill_gap_node(state: IPCAState):
 
     except Exception as e:
         print(f"[IPCA ERROR in Skill Gap Node]: {str(e)}")
-        errors = list(state.get("errors") or [])
-        errors.append(f"Skill gap analysis failed: {str(e)}")
+        errors = [f"Skill gap analysis failed: {str(e)}"]
         return {
             "skill_gap_analysis": {"missing_skills": [], "error": str(e)},
             "errors": errors
@@ -193,8 +193,7 @@ def interview_node(state: IPCAState):
 
     except Exception as e:
         print(f"[IPCA ERROR in Interview Node]: {str(e)}")
-        errors = list(state.get("errors") or [])
-        errors.append(f"Interview preparation failed: {str(e)}")
+        errors = [f"Interview preparation failed: {str(e)}"]
         return {
             "interview_preparation": {"questions": [], "error": str(e)},
             "errors": errors
@@ -231,8 +230,7 @@ def career_node(state: IPCAState):
 
     except Exception as e:
         print(f"[IPCA ERROR in Career Node]: {str(e)}")
-        errors = list(state.get("errors") or [])
-        errors.append(f"Career recommendation failed: {str(e)}")
+        errors = [f"Career recommendation failed: {str(e)}"]
         return {
             "career_recommendations": {"top_career_paths": [], "error": str(e)},
             "errors": errors

@@ -14,7 +14,11 @@ function normalizeText(value: string): string {
 
 export async function extractResumeText(mimeType: string, buffer: Buffer): Promise<string> {
   if (mimeType === 'application/pdf') {
-    const parsed = await pdfParse(buffer);
+    // PDF.js expects Uint8Array.slice() to copy bytes. Node Buffer.slice()
+    // returns a view instead, corrupting xref parsing in the bundled parser.
+    // pdf-parse accepts typed arrays at runtime, but its older typings only
+    // declare Buffer as input.
+    const parsed = await pdfParse(new Uint8Array(buffer) as Buffer);
     return normalizeText(parsed.text);
   }
   const extracted = await mammoth.extractRawText({ buffer });

@@ -15,7 +15,11 @@ export const errorHandler: ErrorRequestHandler = (error, request, response, next
   const validationMessage = validationError && error.issues?.length ? error.issues.map((i) => i.message).filter(Boolean).join(' ') || 'One or more fields are invalid.' : undefined;
   const message = knownError
     ? error.message
-    : validationMessage ?? (uploadError ? 'The uploaded file does not meet the allowed limits.' : duplicateKeyError ? 'An account with these details already exists.' : 'An unexpected error occurred.');
+    : validationMessage ?? (uploadError
+      ? 'The uploaded file does not meet the allowed limits.'
+      : duplicateKeyError
+        ? 'An account with these details already exists.'
+        : 'An unexpected error occurred.');
 
   request.log.error({ err: error, requestId: request.id }, 'Request failed');
   response.status(statusCode).json({

@@ -15,7 +15,6 @@ export const jobRouter = Router();
 jobRouter.use(requireAuthentication);
 jobRouter.get('/live', async (request, response, next) => {
   try {
-    await requireResumeAnalysis(request.auth!.userId);
     const input = liveJobsQuerySchema.parse(request.query);
     const [live, analysis, signals] = await Promise.all([
       getLiveJobs(input.query, input.country),
@@ -30,7 +29,6 @@ jobRouter.get('/live', async (request, response, next) => {
 });
 jobRouter.get('/', async (request, response, next) => {
   try {
-    await requireResumeAnalysis(request.auth!.userId);
     const [jobs, analysis, signals] = await Promise.all([
       Job.find({ isActive: true }).sort({ createdAt: -1 }).populate('companyId', 'name website industry').lean(),
       ResumeAnalysis.findOne({ userId: request.auth!.userId }).sort({ updatedAt: -1 }).lean(),

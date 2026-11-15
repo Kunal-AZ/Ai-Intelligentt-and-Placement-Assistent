@@ -84,8 +84,9 @@ export async function orchestrateCareerRequest(userId: string, message: string):
       for (const chunk of chunks) sources.push({ id: `knowledge:${chunk.chunkId}`, kind: 'RETRIEVED_KNOWLEDGE', label: chunk.source.title });
       facts.push(JSON.stringify({ retrievedKnowledge: chunks.map((chunk: RetrievedKnowledge) => ({ sourceId: `knowledge:${chunk.chunkId}`, text: chunk.text, source: chunk.source })) }));
     } catch (error) {
-      if (error instanceof AppError && ['EMBEDDINGS_NOT_CONFIGURED', 'VECTOR_SEARCH_UNAVAILABLE'].includes(error.code)) limitations.push('Retrieved knowledge is currently unavailable.');
-      else throw error;
+      // Retrieval is optional; the coach can still use recorded evidence.
+      limitations.push('Retrieved knowledge is currently unavailable; this answer uses general guidance and recorded candidate evidence.');
+      void error;
     }
   }
 

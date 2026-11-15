@@ -12,7 +12,7 @@ Phase 6 foundation for an AI-powered placement and career platform.
 
 ## Local development
 
-1. Copy the single root `.env.example` to `.env`, set `GEMINI_API_KEY`, and replace the JWT secret placeholders with values of at least 32 characters.
+1. Copy the single root `.env.example` to `.env`, set `GEMINI_API_KEY`, `AI_SERVICE_TOKEN`, Supabase Storage values, and replace the JWT secret placeholders with values of at least 32 characters.
 2. Install dependencies with `npm install` at the repository root.
 3. Start MongoDB and Redis: `docker compose up mongodb redis`.
 4. In three terminals, run `npm run dev:api`, `npm run worker --workspace=@placement-assistant/api`, and `npm run dev:web`.
@@ -30,11 +30,11 @@ The repository features a unified multi-service CI workflow (`.github/workflows/
 
 ## Environment configuration
 
-The root `.env` is the single runtime configuration file for the Express API, BullMQ worker, Docker Compose services, and FastAPI service. `GEMINI_API_KEY` is server-only: do not put it in a `VITE_*` variable or any frontend file. The Express API reaches FastAPI through `AI_SERVICE_URL`; the browser never calls FastAPI or Gemini directly.
+The root `.env` is the single runtime configuration file for the Express API, BullMQ worker, Docker Compose services, and FastAPI service. `GEMINI_API_KEY`, `AI_SERVICE_TOKEN`, and Supabase secret keys are server-only: do not put them in a `VITE_*` variable or any frontend file. Resume files are stored in a private Supabase Storage bucket shared by the API and worker. The Express API reaches FastAPI through `AI_SERVICE_URL`; the browser never calls FastAPI or Gemini directly.
 
 ## Multi-agent AI integration
 
-Authenticated users access the protected FastAPI system only through Express: `POST /api/v1/ai/workflow`, `/api/v1/ai/interview/questions`, `/api/v1/ai/interview/evaluate`, and `/api/v1/ai/careers`. Configure `AI_SERVICE_URL` and `AI_SERVICE_TIMEOUT_MS`; for Docker Compose, the API automatically uses `http://ai-service:8000`.
+Authenticated users access the protected FastAPI system only through Express: `POST /api/v1/ai/workflow`, `/api/v1/ai/interview/questions`, `/api/v1/ai/interview/evaluate`, and `/api/v1/ai/careers`. Configure the same `AI_SERVICE_TOKEN` in Express and FastAPI. Workflow requests are queued and processed by the worker so long-running Gemini calls do not time out browser requests.
 
 ## Phase 2 API
 

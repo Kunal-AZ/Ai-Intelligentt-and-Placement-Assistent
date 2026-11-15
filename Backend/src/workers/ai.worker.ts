@@ -1,6 +1,4 @@
 import { Worker } from 'bullmq';
-import mammoth from 'mammoth';
-import pdfParse from 'pdf-parse';
 import { connectToDatabase } from '../config/database.js';
 import { redisConnection } from '../config/redis.js';
 import { Resume } from '../modules/resume/resume.model.js';
@@ -16,17 +14,9 @@ import { ResumeAnalysis } from '../modules/resume/resume-analysis.model.js';
 import { analyzeResumeText, resumeAgentPromptVersion } from '../ai/agents/resume.agent.js';
 import { env } from '../config/env.js';
 import { AppError } from '../utils/app-error.js';
-
-const maximumExtractedCharacters = 100000;
-
-function normalizeText(value: string): string {
-  return value.replaceAll('\0', '').replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim().slice(0, maximumExtractedCharacters);
-}
-
-async function extractText(mimeType: string, file: Buffer): Promise<string> {
-  if (mimeType === 'application/pdf') return normalizeText((await pdfParse(file)).text);
-  return normalizeText((await mammoth.extractRawText({ buffer: file })).value);
-}
+import { workflowQueueName, type WorkflowJob } from '../queues/workflow.queue.js';
+import { runPlacementWorkflow } from '../modules/ai/workflow.service.js';
+import { extractResumeText } from '../modules/resume/resume-extractor.js';
 
 async function processResume(job: { data: ResumeProcessingJob }): Promise<void> {
   const resume = await Resume.findById(job.data.resumeId).select('+storageKey');
@@ -34,7 +24,7 @@ async function processResume(job: { data: ResumeProcessingJob }): Promise<void> 
 
   await Resume.updateOne({ _id: resume._id }, { processingStatus: 'PROCESSING', processingErrorCode: undefined });
   try {
-    const text = await extractText(resume.mimeType, await readResume(resume.storageKey));
+    const text = await extractResumeText(resume.mimeType, await readResume(resume.storageKey));
     if (!text) throw new Error('RESUME_TEXT_NOT_EXTRACTABLE');
     await Resume.updateOne({ _id: resume._id }, { processingStatus: 'READY', extractedText: text, processedAt: new Date() });
   } catch (error) {
@@ -93,6 +83,8 @@ async function startWorker(): Promise<void> {
   knowledgeWorker.on('error', (error) => console.error('Knowledge worker error', error));
   const resumeAnalysisWorker = new Worker<ResumeAnalysisJob>(resumeAnalysisQueueName, processResumeAnalysis, { connection: redisConnection, concurrency: 1 });
   resumeAnalysisWorker.on('error', (error) => console.error('Resume analysis worker error', error));
+  const workflowWorker = new Worker<WorkflowJob>(workflowQueueName, (job) => runPlacementWorkflow(job.data), { connection: redisConnection, concurrency: 1 });
+  workflowWorker.on('error', (error) => console.error('Placement workflow worker error', error));
 }
 
 startWorker().catch((error: unknown) => {
