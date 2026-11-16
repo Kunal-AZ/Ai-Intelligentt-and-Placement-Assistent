@@ -1,11 +1,9 @@
 import { connectToDatabase } from '../config/database.js';
-import { registerShutdown } from '../shutdown.js';
 import { startWorkers } from './runtime.js';
 
 async function startWorker(): Promise<void> {
   await connectToDatabase();
-  const workers = startWorkers();
-  registerShutdown(workers);
+  startWorkers();
   console.info('AI workers started');
 }
 
