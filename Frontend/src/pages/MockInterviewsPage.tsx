@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { api } from '../lib/api';
-import { GeminiLiveInterview, type LiveInterviewCallbacks } from '../lib/gemini-live';
+import { GeminiLiveInterview, type LiveInterviewCallbacks, type LiveAudioState } from '../lib/gemini-live';
 import '../styles/interviews.css';
 
 type Question = { question: string; rubric: string[]; focusSkills: string[] };
@@ -60,6 +60,8 @@ export function MockInterviewsPage() {
   const [liveStatus, setLiveStatus] = useState<LiveStatus>('idle');
   const [activity, setActivity] = useState<Activity>('IDLE');
   const [muted, setMuted] = useState(false);
+  const [canReplay, setCanReplay] = useState(false);
+  const [audioState, setAudioState] = useState<LiveAudioState>({ micLevel: 0, sentChunks: 0, receivedChunks: 0, playback: 'unavailable' });
   const [listening, setListening] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -131,8 +133,13 @@ export function MockInterviewsPage() {
       finally { if (request === requestRef.current) setBusy(false); }
       return;
     }
+    setCanReplay(false);
+    setAudioState({ micLevel: 0, sentChunks: 0, receivedChunks: 0, playback: 'unavailable' });
     setPhase('interview'); setLiveStatus('connecting'); setMuted(false); setActivity('IDLE');
     const callbacks: LiveInterviewCallbacks = {
+      onReplayAvailable: (value) => { if (request === requestRef.current) setCanReplay(value); },
+      onAudioState: (state) => { if (request === requestRef.current) setAudioState(state); },
+      onNotice: (message) => { if (request === requestRef.current) setNotice(message); },
       onStatus: (status) => { if (request === requestRef.current) setLiveStatus(status); },
       onTranscript: (speaker, text) => {
         if (request !== requestRef.current) return;
@@ -147,6 +154,8 @@ export function MockInterviewsPage() {
     const client = new GeminiLiveInterview(callbacks); liveRef.current = client;
     try {
       await client.unlockAudio();
+      await client.prepareMicrophone();
+      if (request !== requestRef.current) return;
       const credentials = await api<{ token: string; model: string }>('/interviews/live-token', { method: 'POST' });
       if (request !== requestRef.current) return;
       await client.connect({ ...credentials, role, focus: focusLabel, difficulty });
@@ -220,7 +229,8 @@ export function MockInterviewsPage() {
           <div className="interview-stage-top"><span>HIPLACEMENT INTERVIEWER</span><span className={`interview-live-badge ${liveStatus === 'live' ? 'is-live' : ''}`}><span className="interview-status-dot" />{liveStatus === 'live' ? 'Live' : liveStatus === 'connecting' ? 'Connecting' : 'Disconnected'}</span></div>
           <VoiceOrb activity={activity} active={liveStatus === 'live'} />
           <div className="interview-voice-copy" aria-live="polite"><h2>{liveStatus === 'connecting' ? 'Getting your room ready' : liveStatus !== 'live' ? 'Let’s get you reconnected' : activity === 'INTERVIEWER' ? 'Your interviewer is speaking' : muted ? 'Take a moment. You’re muted.' : activity === 'CANDIDATE' ? 'We’re listening to you' : 'The floor is yours'}</h2><p>{liveStatus === 'connecting' ? 'Connecting audio. Allow microphone access to join.' : liveStatus !== 'live' ? 'Your transcript is still here. Return to setup to start a fresh session.' : activity === 'INTERVIEWER' ? 'Listen to the question, then share your approach.' : muted ? 'Unmute your microphone whenever you’re ready.' : 'Speak naturally. There’s no need to rush your answer.'}</p></div>
-          <div className="interview-voice-controls"><button disabled={liveStatus !== 'live'} aria-pressed={muted} onClick={() => { const next = !muted; liveRef.current?.setMuted(next); setMuted(next); }} className={muted ? 'is-muted' : ''}><Icon name={muted ? 'muted' : 'mic'} /><span>{muted ? 'Unmute' : 'Mute mic'}</span></button><button disabled={liveStatus !== 'live'} onClick={() => { void liveRef.current?.unlockAudio().then(() => setNotice('Speaker audio enabled.')).catch(() => setError('Audio could not start. Check your browser and system volume.')); }}><Icon name="sound" /><span>Enable audio</span></button><button className="interview-end-control" onClick={() => void finish()}><Icon name="end" /><span>End session</span></button></div>
+          <div className="interview-voice-controls"><button disabled={liveStatus !== 'live'} aria-pressed={muted} onClick={() => { const next = !muted; liveRef.current?.setMuted(next); setMuted(next); }} className={muted ? 'is-muted' : ''}><Icon name={muted ? 'muted' : 'mic'} /><span>{muted ? 'Unmute' : 'Mute mic'}</span></button><button disabled={liveStatus !== 'live'} onClick={() => { void liveRef.current?.testSpeaker().then(() => setNotice('A short test tone was played. If you cannot hear it, check the browser tab mute setting and your system output device.')).catch(() => setError('Audio could not start. Check your browser and system volume.')); }}><Icon name="sound" /><span>Test speaker</span></button><button disabled={liveStatus !== 'live' || !canReplay} onClick={() => { void liveRef.current?.repeatQuestion().catch(() => setError('Could not replay the question. Check your audio output and try again.')); }}><Icon name="refresh" /><span>Repeat question</span></button><button className="interview-end-control" onClick={() => void finish()}><Icon name="end" /><span>End session</span></button></div>
+          {liveStatus === 'live' && <div className="interview-audio-check"><label>Microphone level <meter min={0} max={1} value={muted ? 0 : audioState.micLevel} aria-label="Microphone input level" /></label><span>{muted ? 'Microphone muted' : audioState.sentChunks ? 'Microphone audio sending' : 'Waiting for microphone audio'}</span><span>{audioState.receivedChunks ? 'Interviewer audio received' : 'Waiting for interviewer audio'}</span><span>Speaker: {audioState.playback}</span><p>Speak to move the meter. If it stays empty, check your system input device. If audio is received but silent, use Test speaker and check your output volume.</p></div>}
           {['error', 'closed', 'interrupted'].includes(liveStatus) ? <button className="interview-reconnect" onClick={reset}><Icon name="refresh" size={16} /> Back to setup</button> : <p className="interview-voice-footnote">{liveStatus === 'live' ? muted ? 'Microphone muted · You can still hear your interviewer' : 'Microphone connected · Audio streams during this session' : 'Your session timer starts when the connection is ready.'}</p>}
         </section> : current && <section className="interview-panel interview-question-panel">
           <div className="interview-question-top"><span className="interview-eyebrow">QUESTION {String(evaluations.length + 1).padStart(2, '0')}</span><span className="interview-small-tag">{busy ? 'Reviewing answer' : listening ? 'Dictation on' : 'Your turn'}</span></div>

@@ -80,7 +80,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center bg-[var(--bg-canvas)] text-[var(--text-primary)]">
+    <div className="auth-page min-h-screen w-full flex flex-col items-center bg-[var(--bg-canvas)] text-[var(--text-primary)]">
       {/* Top utility bar */}
       <div className="w-full border-b border-[var(--border-subtle)] flex justify-center">
         <div className="w-full max-w-7xl flex items-center justify-between px-6 py-4">

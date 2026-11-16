@@ -15,6 +15,7 @@ interviewRouter.post('/live-token', async (_request, response, next) => {
     if (!env.GEMINI_API_KEY) throw new AppError(503, 'GEMINI_NOT_CONFIGURED', 'Gemini is not configured for live interviews.');
     const now = Date.now();
     const tokenResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/auth_tokens', {
+      signal: AbortSignal.timeout(15_000),
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
       body: JSON.stringify({

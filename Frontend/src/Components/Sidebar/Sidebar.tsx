@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { api } from '../../lib/api';
 import { BrandLogo } from '../BrandLogo';
+import { NavigationIcon } from './NavigationIcon';
 
 interface NavItem {
   label: string;
@@ -106,7 +107,7 @@ export function Sidebar({ isOpen, onClose, isCollapsed, onCollapse }: SidebarPro
               {!isCollapsed && (
                 <p className="sidebar-section-title">{section.title}</p>
               )}
-              {section.items.map(({ label, path, icon, badge }) => (
+              {section.items.map(({ label, path, badge }) => (
                 <NavLink
                   key={path}
                   to={path}
@@ -114,7 +115,7 @@ export function Sidebar({ isOpen, onClose, isCollapsed, onCollapse }: SidebarPro
                   className={({ isActive }: { isActive: boolean }) => `sidebar-link ${isActive ? 'is-active' : ''}`}
                   title={label}
                 >
-                  <span className="sidebar-link-icon">{icon}</span>
+                  <span className="sidebar-link-icon"><NavigationIcon path={path} /></span>
                   {!isCollapsed && <span>{label}</span>}
                   {!isCollapsed && badge && <span className="sidebar-badge">{badge}</span>}
                 </NavLink>

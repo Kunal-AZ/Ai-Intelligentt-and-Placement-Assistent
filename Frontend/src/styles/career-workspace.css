@@ -18,3 +18,39 @@
 .coach-prompts button:hover { background: var(--bg-hover); }
 .coach-composer { padding: 12px; border: 1px solid var(--border-strong); border-radius: 16px; background: var(--bg-surface); }
 @media (max-width: 640px) { .career-stats { gap: 6px; } .career-stat { padding: 12px; } .career-stat strong { font-size: 22px; } .coach-prompts { grid-template-columns: 1fr; } .career-actions > * { flex-grow: 1; } }
+
+.career-columns { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.career-section-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.career-section-heading h2 { font-size: 18px; font-weight: 750; }
+.career-section-heading p, .career-body { color: var(--text-secondary); font-size: 13px; line-height: 1.75; }
+.career-progress { height: 7px; overflow: hidden; background: var(--bg-subtle); border-radius: 10px; margin-bottom: 16px; }
+.career-progress span { display: block; height: 100%; background: var(--status-info); border-radius: inherit; }
+.skill-requirement { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border-subtle); }
+.skill-requirement:last-child { border-bottom: 0; }
+.skill-requirement h3 { font-size: 14px; font-weight: 700; }
+.skill-requirement p { font-size: 12px; line-height: 1.7; color: var(--text-secondary); overflow-wrap: anywhere; }
+.skill-requirement .badge { flex-shrink: 0; }
+.career-steps { counter-reset: step; display: grid; gap: 20px; margin: 24px 0; }
+.career-steps li { display: grid; grid-template-columns: 28px 1fr; gap: 4px 10px; font-size: 13px; }
+.career-steps li::before { counter-increment: step; content: counter(step); grid-row: span 2; background: var(--status-info-bg); color: var(--status-info); border-radius: 50%; width: 26px; height: 26px; display: grid; place-items: center; }
+.career-steps span { color: var(--text-secondary); line-height: 1.6; }
+.job-opportunity { transition: border-color .2s; }
+.job-opportunity:hover { border-color: var(--border-strong); }
+.job-opportunity h2 { font-size: 19px; margin: 8px 0; line-height: 1.4; }
+.career-job-excerpt { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 13px; line-height: 1.75; color: var(--text-secondary); }
+.roadmap-week { border-left: 3px solid var(--status-info); }
+.coach-workspace { height: calc(100dvh - 110px); min-height: 650px; max-width: 1050px; }
+.coach-workspace .career-hero { padding: 24px; }
+.coach-workspace .career-hero h1 { font-size: clamp(22px, 3vw, 30px); }
+.coach-conversation { min-height: 180px; background: var(--bg-canvas); border: 1px solid var(--border-subtle); border-radius: 18px; }
+.coach-prompts button { line-height: 1.6; }
+@media (max-width: 760px) {
+  .career-columns { grid-template-columns: 1fr; }
+  .career-stat strong { font-size: 21px; }
+  .skill-requirement { flex-wrap: wrap; }
+  .coach-workspace { height: auto; min-height: calc(100dvh - 100px); }
+  .coach-conversation { max-height: 60dvh; }
+  .coach-composer { flex-wrap: wrap; }
+  .coach-composer input { width: 100%; }
+  .coach-composer button { width: 100%; }
+}

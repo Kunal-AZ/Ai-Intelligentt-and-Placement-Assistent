@@ -32,6 +32,49 @@ export const roleProfiles: RoleProfile[] = [
     { skill: 'Excel', category: 'FOUNDATIONAL' }, { skill: 'Statistics', category: 'CORE' },
     { skill: 'Data Visualization', category: 'CORE' }, { skill: 'Git', category: 'FOUNDATIONAL' },
   ] },
+  { role: 'Full-Stack Developer', requirements: [
+    { skill: 'JavaScript', category: 'FOUNDATIONAL' },
+    { skill: 'React', category: 'CORE' },
+    { skill: 'Node.js', category: 'CORE' },
+    { skill: 'SQL', category: 'CORE' },
+    { skill: 'REST APIs', category: 'CORE' },
+    { skill: 'Git', category: 'FOUNDATIONAL' },
+  ] },
+  { role: 'Mobile Developer', requirements: [
+    { skill: 'JavaScript', category: 'FOUNDATIONAL' },
+    { skill: 'React Native', category: 'CORE' },
+    { skill: 'Mobile UI', category: 'CORE' },
+    { skill: 'REST APIs', category: 'CORE' },
+    { skill: 'Git', category: 'FOUNDATIONAL' },
+  ] },
+  { role: 'DevOps Engineer', requirements: [
+    { skill: 'Linux', category: 'FOUNDATIONAL' },
+    { skill: 'Docker', category: 'CORE' },
+    { skill: 'CI/CD', category: 'CORE' },
+    { skill: 'Cloud Deployment', category: 'CORE' },
+    { skill: 'Git', category: 'FOUNDATIONAL' },
+  ] },
+  { role: 'Cybersecurity Analyst', requirements: [
+    { skill: 'Networking', category: 'FOUNDATIONAL' },
+    { skill: 'Linux', category: 'FOUNDATIONAL' },
+    { skill: 'Security Fundamentals', category: 'CORE' },
+    { skill: 'Python', category: 'CORE' },
+    { skill: 'Git', category: 'FOUNDATIONAL' },
+  ] },
+  { role: 'Data Scientist', requirements: [
+    { skill: 'Python', category: 'FOUNDATIONAL' },
+    { skill: 'SQL', category: 'CORE' },
+    { skill: 'Statistics', category: 'CORE' },
+    { skill: 'Machine Learning', category: 'CORE' },
+    { skill: 'Data Visualization', category: 'CORE' },
+  ] },
+  { role: 'AI Engineer', requirements: [
+    { skill: 'Python', category: 'FOUNDATIONAL' },
+    { skill: 'Machine Learning', category: 'CORE' },
+    { skill: 'LLMs', category: 'CORE' },
+    { skill: 'REST APIs', category: 'CORE' },
+    { skill: 'Git', category: 'FOUNDATIONAL' },
+  ] },
 ];
 
 export function getRoleProfile(role: string): RoleProfile | undefined {
