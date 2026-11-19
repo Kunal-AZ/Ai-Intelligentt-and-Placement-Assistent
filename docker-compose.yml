@@ -32,7 +32,10 @@ services:
       dockerfile: Dockerfile
     env_file: .env
     environment:
-      MONGODB_URL: mongodb://mongodb:27017
+      # MONGODB_URI takes precedence in the FastAPI service.  Override the
+      # host-oriented value from .env so the container reaches the Compose
+      # Mongo service instead of trying to connect to itself.
+      MONGODB_URI: mongodb://mongodb:27017/placement_assistant
       MONGODB_DATABASE: placement_assistant
     ports:
       - '127.0.0.1:8000:8000'
@@ -58,8 +61,6 @@ services:
         condition: service_healthy
       ai-service:
         condition: service_started
-    volumes:
-      - resume-uploads:/app/Backend/uploads
 
   ai-worker:
     build:
@@ -70,13 +71,14 @@ services:
     environment:
       MONGODB_URI: mongodb://mongodb:27017/placement_assistant
       REDIS_URL: redis://redis:6379
+      # The worker performs the placement workflow, so it must use the
+      # Compose service hostname rather than localhost (the worker itself).
+      AI_SERVICE_URL: http://ai-service:8000
     depends_on:
       mongodb:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - resume-uploads:/app/Backend/uploads
 
   web:
     build:
@@ -90,4 +92,3 @@ services:
 volumes:
   mongo-data:
   redis-data:
-  resume-uploads:

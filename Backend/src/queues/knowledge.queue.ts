@@ -1,11 +1,11 @@
 import { Queue } from 'bullmq';
-import { redisConnection } from '../config/redis.js';
+import { queueConnection } from '../config/redis.js';
 
 export const knowledgeQueueName = 'knowledge-ingestion';
 export type KnowledgeIngestionJob = { documentId: string };
 
 export const knowledgeIngestionQueue = new Queue<KnowledgeIngestionJob>(knowledgeQueueName, {
-  connection: redisConnection,
+  connection: queueConnection,
   defaultJobOptions: { attempts: 3, backoff: { type: 'exponential', delay: 2000 }, removeOnComplete: 100, removeOnFail: 1000 },
 });
 

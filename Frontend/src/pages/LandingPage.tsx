@@ -75,7 +75,7 @@ const FAQS = [
   },
   {
     q: 'Is my uploaded resume and code kept private?',
-    a: 'Yes. All uploads are processed in memory with strict cryptographic hashing (SHA-256) and stored in isolated candidate buckets. Your data is never sold to third parties or exposed to recruiters without your explicit 1-click authorization.',
+    a: 'Yes. Files are validated, hashed, and stored in private object storage. Downloads require your authenticated account, and your data is never exposed to recruiters without your explicit action.',
   },
   {
     q: 'Is HiPlacement completely free for engineering students?',

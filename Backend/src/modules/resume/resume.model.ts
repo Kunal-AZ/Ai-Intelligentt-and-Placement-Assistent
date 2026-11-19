@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 export type ResumeProcessingStatus = 'UPLOADED' | 'PROCESSING' | 'READY' | 'FAILED';
+export type WorkflowStatus = 'NOT_REQUESTED' | 'QUEUED' | 'PROCESSING' | 'READY' | 'FAILED';
 
 export interface ResumeDocument {
   _id: Schema.Types.ObjectId;
@@ -14,6 +15,9 @@ export interface ResumeDocument {
   analysisStatus: 'NOT_REQUESTED' | 'QUEUED' | 'PROCESSING' | 'READY' | 'FAILED';
   analysisErrorCode?: string;
   latestAnalysisId?: Schema.Types.ObjectId;
+  workflowStatus: WorkflowStatus;
+  workflowErrorCode?: string;
+  workflowErrorMessage?: string;
   workflowReport?: Record<string, unknown>;
   workflowCompletedAt?: Date;
   extractedText?: string;
@@ -35,6 +39,9 @@ const resumeSchema = new Schema<ResumeDocument>(
     analysisStatus: { type: String, required: true, enum: ['NOT_REQUESTED', 'QUEUED', 'PROCESSING', 'READY', 'FAILED'], default: 'NOT_REQUESTED', index: true },
     analysisErrorCode: { type: String, maxlength: 80 },
     latestAnalysisId: { type: Schema.Types.ObjectId, ref: 'ResumeAnalysis' },
+    workflowStatus: { type: String, required: true, enum: ['NOT_REQUESTED', 'QUEUED', 'PROCESSING', 'READY', 'FAILED'], default: 'NOT_REQUESTED', index: true },
+    workflowErrorCode: { type: String, maxlength: 80 },
+    workflowErrorMessage: { type: String, maxlength: 500 },
     workflowReport: { type: Schema.Types.Mixed },
     workflowCompletedAt: { type: Date },
     extractedText: { type: String, maxlength: 100000, select: false },

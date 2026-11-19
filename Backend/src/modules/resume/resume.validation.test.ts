@@ -41,10 +41,10 @@ describe('validateResumeFile', () => {
     expect(result.originalFileName).toBe('john_doe_resume.pdf');
   });
 
-  it('accepts valid DOCX with zip magic bytes', () => {
+  it('accepts a DOCX archive containing required Office document entries', () => {
     const file = {
-      buffer: Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x14, 0x00]),
-      size: 6,
+      buffer: Buffer.concat([Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x14, 0x00]), Buffer.from('[Content_Types].xml word/document.xml')]),
+      size: 42,
       originalname: 'resume.docx',
     } as Express.Multer.File;
 
@@ -52,6 +52,11 @@ describe('validateResumeFile', () => {
     expect(result.extension).toBe('docx');
     expect(result.mimeType).toBe('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     expect(result.originalFileName).toBe('resume.docx');
+  });
+
+  it('rejects a generic ZIP renamed as DOCX', () => {
+    const file = { buffer: Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x14, 0x00]), size: 6, originalname: 'archive.docx' } as Express.Multer.File;
+    expect(() => validateResumeFile(file)).toThrow(AppError);
   });
 
   it('rejects spoofed file extensions', () => {

@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 from typing import Literal
@@ -8,6 +9,8 @@ if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
 from langgraph.graph import StateGraph, START, END
+from langgraph.checkpoint.mongodb import MongoDBSaver
+from pymongo import MongoClient
 
 from workflow.state import IPCAState
 from workflow.quality_checker import evaluate_resume_quality
@@ -15,7 +18,7 @@ from agents.resume_agent import analyze_resume_with_ai
 from agents.skill_gap_agent import analyze_skill_gaps
 from agents.interview_agent import generate_interview_questions
 from agents.career_agent import generate_career_recommendations
-from core.exceptions import WorkflowExecutionError
+from core.exceptions import IPCAException, WorkflowExecutionError
 
 
 # =================================
@@ -44,11 +47,12 @@ def resume_node(state: IPCAState):
 
     except Exception as e:
         print(f"[IPCA ERROR in Resume Node]: {str(e)}")
-        errors = list(state.get("errors") or [])
-        errors.append(f"Resume analysis failed: {str(e)}")
+        errors = [f"Resume analysis failed: {str(e)}"]
         return {
             "resume_analysis": None,
             "error": str(e),
+            "error_code": e.error_code if isinstance(e, IPCAException) else "WORKFLOW_EXECUTION_ERROR",
+            "error_status": e.status_code if isinstance(e, IPCAException) else 500,
             "errors": errors,
             "workflow_status": "failed"
         }
@@ -85,15 +89,12 @@ def resume_quality_node(state: IPCAState):
 
 # Conditional router function
 def route_after_resume(state: IPCAState) -> Literal["continue", "improve"]:
-    # If fatal error occurred during resume node
+    # A low-quality resume still contains useful skill evidence.  Continue to
+    # the gap and recommendation agents so the student receives an actionable
+    # plan; reserve the early exit only for a true resume-analysis failure.
     if state.get("workflow_status") == "failed":
         return "improve"
-
-    score = state.get("resume_quality_score", 0)
-    if score is not None and score >= 50:
-        return "continue"
-
-    return "improve"
+    return "continue"
 
 
 # =================================
@@ -135,7 +136,12 @@ def skill_gap_node(state: IPCAState):
     target_role = state.get("target_role", "Software Developer")
 
     resume_analysis = state.get("resume_analysis") or {}
-    skills = resume_analysis.get("extracted_skills", [])
+    resume_skills = resume_analysis.get("extracted_skills", [])
+    recorded_skills = state.get("current_skills", [])
+    # Preserve the student's existing evidence alongside resume claims.  This
+    # makes the gap analysis a comparison of the selected role against the
+    # complete current skill picture, not just a single uploaded document.
+    skills = list(dict.fromkeys([*recorded_skills, *resume_skills]))
     if not skills:
         skills = ["General Software Engineering"]
 
@@ -151,8 +157,7 @@ def skill_gap_node(state: IPCAState):
 
     except Exception as e:
         print(f"[IPCA ERROR in Skill Gap Node]: {str(e)}")
-        errors = list(state.get("errors") or [])
-        errors.append(f"Skill gap analysis failed: {str(e)}")
+        errors = [f"Skill gap analysis failed: {str(e)}"]
         return {
             "skill_gap_analysis": {"missing_skills": [], "error": str(e)},
             "errors": errors
@@ -188,8 +193,7 @@ def interview_node(state: IPCAState):
 
     except Exception as e:
         print(f"[IPCA ERROR in Interview Node]: {str(e)}")
-        errors = list(state.get("errors") or [])
-        errors.append(f"Interview preparation failed: {str(e)}")
+        errors = [f"Interview preparation failed: {str(e)}"]
         return {
             "interview_preparation": {"questions": [], "error": str(e)},
             "errors": errors
@@ -207,7 +211,7 @@ def career_node(state: IPCAState):
     target_role = state.get("target_role", "Software Developer")
 
     resume_analysis = state.get("resume_analysis") or {}
-    skills = resume_analysis.get("extracted_skills", [])
+    skills = list(dict.fromkeys([*(state.get("current_skills", [])), *(resume_analysis.get("extracted_skills", []))]))
     if not skills:
         skills = ["Software Development", "Problem Solving"]
 
@@ -226,8 +230,7 @@ def career_node(state: IPCAState):
 
     except Exception as e:
         print(f"[IPCA ERROR in Career Node]: {str(e)}")
-        errors = list(state.get("errors") or [])
-        errors.append(f"Career recommendation failed: {str(e)}")
+        errors = [f"Career recommendation failed: {str(e)}"]
         return {
             "career_recommendations": {"top_career_paths": [], "error": str(e)},
             "errors": errors
@@ -305,19 +308,25 @@ builder.add_edge("career", "final_report")
 # End workflow
 builder.add_edge("final_report", END)
 
-# Compile graph
-from langgraph.checkpoint.memory import InMemorySaver
+# Persist each workflow thread so its state survives API restarts.
+# These collections are intentionally separate from application data.
+checkpoint_mongo_url = os.getenv("MONGODB_URI") or os.getenv("MONGODB_URL")
+if not checkpoint_mongo_url:
+    raise RuntimeError("MONGODB_URL or MONGODB_URI must be configured for LangGraph checkpoints.")
 
-# Create one checkpointer for the application process.
-memory = InMemorySaver()
-
-# Compile the graph with checkpointing enabled.
-ipca_graph = builder.compile(
-    checkpointer=memory
+checkpoint_mongo_client = MongoClient(checkpoint_mongo_url)
+mongo_checkpointer = MongoDBSaver(
+    checkpoint_mongo_client,
+    db_name=os.getenv("CHECKPOINT_MONGODB_DATABASE", os.getenv("MONGODB_DATABASE", "placement_assistant")),
+    checkpoint_collection_name=os.getenv("CHECKPOINT_MONGODB_COLLECTION", "langgraph_checkpoints"),
+    writes_collection_name=os.getenv("CHECKPOINT_MONGODB_WRITES_COLLECTION", "langgraph_checkpoint_writes"),
 )
 
+# Compile the graph with persistent MongoDB checkpointing enabled.
+ipca_graph = builder.compile(checkpointer=mongo_checkpointer)
 
-def build_ipca_graph(checkpointer=None):
+
+def build_ipca_graph(checkpoint_saver=None):
     """Factory function to compile the IPCA graph with an optional checkpointer."""
-    return builder.compile(checkpointer=checkpointer or memory)
+    return builder.compile(checkpointer=checkpoint_saver or mongo_checkpointer)
 

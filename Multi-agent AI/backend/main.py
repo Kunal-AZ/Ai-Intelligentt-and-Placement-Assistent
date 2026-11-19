@@ -1,4 +1,5 @@
 import os
+import secrets
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
@@ -11,8 +12,9 @@ if str(backend_dir) not in sys.path:
 # The repository root .env is the single runtime configuration source.
 load_dotenv(dotenv_path=backend_dir.parents[1] / ".env")
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from core.exception_handlers import register_exception_handlers
 from core.exceptions import (
@@ -81,20 +83,26 @@ app = FastAPI(
     lifespan=mongo_lifespan
 )
 
-# Enable CORS for trusted origins
-web_origin = os.getenv("WEB_ORIGIN", "http://localhost:5173")
-allowed_origins = list({
-    web_origin,
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:4000",
-    "http://127.0.0.1:4000",
-})
+@app.middleware("http")
+async def require_internal_service_token(request: Request, call_next):
+    """Keep the agent API private even if a hosting provider exposes its URL."""
+    if request.url.path in {"/health", "/docs", "/openapi.json", "/redoc"}:
+        return await call_next(request)
 
+    expected = os.getenv("AI_SERVICE_TOKEN", "")
+    supplied = request.headers.get("x-ai-service-token", "")
+    if not expected:
+        return JSONResponse(status_code=503, content={"detail": "AI service authentication is not configured."})
+    if not secrets.compare_digest(supplied, expected):
+        return JSONResponse(status_code=401, content={"detail": "Unauthorized AI service request."})
+    return await call_next(request)
+
+
+# Enable CORS for frontend clients
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
+    allow_origins=[],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

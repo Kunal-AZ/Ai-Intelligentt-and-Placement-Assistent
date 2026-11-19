@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { api } from '../lib/api';
+import '../styles/career-workspace.css';
 
 interface ChatMessage {
   id: string;
@@ -10,10 +11,10 @@ interface ChatMessage {
 }
 
 const INITIAL_SUGGESTIONS = [
-  'What should I prioritize this week for Tier-1 backend roles?',
-  'Review the critical gaps found in my resume ATS scan',
-  'How do I explain my BullMQ queue project in a system design interview?',
-  'Which matched companies are hiring without DSA rounds?',
+  'Help me choose the most important skills to practice this week.',
+  'How can I improve my resume with stronger project evidence?',
+  'Help me turn a project into a clear interview story.',
+  'Create a preparation checklist for my target role.',
 ];
 
 const INITIAL_HISTORY: ChatMessage[] = [
@@ -22,7 +23,7 @@ const INITIAL_HISTORY: ChatMessage[] = [
     role: 'ai',
     text: 'Welcome to HiPlacement AI Career Coach. Complete your profile, resume analysis, and learning activities to receive increasingly personalized guidance.\n\nHow can I help with your placement preparation today?',
     timestamp: 'Just now',
-    citations: ['HiPlacement Career Coach'],
+
   },
 ];
 
@@ -34,22 +35,28 @@ export function ChatPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const conversationId = useRef<string | null>(null);
   const [connectionError, setConnectionError] = useState('');
+  const [ready, setReady] = useState(false);
+  const [session, setSession] = useState(0);
 
   useEffect(() => {
     scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
   useEffect(() => {
+    let active = true;
+    setReady(false); setConnectionError(''); conversationId.current = null;
     api<{ conversation: { _id: string } }>('/chat/conversations', {
       method: 'POST', body: JSON.stringify({ title: 'Career coaching' }),
-    }).then(({ conversation }) => { conversationId.current = conversation._id; })
-      .catch((error: unknown) => setConnectionError(error instanceof Error ? error.message : 'Unable to start the AI coach.'));
-  }, []);
+    }).then(({ conversation }) => { if (active) { conversationId.current = conversation._id; setReady(true); } })
+      .catch((error: unknown) => { if (active) setConnectionError(error instanceof Error ? error.message : 'Unable to start the AI coach.'); });
+    return () => { active = false; };
+  }, [session]);
 
   async function handleSend(e: FormEvent) {
     e.preventDefault();
     const text = inputVal.trim();
-    if (!text || isTyping) return;
+    if (!text || isTyping || !ready) return;
+    setConnectionError('');
 
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
@@ -77,7 +84,7 @@ export function ChatPage() {
       setMessages((prev) => [...prev, aiMsg]);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'The AI coach could not answer right now.';
-      setConnectionError(message);
+      setConnectionError(message); setInputVal(text);
       setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'ai', text: message, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
     } finally {
       setIsTyping(false);
@@ -90,28 +97,28 @@ export function ChatPage() {
   }
 
   return (
-    <div className="chat-page flex flex-col gap-6 max-w-4xl mx-auto h-[calc(100vh-140px)]">
+    <div className="chat-page career-workspace coach-workspace flex flex-col gap-5">
       {/* ── Page Header ────────────────────────────────────────── */}
-      <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)] shrink-0">
+      <div className="career-hero flex flex-wrap items-center justify-between gap-4 shrink-0">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="badge badge-success">Online &amp; Calibrated</span>
+            <span className={`badge ${ready ? 'badge-success' : 'badge-mono'}`}>{ready ? 'Ready to chat' : connectionError ? 'Connection unavailable' : 'Connecting…'}</span>
           </div>
-          <h1 className="text-xl font-black tracking-tight">AI Career &amp; Placement Coach</h1>
+          <h1 className="text-xl font-black tracking-tight">Your career, with a little clarity.</h1><p>Think through your next step with your AI career coach.</p>
         </div>
 
         <button
           type="button"
           className="btn-ghost text-xs"
-          onClick={() => setMessages(INITIAL_HISTORY)}
+          disabled={isTyping} onClick={() => { setMessages(INITIAL_HISTORY); setInputVal(''); setSession((value) => value + 1); }}
         >
-          Clear Chat
+          New conversation
         </button>
       </div>
 
       {/* ── Messages Scroll Area ───────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto pr-2 space-y-4">
-        {connectionError && <p className="text-xs text-[var(--status-warning)]">{connectionError}</p>}
+      <div className="coach-conversation flex-1 overflow-y-auto p-4 sm:p-6 space-y-5" role="log" aria-label="Conversation" aria-live="polite">
+        {connectionError && <div className="career-notice" role="alert">{connectionError}{!ready && <button className="btn-secondary ml-3" onClick={() => setSession((value) => value + 1)}>Reconnect</button>}</div>}
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -126,7 +133,7 @@ export function ChatPage() {
             </div>
 
             <div
-              className={`p-4 rounded-xl text-xs leading-relaxed max-w-2xl whitespace-pre-line ${
+              className={`p-5 rounded-2xl text-sm leading-relaxed max-w-2xl whitespace-pre-line ${
                 msg.role === 'user'
                   ? 'bg-[var(--text-primary)] text-[var(--text-inverse)] font-medium'
                   : 'bg-[var(--bg-surface)] border border-[var(--border-default)] text-[var(--text-primary)] shadow-sm'
@@ -153,7 +160,7 @@ export function ChatPage() {
         {isTyping && (
           <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] p-2">
             <span className="w-2 h-2 rounded-full bg-[var(--text-primary)] animate-pulse" />
-            <span>Consulting candidate evidence dossier…</span>
+            <span>Thinking through your next steps…</span>
           </div>
         )}
 
@@ -161,13 +168,13 @@ export function ChatPage() {
       </div>
 
       {/* ── Quick Suggestions Bar ──────────────────────────────── */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 shrink-0">
+      <div className="coach-prompts shrink-0">
         {INITIAL_SUGGESTIONS.map((s) => (
           <button
             key={s}
             type="button"
             onClick={() => handleQuickPrompt(s)}
-            className="px-3 py-1.5 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-default)] hover:border-[var(--border-strong)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] whitespace-nowrap transition-all shrink-0"
+            className="text-[var(--text-secondary)]"
           >
             {s} ↗
           </button>
@@ -175,8 +182,9 @@ export function ChatPage() {
       </div>
 
       {/* ── Input Box ──────────────────────────────────────────── */}
-      <form onSubmit={handleSend} className="shrink-0 flex items-center gap-2">
+      <form onSubmit={handleSend} className="coach-composer shrink-0 flex items-center gap-2">
         <input
+          aria-label="Message your career coach"
           ref={inputRef}
           type="text"
           value={inputVal}
@@ -188,7 +196,7 @@ export function ChatPage() {
         <button
           type="submit"
           className="btn-primary py-3 px-5 text-xs"
-          disabled={!inputVal.trim() || isTyping}
+          disabled={!inputVal.trim() || isTyping || !ready}
         >
           <span>Ask Coach</span>
           <span>↗</span>

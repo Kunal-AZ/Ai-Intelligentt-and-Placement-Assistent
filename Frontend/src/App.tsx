@@ -1,7 +1,7 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState, useSyncExternalStore } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AppShell } from './Components/AppShell';
-import { hasAccessToken, restoreSession } from './lib/api';
+import { hasAccessToken, restoreSession, subscribeToAuthentication } from './lib/api';
 
 // Lazy-load route pages to enable route-level code splitting and minimize initial bundle size
 const LandingPage = lazy(() => import('./pages/LandingPage').then((m) => ({ default: m.LandingPage })));
@@ -15,6 +15,9 @@ const MockInterviewsPage = lazy(() => import('./pages/MockInterviewsPage').then(
 const LearningRoadmapPage = lazy(() => import('./pages/LearningRoadmapPage').then((m) => ({ default: m.LearningRoadmapPage })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then((m) => ({ default: m.ProfilePage })));
 const ChatPage = lazy(() => import('./pages/ChatPage').then((m) => ({ default: m.ChatPage })));
+const ApplicationsPage = lazy(() => import('./pages/ApplicationsPage').then((m) => ({ default: m.ApplicationsPage })));
+const SettingsPage = lazy(() => import('./pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
+const PlansPage = lazy(() => import('./pages/PlansPage').then((m) => ({ default: m.PlansPage })));
 
 function RouteLoader() {
   return (
@@ -27,29 +30,25 @@ function RouteLoader() {
 
 function RequireAuthentication() {
   const location = useLocation();
-  const [isChecking, setIsChecking] = useState(!hasAccessToken());
-  const [isAuthenticated, setIsAuthenticated] = useState(hasAccessToken());
+  const authenticated = useSyncExternalStore(subscribeToAuthentication, hasAccessToken);
+  const [isRestoring, setIsRestoring] = useState(!authenticated);
 
   useEffect(() => {
-    if (hasAccessToken()) {
-      setIsAuthenticated(true);
-      setIsChecking(false);
-      return;
+    if (!authenticated) {
+      let isMounted = true;
+      restoreSession().finally(() => {
+        if (isMounted) setIsRestoring(false);
+      });
+      return () => {
+        isMounted = false;
+      };
+    } else {
+      setIsRestoring(false);
     }
-    let isMounted = true;
-    restoreSession().then((token: string | null) => {
-      if (isMounted) {
-        setIsAuthenticated(Boolean(token));
-        setIsChecking(false);
-      }
-    });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  }, [authenticated]);
 
-  if (isChecking) return <RouteLoader />;
-  return isAuthenticated ? <AppShell /> : <Navigate to="/login" replace state={{ from: location }} />;
+  if (isRestoring && !authenticated) return <RouteLoader />;
+  return authenticated ? <AppShell /> : <Navigate to="/login" replace state={{ from: location }} />;
 }
 
 export default function App() {
@@ -69,9 +68,12 @@ export default function App() {
           <Route path="/skills" element={<SkillEvidencePage />} />
           <Route path="/careers" element={<CareerRecommendationsPage />} />
           <Route path="/jobs" element={<JobMatchesPage />} />
+          <Route path="/applications" element={<ApplicationsPage />} />
           <Route path="/interviews" element={<MockInterviewsPage />} />
           <Route path="/roadmap" element={<LearningRoadmapPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/plans" element={<PlansPage />} />
           <Route path="/chat" element={<ChatPage />} />
         </Route>
 

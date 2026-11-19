@@ -12,6 +12,7 @@ export type RetrievedKnowledge = {
 };
 
 export async function retrieveKnowledge(query: string, limit: number): Promise<RetrievedKnowledge[]> {
+  if (!await KnowledgeChunk.exists({})) return [];
   const queryVector = await embedText(query);
   try {
     const results = await KnowledgeChunk.aggregate<{

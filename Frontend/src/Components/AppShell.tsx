@@ -14,9 +14,12 @@ export function AppShell() {
     '/skills': 'Skill Evidence & Gaps',
     '/careers': 'Skill Evidence & Gaps',
     '/jobs': 'Job Matches',
+    '/applications': 'Application Tracker',
     '/interviews': 'AI Mock Interviews',
     '/roadmap': 'Learning Roadmap',
-    '/profile': 'Student Profile & Settings',
+    '/profile': 'Student Profile',
+    '/settings': 'Settings',
+    '/plans': 'Plans & Billing',
     '/chat': 'AI Career Coach',
   };
 

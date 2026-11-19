@@ -6,6 +6,7 @@ export interface UserDocument {
   email: string;
   passwordHash?: string;
   role: UserRole;
+  plan: 'FREE' | 'PLUS' | 'PRO';
   isEmailVerified: boolean;
   passwordChangedAt: Date;
   googleId?: string;
@@ -25,6 +26,7 @@ const userSchema = new Schema<UserDocument>(
     email: { type: String, required: true, unique: true, trim: true, lowercase: true, maxlength: 254 },
     passwordHash: { type: String, select: false },
     role: { type: String, enum: ['STUDENT', 'ADMIN', 'COUNSELOR'], default: 'STUDENT', index: true },
+    plan: { type: String, enum: ['FREE', 'PLUS', 'PRO'], default: 'FREE', index: true },
     isEmailVerified: { type: Boolean, default: false },
     passwordChangedAt: { type: Date, required: true, default: () => new Date() },
     googleId: { type: String, sparse: true, index: true },

@@ -11,6 +11,8 @@ import { jobRouter } from '../../modules/jobs/job.routes.js';
 import { interviewRouter } from '../../modules/interviews/interview.routes.js';
 import { aiRouter } from '../../modules/ai/ai.routes.js';
 import { healthRouter } from './health.routes.js';
+import { applicationRouter } from '../../modules/applications/application.routes.js';
+import { subscriptionRouter } from '../../modules/subscription/subscription.routes.js';
 
 export const v1Router = Router();
 v1Router.use('/health', healthRouter);
@@ -23,5 +25,7 @@ v1Router.use('/knowledge', knowledgeRouter);
 v1Router.use('/chat', chatRouter);
 v1Router.use('/jobs', jobRouter);
 v1Router.use('/interviews', interviewRouter);
+v1Router.use('/applications', applicationRouter);
+v1Router.use('/subscription', subscriptionRouter);
 v1Router.use('/ai', aiRouter);
 v1Router.use('/', recommendationRouter);

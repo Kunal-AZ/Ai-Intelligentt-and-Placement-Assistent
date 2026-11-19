@@ -9,6 +9,7 @@ export type ValidatedResumeFile = {
 
 const pdfMagic = Buffer.from('%PDF-');
 const zipMagic = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
+const docxMarkers = [Buffer.from('[Content_Types].xml'), Buffer.from('word/document.xml')];
 
 function safeFileName(fileName: string): string {
   const baseName = path.basename(fileName).replace(/[\p{Cc}<>:"/\\|?*]/gu, '_').trim();
@@ -20,7 +21,8 @@ export function validateResumeFile(file: Express.Multer.File | undefined): Valid
   if (file.size === 0) throw new AppError(400, 'EMPTY_RESUME_FILE', 'The uploaded file is empty.');
   const declaredExtension = path.extname(file.originalname).toLowerCase();
   const isPdf = file.buffer.subarray(0, pdfMagic.length).equals(pdfMagic);
-  const isDocx = file.buffer.subarray(0, zipMagic.length).equals(zipMagic);
+  const isDocx = file.buffer.subarray(0, zipMagic.length).equals(zipMagic)
+    && docxMarkers.every((marker) => file.buffer.includes(marker));
 
   if (isPdf && declaredExtension === '.pdf') {
     return { mimeType: 'application/pdf', extension: 'pdf', originalFileName: safeFileName(file.originalname) };
