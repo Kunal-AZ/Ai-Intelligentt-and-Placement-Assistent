@@ -21,6 +21,8 @@ interface RefreshTokenClaims extends jwt.JwtPayload {
 
 const hashToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex');
 const refreshTtlMs = env.JWT_REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000;
+// Constant-time dummy hash to mitigate timing-based account enumeration attacks
+const DUMMY_PASSWORD_HASH = '$2a$12$e80b4j5P/8966c8N18x9r.e9Z0QG.vH2/x3Qv0/i5Z.uLp1P.r6/6';
 
 function toAuthenticatedUser(user: UserDocument): AuthenticatedUser {
   return { id: user._id.toString(), email: user.email, role: user.role, isEmailVerified: user.isEmailVerified };
@@ -59,7 +61,9 @@ export async function register(email: string, password: string, firstName?: stri
 
 export async function authenticate(email: string, password: string) {
   const user = await User.findOne({ email }).select('+passwordHash');
-  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+  const hashToCompare = user?.passwordHash || DUMMY_PASSWORD_HASH;
+  const isMatch = await bcrypt.compare(password, hashToCompare);
+  if (!user || !user.passwordHash || !isMatch) {
     throw new AppError(401, 'INVALID_CREDENTIALS', 'Email or password is incorrect.');
   }
   return { user: toAuthenticatedUser(user), tokens: await issueTokenPair(user) };
@@ -77,15 +81,38 @@ export async function rotateRefreshToken(rawToken: string) {
     throw new AppError(401, 'INVALID_REFRESH_TOKEN', 'Your session has expired. Please sign in again.');
   }
 
+  const tokenHash = hashToken(rawToken);
   const token = await RefreshToken.findOneAndUpdate(
-    { tokenHash: hashToken(rawToken), revokedAt: { $exists: false }, expiresAt: { $gt: new Date() } },
+    { tokenHash, revokedAt: { $exists: false }, expiresAt: { $gt: new Date() } },
     { revokedAt: new Date() },
     { new: true },
   );
-  if (!token) throw new AppError(401, 'INVALID_REFRESH_TOKEN', 'Your session has expired. Please sign in again.');
+
+  if (!token) {
+    // Refresh token reuse detection (RFC 6749 / OWASP session hijacking defense):
+    // If a revoked token is presented, an attacker or compromised client may be replaying old tokens.
+    // Invalidate all active refresh tokens for the user to safeguard the account.
+    const revokedToken = await RefreshToken.findOne({ tokenHash, revokedAt: { $exists: true } });
+    if (revokedToken) {
+      await RefreshToken.updateMany(
+        { userId: revokedToken.userId, revokedAt: { $exists: false } },
+        { revokedAt: new Date() },
+      );
+    }
+    throw new AppError(401, 'INVALID_REFRESH_TOKEN', 'Your session has expired. Please sign in again.');
+  }
 
   const user = await User.findById(claims.sub);
   if (!user) throw new AppError(401, 'INVALID_REFRESH_TOKEN', 'Your session has expired. Please sign in again.');
+
+  // Invalidate refresh attempt if password was changed after token issuance
+  if (claims.iat && user.passwordChangedAt && claims.iat * 1000 < user.passwordChangedAt.getTime() - 1000) {
+    await RefreshToken.updateMany(
+      { userId: user._id, revokedAt: { $exists: false } },
+      { revokedAt: new Date() },
+    );
+    throw new AppError(401, 'SESSION_EXPIRED', 'Your password was recently changed. Please sign in again.');
+  }
 
   const tokens = await issueTokenPair(user);
   const replacement = await RefreshToken.findOne({ tokenHash: hashToken(tokens.refreshToken) });

@@ -1,7 +1,7 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AppShell } from './Components/AppShell';
-import { hasAccessToken } from './lib/api';
+import { hasAccessToken, restoreSession } from './lib/api';
 
 // Lazy-load route pages to enable route-level code splitting and minimize initial bundle size
 const LandingPage = lazy(() => import('./pages/LandingPage').then((m) => ({ default: m.LandingPage })));
@@ -27,7 +27,29 @@ function RouteLoader() {
 
 function RequireAuthentication() {
   const location = useLocation();
-  return hasAccessToken() ? <AppShell /> : <Navigate to="/login" replace state={{ from: location }} />;
+  const [isChecking, setIsChecking] = useState(!hasAccessToken());
+  const [isAuthenticated, setIsAuthenticated] = useState(hasAccessToken());
+
+  useEffect(() => {
+    if (hasAccessToken()) {
+      setIsAuthenticated(true);
+      setIsChecking(false);
+      return;
+    }
+    let isMounted = true;
+    restoreSession().then((token: string | null) => {
+      if (isMounted) {
+        setIsAuthenticated(Boolean(token));
+        setIsChecking(false);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (isChecking) return <RouteLoader />;
+  return isAuthenticated ? <AppShell /> : <Navigate to="/login" replace state={{ from: location }} />;
 }
 
 export default function App() {
