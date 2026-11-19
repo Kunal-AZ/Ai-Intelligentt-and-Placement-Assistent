@@ -4,8 +4,15 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { env } from '../../config/env.js';
 import { Profile } from '../profile/profile.model.js';
-import { loginSchema, registerSchema } from './auth.schemas.js';
-import { authenticate, issueTokenPairForUserId, register, revokeRefreshToken, rotateRefreshToken } from './auth.service.js';
+import { loginSchema, registerSchema, resendVerificationSchema, verifyEmailSchema } from './auth.schemas.js';
+import {
+  authenticate,
+  register,
+  resendVerificationCode,
+  revokeRefreshToken,
+  rotateRefreshToken,
+  verifyEmail,
+} from './auth.service.js';
 import {
   authenticateOAuth,
   getOAuthAuthorizationUrl,
@@ -113,9 +120,51 @@ authRouter.post('/register', authenticationLimiter, async (request, response, ne
   try {
     const input = registerSchema.parse(request.body);
     const result = await register(input.email, input.password, input.firstName);
-    await Profile.create({ userId: result.user.id, firstName: result.firstName });
-    const tokens = await issueTokenPairForUserId(result.user.id);
-    response.status(201).json({ success: true, data: { user: result.user, accessToken: sendSession(response, tokens) } });
+    response.status(200).json({
+      success: true,
+      data: {
+        requiresVerification: true,
+        email: result.email,
+        firstName: result.firstName,
+        message: 'A 6-digit verification code has been sent to your email.',
+        devVerificationCode: result.devVerificationCode,
+      },
+    });
+  } catch (error) { next(error); }
+});
+
+authRouter.post('/verify-email', authenticationLimiter, async (request, response, next) => {
+  try {
+    const input = verifyEmailSchema.parse(request.body);
+    const { user, tokens } = await verifyEmail(input.email, input.code);
+    if (input.firstName) {
+      await Profile.findOneAndUpdate(
+        { userId: user.id },
+        { userId: user.id, firstName: input.firstName },
+        { upsert: true, new: true },
+      );
+    }
+    response.status(200).json({
+      success: true,
+      data: {
+        user,
+        accessToken: sendSession(response, tokens),
+      },
+    });
+  } catch (error) { next(error); }
+});
+
+authRouter.post('/resend-verification', authenticationLimiter, async (request, response, next) => {
+  try {
+    const input = resendVerificationSchema.parse(request.body);
+    const result = await resendVerificationCode(input.email);
+    response.status(200).json({
+      success: true,
+      data: {
+        message: 'A new 6-digit verification code has been sent to your email.',
+        devVerificationCode: result.devVerificationCode,
+      },
+    });
   } catch (error) { next(error); }
 });
 

@@ -38,6 +38,12 @@ const environmentSchema = z.object({
   LINKEDIN_CLIENT_ID: z.string().trim().optional().transform((value) => value || undefined),
   LINKEDIN_CLIENT_SECRET: z.string().trim().optional().transform((value) => value || undefined),
   LINKEDIN_CALLBACK_URL: z.string().url().optional(),
+  SMTP_HOST: z.string().trim().optional().transform((value) => value || undefined),
+  SMTP_PORT: z.coerce.number().int().positive().default(587),
+  SMTP_SECURE: z.coerce.boolean().default(false),
+  SMTP_USER: z.string().trim().optional().transform((value) => value || undefined),
+  SMTP_PASS: z.string().trim().optional().transform((value) => value || undefined),
+  SMTP_FROM: z.string().trim().default('HiPlacement <no-reply@hiplacement.com>'),
 });
 
 export type Environment = z.infer<typeof environmentSchema>;
