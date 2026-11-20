@@ -2,19 +2,32 @@ const baseUrl = import.meta.env.VITE_API_URL ?? '/api/v1';
 let accessToken: string | null = sessionStorage.getItem('placement_access_token');
 const authListeners = new Set<() => void>();
 let refreshInFlight: Promise<void> | null = null;
+
 export function setAccessToken(token: string | null) {
   accessToken = token;
   if (token) sessionStorage.setItem('placement_access_token', token);
   else sessionStorage.removeItem('placement_access_token');
   authListeners.forEach(listener => listener());
 }
+
 export function subscribeToAuthentication(listener: () => void) {
   authListeners.add(listener);
   return () => { authListeners.delete(listener); };
 }
+
 export function hasAccessToken() { return Boolean(accessToken); }
 
-async function refreshSession(): Promise<void> {
+export async function restoreSession(): Promise<string | null> {
+  if (accessToken) return accessToken;
+  try {
+    await refreshSession();
+    return accessToken;
+  } catch {
+    return null;
+  }
+}
+
+export async function refreshSession(): Promise<void> {
   if (!refreshInFlight) {
     const previousToken = accessToken;
     refreshInFlight = (async () => {
@@ -55,9 +68,6 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
     if (response.status === 204) return undefined as T;
     const payload = await response.json().catch(() => undefined) as { data?: T; error?: { message?: string } } | undefined;
     if (!response.ok) {
-      // A 502/503/504 can be returned by the API when a dependency such as
-      // the AI service is unavailable. Preserve its error message instead of
-      // incorrectly telling the user that the browser cannot reach the API.
       if (payload?.error?.message) throw new Error(payload.error.message);
       if (response.status === 502 || response.status === 503 || response.status === 504) {
         throw new Error('The service is temporarily unavailable. Please try again in a moment.');
