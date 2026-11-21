@@ -5,7 +5,7 @@ import '../styles/career-workspace.css';
 
 type Requirement = { skill: string; category: 'FOUNDATIONAL' | 'CORE'; status: 'PRESENT' | 'MISSING' | 'NEEDS_REINFORCEMENT' };
 type Gap = { role: string; requirements: Requirement[] };
-type Profile = { targetRoles?: string[] };
+type Profile = { userId: string; targetRoles?: string[] };
 type JobMatch = { missingRequirements: string[] };
 type RoadmapTask = { id: string; title: string; detail: string; priority: 'HIGH' | 'MEDIUM'; completed: boolean };
 
@@ -37,8 +37,8 @@ const lessonConcepts: Record<string, string> = {
 };
 const conceptFor = (skill: string) => lessonConcepts[skill.toLocaleLowerCase()] ?? `Learn the core concepts, build one small project exercise, and record the result as evidence.`;
 
-function savedProgress(role: string): string[] {
-  try { const value: unknown = JSON.parse(localStorage.getItem(`placement-roadmap:${role}`) ?? '[]'); return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []; } catch { return []; }
+function savedProgress(userId: string, role: string): string[] {
+  try { const value: unknown = JSON.parse(localStorage.getItem(`placement-roadmap:${userId}:${role}`) ?? '[]'); return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []; } catch { return []; }
 }
 
 export function LearningRoadmapPage() {
@@ -49,10 +49,14 @@ export function LearningRoadmapPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [planDays, setPlanDays] = useState(28);
+  const [userId, setUserId] = useState('');
 
   useEffect(() => {
     Promise.allSettled([api<{ profile: Profile }>('/profile'), api<{ gaps: Gap[] }>('/skill-gaps'), api<{ matches: JobMatch[] }>('/jobs/matches')])
       .then(async ([profileResult, gapsResult, matchesResult]) => {
+        if (profileResult.status === 'rejected') throw profileResult.reason;
+        const ownerId = profileResult.value.profile.userId;
+        if (!ownerId) throw new Error('Your profile could not be loaded. Please try again.');
         const loadedGaps = gapsResult.status === 'fulfilled' ? gapsResult.value.gaps ?? [] : [];
         const requestedRole = new URLSearchParams(window.location.search).get('role');
         const role = requestedRole || (profileResult.status === 'fulfilled' ? profileResult.value.profile.targetRoles?.[0] ?? loadedGaps[0]?.role ?? '' : loadedGaps[0]?.role ?? '') || 'Software Engineer';
@@ -60,7 +64,7 @@ export function LearningRoadmapPage() {
           const result = await api<{ gaps: Gap[] }>(`/skill-gaps?role=${encodeURIComponent(role)}`);
           loadedGaps.push(...result.gaps);
         }
-        setGaps(loadedGaps); setSelectedRole(role); setCompleted(savedProgress(role));
+        setUserId(ownerId); setGaps(loadedGaps); setSelectedRole(role); setCompleted(savedProgress(ownerId, role));
         if (matchesResult.status === 'fulfilled') setJobMatches(matchesResult.value.matches ?? []);
         if (!loadedGaps.length) setError('Choose a target role and record skills first, then your personalized roadmap will appear here.');
       }).catch((err: unknown) => setError(err instanceof Error ? err.message : 'Could not load your roadmap.')).finally(() => setLoading(false));
@@ -78,8 +82,8 @@ export function LearningRoadmapPage() {
     })).sort((a, b) => Number(b.priority === 'HIGH') - Number(a.priority === 'HIGH'));
   }, [activeGap, completed, jobMatches]);
 
-  function selectRole(role: string) { setSelectedRole(role); setCompleted(savedProgress(role)); }
-  function toggle(id: string) { const next = completed.includes(id) ? completed.filter((item) => item !== id) : [...completed, id]; setCompleted(next); try { localStorage.setItem(`placement-roadmap:${selectedRole}`, JSON.stringify(next)); } catch { /* Progress remains available for this visit when browser storage is disabled. */ } }
+  function selectRole(role: string) { setSelectedRole(role); setCompleted(savedProgress(userId, role)); }
+  function toggle(id: string) { if (!userId) return; const next = completed.includes(id) ? completed.filter((item) => item !== id) : [...completed, id]; setCompleted(next); try { localStorage.setItem(`placement-roadmap:${userId}:${selectedRole}`, JSON.stringify(next)); } catch { /* Progress remains available for this visit when browser storage is disabled. */ } }
   const progress = tasks.length ? Math.round(tasks.filter((task) => task.completed).length / tasks.length * 100) : 0;
   const weeks = Math.max(2, Math.ceil(planDays / 7));
   const weeklyTasks = Array.from({ length: weeks }, (_, index) => tasks.slice(index * Math.ceil(tasks.length / weeks), (index + 1) * Math.ceil(tasks.length / weeks)));

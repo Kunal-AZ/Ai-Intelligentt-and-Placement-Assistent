@@ -11,6 +11,7 @@ const environmentSchema = z.object({
   JWT_REFRESH_SECRET: z.string().min(32),
   JWT_ACCESS_TTL: z.string().default('15m'),
   JWT_REFRESH_TTL_DAYS: z.coerce.number().int().positive().max(30).default(7),
+  GOOGLE_CLIENT_ID: z.string().trim().optional().transform((value) => value || undefined),
   UPLOAD_MAX_BYTES: z.coerce.number().int().positive().max(20 * 1024 * 1024).default(5 * 1024 * 1024),
   LOCAL_STORAGE_PATH: z.string().min(1).default('./uploads'),
   SUPABASE_URL: z.string().url(),

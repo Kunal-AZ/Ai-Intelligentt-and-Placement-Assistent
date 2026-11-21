@@ -1,8 +1,9 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useCallback, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { api, setAccessToken } from '../lib/api';
 import { ThemeToggle } from '../Components/ThemeToggle';
 import { BrandLogo } from '../Components/BrandLogo';
+import { GoogleSignIn } from '../Components/GoogleSignIn';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -21,6 +22,10 @@ export function LoginPage() {
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const afterGoogleSignIn = useCallback((token: string) => {
+    setAccessToken(token);
+    navigate((location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/dashboard');
+  }, [navigate, location.state]);
 
   async function handleSignIn(e: FormEvent) {
     e.preventDefault();
@@ -33,7 +38,7 @@ export function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       setAccessToken(res.accessToken);
-      navigate('/dashboard');
+      navigate((location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/dashboard');
     } catch (err) {
       setError(
         err instanceof Error
@@ -57,6 +62,7 @@ export function LoginPage() {
           email: signupEmail,
           password: signupPassword,
           firstName,
+          lastName,
         }),
       });
       setAccessToken(res.accessToken);
@@ -111,17 +117,17 @@ export function LoginPage() {
 
           <p className="text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">
             Stop sending unverified resumes into applicant tracking black holes. HiPlacement evaluates your
-            real-world code commits, detects high-impact skill gaps, and prepares you with conversational AI mock interviews.
+            resume claims, identifies skill gaps, and helps you prepare with AI mock interviews.
           </p>
 
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--border-subtle)]">
             <div>
-              <p className="text-2xl font-black text-[var(--text-primary)]">94%</p>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">ATS Pass Rate</p>
+              <p className="text-2xl font-black text-[var(--text-primary)]">Resume</p>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">Analysis and feedback</p>
             </div>
             <div>
-              <p className="text-2xl font-black text-[var(--text-primary)]">₹24.8 LPA</p>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">Average Tier-1 CTC</p>
+              <p className="text-2xl font-black text-[var(--text-primary)]">Interview</p>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">Guided practice</p>
             </div>
           </div>
         </div>
@@ -261,6 +267,8 @@ export function LoginPage() {
                 </button>
               </form>
             )}
+
+            <GoogleSignIn disabled={isLoading} onSuccess={afterGoogleSignIn} onBusyChange={setIsLoading} />
 
             <p className="pt-3 border-t border-[var(--border-subtle)] text-center text-xs text-[var(--text-muted)]">
               Your workspace is private and saved to your account.

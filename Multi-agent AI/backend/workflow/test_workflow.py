@@ -6,7 +6,6 @@ backend_dir = Path(__file__).resolve().parent.parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
-from workflow.graph import ipca_graph
 
 
 initial_state = {
@@ -40,37 +39,40 @@ initial_state = {
 }
 
 
-print("\n========== STARTING IPCA MULTI-AGENT WORKFLOW ==========")
+if __name__ == "__main__":
+    from workflow.graph import ipca_graph
 
-config = {"configurable": {"thread_id": "test-student-rahul"}}
+    print("\n========== STARTING IPCA MULTI-AGENT WORKFLOW ==========")
 
-try:
-    result = ipca_graph.invoke(initial_state, config=config)
+    config = {"configurable": {"thread_id": "test-student-rahul"}}
 
-    print("\n[WORKFLOW STATUS]:", result.get("workflow_status"))
-    print(f"[RESUME QUALITY SCORE]: {result.get('resume_quality_score')}/100")
+    try:
+        result = ipca_graph.invoke(initial_state, config=config)
 
-    if result.get("resume_feedback"):
-        print("\n[RESUME FEEDBACK]:")
-        print(result.get("resume_feedback"))
+        print("\n[WORKFLOW STATUS]:", result.get("workflow_status"))
+        print(f"[RESUME QUALITY SCORE]: {result.get('resume_quality_score')}/100")
 
-    if result.get("skill_gap_analysis"):
-        print("\n[SKILL GAP ANALYSIS]:")
-        print(result["skill_gap_analysis"])
+        if result.get("resume_feedback"):
+            print("\n[RESUME FEEDBACK]:")
+            print(result.get("resume_feedback"))
 
-    if result.get("interview_preparation"):
-        print("\n[INTERVIEW QUESTIONS]:")
-        questions = result["interview_preparation"].get("questions", [])
-        for i, q in enumerate(questions, 1):
-            print(f" {i}. [{q.get('difficulty')}] {q.get('question')}")
+        if result.get("skill_gap_analysis"):
+            print("\n[SKILL GAP ANALYSIS]:")
+            print(result["skill_gap_analysis"])
 
-    if result.get("career_recommendations"):
-        print("\n[CAREER RECOMMENDATIONS]:")
-        paths = result["career_recommendations"].get("top_career_paths", [])
-        for p in paths:
-            print(f" - {p.get('career_title')} (Match: {p.get('match_score')}%)")
+        if result.get("interview_preparation"):
+            print("\n[INTERVIEW QUESTIONS]:")
+            questions = result["interview_preparation"].get("questions", [])
+            for i, q in enumerate(questions, 1):
+                print(f" {i}. [{q.get('difficulty')}] {q.get('question')}")
 
-    print("\n========== WORKFLOW COMPLETED SUCCESSFULLY ==========")
+        if result.get("career_recommendations"):
+            print("\n[CAREER RECOMMENDATIONS]:")
+            paths = result["career_recommendations"].get("top_career_paths", [])
+            for p in paths:
+                print(f" - {p.get('career_title')} (Match: {p.get('match_score')}%)")
 
-except Exception as e:
-    print("\n[WORKFLOW FAILED]:", str(e))
+        print("\n========== WORKFLOW COMPLETED SUCCESSFULLY ==========")
+
+    except Exception as e:
+        print("\n[WORKFLOW FAILED]:", str(e))

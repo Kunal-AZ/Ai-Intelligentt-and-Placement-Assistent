@@ -18,7 +18,7 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-mono">
               <span className="w-2 h-2 rounded-full bg-[var(--status-success)]" />
-              <span>All Systems Operational</span>
+              <span>Career preparation workspace</span>
             </div>
           </div>
 
@@ -63,22 +63,9 @@ export function Footer() {
               Off-Campus Intelligence
             </h4>
             <p className="text-xs text-[var(--text-muted)]">
-              Get verified hiring rubrics, Tier-1 interview questions, and placement drive alerts.
+              Explore job listings and preparation resources in your workspace. Email alerts are not available yet.
             </p>
-            <form
-              onSubmit={(e) => { e.preventDefault(); alert('Subscribed to placement intelligence.'); }}
-              className="flex gap-2 mt-1"
-            >
-              <input
-                type="email"
-                placeholder="college@email.edu"
-                className="form-input text-xs py-2"
-                required
-              />
-              <button type="submit" className="btn-primary text-xs py-2 px-3">
-                Join
-              </button>
-            </form>
+            <Link to="/jobs" className="btn-primary text-xs py-2 px-3">Explore jobs</Link>
           </div>
         </div>
 

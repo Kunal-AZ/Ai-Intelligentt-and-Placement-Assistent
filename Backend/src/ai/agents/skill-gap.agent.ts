@@ -14,7 +14,8 @@ export function analyzeSkillGap(role: string, skillSignals: SkillSignal[]) {
 
   const byName = new Map(skillSignals.map((skill) => [skill.canonicalName, skill]));
   const requirements = roleProfile.requirements.map((requirement, index) => {
-    const skill = byName.get(canonical(requirement.skill));
+    const candidate = byName.get(canonical(requirement.skill));
+    const skill = candidate?.evidence.length ? candidate : undefined;
     const onlyBeginnerSelfReport = skill?.evidence.length === 1 && skill.evidence[0].source === 'USER_DECLARED' && skill.evidence[0].proficiency === 'BEGINNER';
     return {
       skill: requirement.skill,

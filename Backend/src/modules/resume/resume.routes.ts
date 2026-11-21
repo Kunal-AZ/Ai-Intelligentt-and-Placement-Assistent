@@ -16,6 +16,7 @@ import { ResumeAnalysis } from './resume-analysis.model.js';
 import { deleteResume, readResume, storeResume } from './resume.storage.js';
 import { validateResumeFile } from './resume.validation.js';
 import { extractResumeText } from './resume-extractor.js';
+import { SkillEvidence } from '../skills/skill-evidence.model.js';
 
 export const resumeRouter = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: env.UPLOAD_MAX_BYTES, files: 1, fields: 4 } });
@@ -119,19 +120,20 @@ resumeRouter.delete('/:id', resumeMutationLimiter, async (request, response, nex
     if (!resume) throw new AppError(404, 'RESUME_NOT_FOUND', 'Resume was not found.');
     await deleteResume(resume.storageKey);
     await ResumeAnalysis.deleteOne({ resumeId: resume._id, userId: request.auth!.userId });
+    await SkillEvidence.deleteMany({ userId: request.auth!.userId, source: 'RESUME', sourceRef: id });
     await Resume.deleteOne({ _id: resume._id, userId: request.auth!.userId });
     response.status(204).send();
   } catch (error) { next(error); }
 });
 
-resumeRouter.post('/:id/analyze', async (request, response, next) => {
+resumeRouter.post('/:id/analyze', resumeMutationLimiter, async (request, response, next) => {
   try {
     await requireCompleteProfile(request.auth!.userId);
     const id = objectIdSchema.parse(request.params.id);
     const resume = await Resume.findOne({ _id: id, userId: request.auth!.userId }).select('+extractedText');
     if (!resume) throw new AppError(404, 'RESUME_NOT_FOUND', 'Resume was not found.');
     if (resume.processingStatus !== 'READY' || !resume.extractedText) throw new AppError(409, 'RESUME_NOT_READY', 'Resume text extraction must complete before analysis.');
-    await Resume.updateOne({ _id: resume._id }, { analysisStatus: 'QUEUED', analysisErrorCode: undefined });
+    await Resume.updateOne({ _id: resume._id }, { $set: { analysisStatus: 'QUEUED' }, $unset: { analysisErrorCode: 1 } });
     try {
       await enqueueResumeAnalysis({ resumeId: resume._id.toString(), userId: request.auth!.userId });
     } catch (error) {

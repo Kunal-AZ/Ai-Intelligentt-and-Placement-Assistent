@@ -45,7 +45,7 @@ chatRouter.post('/conversations/:id/messages', async (request, response, next) =
     const result = await orchestrateCareerRequest(request.auth!.userId, input.message);
     const assistantMessage = await AiMessage.create({
       conversationId, userId: request.auth!.userId, role: 'ASSISTANT', content: result.response.answer,
-      sources: result.sources, agentTrace: result.agentTrace,
+      sources: result.sources.filter(source => result.response.citedSourceIds.includes(source.id)), agentTrace: result.agentTrace,
     });
     await AiConversation.updateOne({ _id: conversationId }, { updatedAt: new Date() });
     response.status(201).json({ success: true, data: { userMessage, assistantMessage, limitations: result.response.limitations, citedSourceIds: result.response.citedSourceIds } });

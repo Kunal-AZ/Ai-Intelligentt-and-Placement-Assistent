@@ -1,5 +1,8 @@
 import sys
 import asyncio
+import os
+from unittest.mock import patch
+from langgraph.checkpoint.memory import InMemorySaver
 from pathlib import Path
 
 # Add backend directory to path
@@ -19,10 +22,13 @@ from core.exceptions import (
     WorkflowExecutionError
 )
 from core.exception_handlers import register_exception_handlers
-from workflow.graph import ipca_graph
 from schemas.api_schema import IPCARequest
 from schemas.api_response import IPCAResponse
-from main import app
+os.environ.setdefault('MONGODB_URI', 'mongodb://localhost:27017/test')
+# Structural verification must not need a live checkpoint database.
+with patch('langgraph.checkpoint.mongodb.MongoDBSaver', return_value=InMemorySaver()):
+    from workflow.graph import ipca_graph
+    from main import app
 
 def test_all():
     print("1. Checking routes on main app:")

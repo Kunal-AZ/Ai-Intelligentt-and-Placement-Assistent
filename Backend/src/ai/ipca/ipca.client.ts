@@ -37,8 +37,19 @@ export async function callIpca<T>(path: string, payload: unknown): Promise<T> {
     const body = await response.json().catch(() => undefined) as T | FastApiError | undefined;
     if (!response.ok) {
       const failure = body as FastApiError | undefined;
+      // Log only bounded metadata: response bodies may contain resume text or credentials.
+      console.error('AI service request failed', { path, status: response.status, errorCode: typeof failure?.error_code === 'string' && /^[A-Z0-9_]{1,64}$/.test(failure.error_code) ? failure.error_code : undefined });
       const known = failure?.error_code ? serviceErrors[failure.error_code] : undefined;
       if (known) throw new AppError(known.status, known.code, known.message);
+      if (response.status === 401 || response.status === 403) {
+        throw new AppError(503, 'AI_SERVICE_AUTH_FAILED', 'The AI service connection needs attention from the site owner. Your uploaded resume is saved.');
+      }
+      if (response.status === 404 || response.status === 405) {
+        throw new AppError(503, 'AI_SERVICE_ENDPOINT_INVALID', 'The AI service address needs attention from the site owner. Your uploaded resume is saved.');
+      }
+      if (response.status === 502 || response.status === 503 || response.status === 504) {
+        throw new AppError(response.status === 504 ? 504 : 503, response.status === 504 ? 'AI_SERVICE_TIMEOUT' : 'AI_SERVICE_UNAVAILABLE', 'The AI service is temporarily unavailable. Your uploaded resume is saved; try the analysis again later.');
+      }
       const status = response.status === 422 ? 400 : response.status >= 500 ? 502 : response.status;
       throw new AppError(status, 'AI_SERVICE_FAILED', response.status === 422 ? detailMessage(failure) : 'The AI service could not complete the request. Please try again later.');
     }

@@ -44,7 +44,7 @@ async function processResume(
     { _id: resume._id },
     {
       processingStatus: 'PROCESSING',
-      processingErrorCode: undefined,
+      $unset: { processingErrorCode: 1 },
     },
   );
 
@@ -95,7 +95,7 @@ async function processKnowledge(
     { _id: document._id },
     {
       status: 'PROCESSING',
-      failureCode: undefined,
+      $unset: { failureCode: 1 },
     },
   );
 
@@ -172,7 +172,7 @@ async function processResumeAnalysis(
     { _id: resume._id },
     {
       analysisStatus: 'PROCESSING',
-      analysisErrorCode: undefined,
+      $unset: { analysisErrorCode: 1 },
     },
   );
 

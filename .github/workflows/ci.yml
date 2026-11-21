@@ -9,7 +9,12 @@ jobs:
   node-quality:
     name: Node.js Quality (Monorepo, Backend & Frontend)
     runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:8
+        ports: ["27017:27017"]
     env:
+      AUDIT_MONGO_URI: mongodb://127.0.0.1:27017
       NODE_ENV: test
       JWT_SECRET: test_jwt_secret_must_be_at_least_32_characters_long
       JWT_REFRESH_SECRET: test_jwt_refresh_secret_must_be_at_least_32_characters_long
@@ -55,7 +60,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-          cache-dependency-path: 'Multi-agent AI/backend/requirements.txt'
+          cache-dependency-path: 'Multi-agent AI/requirements.txt'
 
       - name: Install dependencies
         run: |
@@ -64,6 +69,10 @@ jobs:
 
       - name: Verify system routes, graph compilation & exception handlers
         run: python "Multi-agent AI/backend/verify_system.py"
+
+      - name: Workflow regression tests
+        working-directory: Multi-agent AI/backend
+        run: python -m unittest discover -s tests -v
 
   docker-compose-validate:
     name: Docker Compose Syntax Validation

@@ -68,7 +68,7 @@ export function ArchitecturePage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border-subtle)]">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="badge badge-success">5 Nodes Operational</span>
+            <span className="badge badge-success">Illustrative architecture; metrics are sample data</span>
           </div>
           <h1 className="text-2xl font-black tracking-tight">System Infrastructure Blueprint</h1>
         </div>

@@ -1,0 +1,1557 @@
+{
+  "date": "2026-11-21",
+  "excluded": [
+    "dependency directories",
+    "generated builds",
+    "Git internals",
+    "caches",
+    "runtime logs",
+    "secret environment values"
+  ],
+  "note": "Inventory and review scope, not proof of line-by-line correctness or end-to-end execution. Newly generated inventory excludes itself.",
+  "fileCount": 257,
+  "files": [
+    {
+      "path": ".dockerignore",
+      "bytes": 168,
+      "sha256": "c69e6f6a06e0b083bc05a3a72058257ac4ec1ae4e4b0e747ddec368969a240fa",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": ".editorconfig",
+      "bytes": 156,
+      "sha256": "251db34e2e35b25bcd7888df2be0f92d56e0e204a405e1374e691710ed583827",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": ".env.example",
+      "bytes": 2058,
+      "sha256": "c670ff62b16c00a82e3791277040d6e7fad4623a4684ac57ba577c8828cb5cea",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 2477,
+      "sha256": "e461f178cee188f5f60b465d9d174b637f74a57a03fd09b766657ce1cab84357",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 344,
+      "sha256": "27bdc3b1bb99007af15ac828621def8d92c77910b2f6ba763d001cfa611a4419",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": ".prettierrc.json",
+      "bytes": 89,
+      "sha256": "cb3b25949fd23c141c84113f8bed9185d452f8f720bba3f375ef6d048b02d3ae",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Backend/Dockerfile",
+      "bytes": 570,
+      "sha256": "be33667bcc97a5a3d74d64a0e69480a3c1cf4308b51a3e648ffb74edf94a2a41",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Backend/package.json",
+      "bytes": 1486,
+      "sha256": "b0c7f0d67ea963abebaf95eb52d8bd17a12989304ab28eec8fe1b679309c212f",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Backend/scripts/diagnose-ai.mjs",
+      "bytes": 1915,
+      "sha256": "6258c1907b75561138e5cd53735f485ac00204a12ed61af0946f846c054e804f",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/scripts/diagnose-runtime.mjs",
+      "bytes": 1565,
+      "sha256": "f2e207360503d6f8ef1c2bd264270c8da243de310c6357e7789a7fc818399cc6",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/scripts/fixtures/diagnostic-resume.pdf",
+      "bytes": 1461,
+      "sha256": "1085c8adc3fafada77375ac502fdd891a186e7b2b1517f30ca9ddba7c8bc31a1",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Backend/scripts/fixtures/diagnostic-resume.pdf.txt",
+      "bytes": 1461,
+      "sha256": "1085c8adc3fafada77375ac502fdd891a186e7b2b1517f30ca9ddba7c8bc31a1",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Backend/scripts/retry-workflow.ts",
+      "bytes": 2099,
+      "sha256": "7b0062b1fa1ea51a91d8994f784df9494fdde7204939356b3b58b760d622bb44",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/scripts/smoke-http.mjs",
+      "bytes": 4302,
+      "sha256": "323d1286f50896a5048d3dca6fb8be74c598968dba355962699a3c7c66aebee7",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/agents/career.agent.ts",
+      "bytes": 1019,
+      "sha256": "fe1d2b2c3f140665672116f05cdbced8ae1ea0f346d3f53c8b1750bad9b6824d",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/agents/interview.agent.ts",
+      "bytes": 2710,
+      "sha256": "97ea5e330e355c3c5728a5deff321463609ff2e5b17bfc3bf3e32f253c8a0110",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/agents/job-match.agent.ts",
+      "bytes": 1653,
+      "sha256": "dd4badb85fb713e461355a7d701f0aab6fc5b80a8a58bd09e72a3dac5ba7a273",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/agents/resume.agent.ts",
+      "bytes": 1939,
+      "sha256": "352661f56b9697dfc3856d16aa80f5145b7a9e4cb6a877b4e572fd9de8525c91",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/agents/roadmap.agent.ts",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/agents/skill-gap.agent.test.ts",
+      "bytes": 553,
+      "sha256": "3fce11e9aec4228e24b306355c43055580c1b2bad928a4f27542eee8f21103c9",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/agents/skill-gap.agent.ts",
+      "bytes": 1788,
+      "sha256": "00c87fe515ae5142c550d5895302befc78394ebe9fe4c8ac422c8e006cd60068",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/gemini/client.test.ts",
+      "bytes": 1827,
+      "sha256": "c0aec676e02be0663bf17f67b07f55138e51433762269c7681d24f141e56f6aa",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/gemini/client.ts",
+      "bytes": 2752,
+      "sha256": "6d11683ad315a3a7c774ff20e0ceaa1cced6d3f5b0a11f21669bdb459428c2cf",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/ipca/ipca.client.test.ts",
+      "bytes": 2221,
+      "sha256": "dccee5b3b6b79c0efbbdc4ab2c4e71741a9966bea3575dff19c39780c9cc23e2",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/ipca/ipca.client.ts",
+      "bytes": 4520,
+      "sha256": "16b6117b6c4b2335a7047aa5b102f3fe73804141f475cb21ccc36ae29137e268",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/orchestrator/career.orchestrator.ts",
+      "bytes": 6651,
+      "sha256": "56179e9ca660a8052e19f24132ac91ef262a6490e8711299e5f6d853140e8380",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/rag/embeddings.ts",
+      "bytes": 2083,
+      "sha256": "d357027112ed86c89b03512be260845fd8b859969acddabbf2548fdc49d67773",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/rag/knowledge-base.ts",
+      "bytes": 737,
+      "sha256": "d865f711ec0d416649596e725d22e2f60fe775492a2fe72f609de5b07d19beb9",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/rag/retrieval.ts",
+      "bytes": 1703,
+      "sha256": "468aea168052abf498d21d6a404a9751519a4470f7dcdede7a2f0fbbac95224e",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/ai/role-profiles.ts",
+      "bytes": 4330,
+      "sha256": "6a55f6c98bab18af8f6d3f77a6fc5c13ac4f1f41457052a20b9508e35d414943",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/app.ts",
+      "bytes": 1116,
+      "sha256": "ed8fafb15278f71eac7a16cedc5f55cd238210ba27e812fb92a7b611e4e2545d",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/config/ai.ts",
+      "bytes": 169,
+      "sha256": "99cf6a32121295ca41939ea908facfa8edb1fa08c3bf53c595416433a00a6181",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/config/database.ts",
+      "bytes": 279,
+      "sha256": "6c6101b89abbb5ba63a50600dc330fb9033f1256ee09e90446907beec2ca9681",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/config/env.ts",
+      "bytes": 367,
+      "sha256": "f2a8cac97f215815e51e3d3cbfc3433024a425e9656a9a6df0d7f381472e4c5e",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/config/redis.ts",
+      "bytes": 641,
+      "sha256": "5a9f9051aefa6617d261d932911666e0cb2149319b1556380d59dbfa273e553f",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/middleware/error-handler.test.ts",
+      "bytes": 1232,
+      "sha256": "4f37b90344b377a57daef40f5f6531b8500f2d5886a3b212148244c3e3960653",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/middleware/error-handler.ts",
+      "bytes": 2041,
+      "sha256": "d861facac9b0e1dcd53b588193e1259b555bce3cd84135c4254c4ceb5e14c756",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/ai/ai.routes.ts",
+      "bytes": 7838,
+      "sha256": "e691590d9c6831d47c46a3a961c4acda1935479bdb5f8c394183d5e3cbcc8ff3",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/ai/ai.schemas.ts",
+      "bytes": 1356,
+      "sha256": "cfc825ac7bd8de0636f6cce000fc20856227f843ca0b7d0a49178270d76326b1",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/ai/workflow-analysis.ts",
+      "bytes": 1595,
+      "sha256": "b77d026b57bf23fa14e88b43deb599038bbf0f19ca31da7a8aa05a722b695263",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/ai/workflow.service.test.ts",
+      "bytes": 3815,
+      "sha256": "aa67e8625b1007fe149481801cccaa3b54ae83fc18d7d2457fd23ea2b0623df9",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/ai/workflow.service.ts",
+      "bytes": 3775,
+      "sha256": "3abc0a4b1e1eb7bc44cec20869afee1a0516f70bf718564dd0ff4b9d4f443965",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/applications/application.model.ts",
+      "bytes": 1309,
+      "sha256": "d6ed21d6ca85cfdc679b6d6881fd542ef3be1fbfb3bd968cb3bc1ee183845c08",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/applications/application.routes.ts",
+      "bytes": 2191,
+      "sha256": "73eaab461142008e479d144946c0d44eabff0a10268b41bd2860a489c7035e06",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/applications/application.schemas.ts",
+      "bytes": 900,
+      "sha256": "201ab17f8faeb5a23ca77b549f0e42b9e528d937038b19239db4dd992bf4fbd0",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/auth/auth.middleware.ts",
+      "bytes": 1045,
+      "sha256": "5d9d89ab85e4e94a237027f5b149d3e15e342de070156b5fdaf4e29ad3f2246b",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/auth/auth.routes.ts",
+      "bytes": 2592,
+      "sha256": "96e3d8dd8a2a124b6b16cdce91f6a2372e886b8d55c7567a2e455d07c8866b91",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/auth/auth.schemas.ts",
+      "bytes": 458,
+      "sha256": "7a640129554b84e2a220208ae5959d3fcbd966852bbbe7022b4c9fa1c670b8d4",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/auth/auth.service.ts",
+      "bytes": 4654,
+      "sha256": "387fbfbff427d4b4303e9d057886c1cfdcb61a5ca5f5bbcd03d1523ccf4c2c76",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/auth/auth.types.ts",
+      "bytes": 256,
+      "sha256": "9beee573c79a33a9532d6ed87aaaeef4bb019373f6e829cf4ac64887199b30fb",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/auth/refresh-token.model.ts",
+      "bytes": 901,
+      "sha256": "720c385d95c4bd616dc4dcafc6aa2b5b66ff157a48c78e3f29d9743c16dbd00a",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/auth/user.model.ts",
+      "bytes": 1380,
+      "sha256": "29c0e204e2eeb75aa2c9dfc8589e76628a25e49c2e1395dbc93a5230986995c1",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/chat/ai-conversation.model.ts",
+      "bytes": 647,
+      "sha256": "295e69a028507c70a3fa7e60b693ca03776a468794ff008d40007710915c13e3",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/chat/ai-message.model.ts",
+      "bytes": 1104,
+      "sha256": "835bfc7c1af4f11b0997c630eebdbed5eb918253e131934a7b712f1b19ef25ae",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/chat/chat.routes.ts",
+      "bytes": 3246,
+      "sha256": "2072cdc8c8828a52792c655095ef303283784b379bb70d87086f82ac1a0874ac",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/chat/chat.schemas.ts",
+      "bytes": 249,
+      "sha256": "e16940cc6b038b3a5df00fafd56df34fa4c2ad4790a2d224bd70250477525a24",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/interviews/interview-response.model.ts",
+      "bytes": 1218,
+      "sha256": "c48cb23b9e61cc758d4db33c95d6378180d06a189e255f3af23697a3b5ef03ba",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/interviews/interview-session.model.ts",
+      "bytes": 1089,
+      "sha256": "f25f7acae5754aa9fd635709044badf7f38937353668e94fa31389b1c040cc09",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/interviews/interview.routes.ts",
+      "bytes": 4541,
+      "sha256": "9277c8c572b3722df0d4a8a18eb9be75cf31b2cd7549f67c19a8681abd35af04",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/interviews/interview.schemas.ts",
+      "bytes": 524,
+      "sha256": "a59801c3d081ba2b7c74e4e2659a8239f4f11f1117c0991529b429d2cab9ffac",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/interviews/interview.service.test.ts",
+      "bytes": 3108,
+      "sha256": "4c8012fc915560525a4e9d5e0b376a89df80ae9209f6c4da1f22833991acd3a4",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/interviews/interview.service.ts",
+      "bytes": 2666,
+      "sha256": "80adeda9332c3d4b57ca253ad7ced4f15104fe3c846965247cf88dbb02124b2d",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/jobs/company.model.ts",
+      "bytes": 531,
+      "sha256": "cc07b96b469b82b77544952ad3304b517897daee6733710f6f1c318a42a2d63e",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/jobs/job-match.model.ts",
+      "bytes": 1219,
+      "sha256": "ab52e476858658b30ae6076ec0645fb0565c389eb2464b96b92ca3b203023314",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/jobs/job.model.ts",
+      "bytes": 1311,
+      "sha256": "efcf070f2559ce3a95defc91766d426d0a8df46d6a6b6ad653313b0d334b3c6f",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/jobs/job.routes.ts",
+      "bytes": 4698,
+      "sha256": "b859c92c65c7ba49bad646c91cf9c0245a2852fed89398cf5cd70110da9a25e4",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/jobs/job.schemas.ts",
+      "bytes": 1043,
+      "sha256": "d24e65ad1a35243e740db10b34cf46abc46de2b69667a9e40a7004845bd4fe3f",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/jobs/live-job.service.test.ts",
+      "bytes": 1811,
+      "sha256": "9faaef9f99185310dd520e92b0aa2d5d17e4b75a202211b93951e5386a6a7f0f",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/jobs/live-job.service.ts",
+      "bytes": 7583,
+      "sha256": "fe28e26a252b8df9426bef3fd1606e9df89ef1521bb192354b405bead0eaad97",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/knowledge/knowledge-chunk.model.ts",
+      "bytes": 1170,
+      "sha256": "6c93542d30c881767c0b16e09aac7546b5c6e21c809a510d04481a7824f37966",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/knowledge/knowledge-document.model.ts",
+      "bytes": 1749,
+      "sha256": "9cdcef5d9f6367d3d7920592a142a70b8ba123e5571325dcdf0f6878457335be",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/knowledge/knowledge.routes.ts",
+      "bytes": 2367,
+      "sha256": "728679496829818d263ddc27c2a7f7320b92c6d0361ada45404fd399f3556a5a",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/knowledge/knowledge.schemas.ts",
+      "bytes": 686,
+      "sha256": "c8a9407a1082dcfbb4c2bdd2c70f878be2a5d9461b45cf2b455de148cec8def7",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/profile/profile-readiness.ts",
+      "bytes": 783,
+      "sha256": "8f612a24c16985ad38b69cfc37bc57a0f4de419ba746d8277989a250dd2c53bf",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/profile/profile.model.ts",
+      "bytes": 1827,
+      "sha256": "673e5ce5d80a40d922bf225901e3fd5908fcace5b528d67d4526adcb6a83dd4f",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/profile/profile.routes.ts",
+      "bytes": 1360,
+      "sha256": "88ef71f478cbb6568951e13d796e470523f3909a1c7dfac50fbb99a5ba80c191",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/profile/profile.schemas.ts",
+      "bytes": 949,
+      "sha256": "0de0502bc6a0ec398bec31824e1a5ba90f98885f6ddb0c2ab11ae60e90a28db6",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/recommendations/recommendation.model.ts",
+      "bytes": 1152,
+      "sha256": "71dabc6ba31cdd7be29ba3a733e2df48aab561a669f521dfd7fb99ee706f4401",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/recommendations/recommendation.routes.ts",
+      "bytes": 1809,
+      "sha256": "f9dd28443b038dbcb9ae051e93e981dd796649a766db482b4ff508eac8c2b7af",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/resume/resume-analysis.model.ts",
+      "bytes": 980,
+      "sha256": "b7588a3283ff8c96e1ffe1993976073731e764259547975ab07f0bb25bec6f6c",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/resume/resume-extractor.test.ts",
+      "bytes": 701,
+      "sha256": "80434a04e33321e0f86abbdea3f77ced13457a78821fbbd09376e30a2b6ae2a9",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/resume/resume-extractor.ts",
+      "bytes": 930,
+      "sha256": "96de6a41c3ae60ef78f6dfbb85b47852d6e5134752c145862b8777f31bacd9bb",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/resume/resume-readiness.ts",
+      "bytes": 569,
+      "sha256": "b55d7e12f3bd3703a6afda39e7719257200d66a573966a9808462b343aadd94e",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/resume/resume.model.ts",
+      "bytes": 2734,
+      "sha256": "54797c0d25c86274f6cce26ae356f432dc43db1f2bbd5e40d97d2db42d005631",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/resume/resume.routes.ts",
+      "bytes": 7873,
+      "sha256": "7b349ebb47b472e52fd1443353ff7ade9b9e106885f90af1355db6f482d7d6bb",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/resume/resume.storage.ts",
+      "bytes": 1730,
+      "sha256": "a8a246fcfc225322e42a8a01df41efe1797eebfd84eaf8a23a5a18f7e1e699ac",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/resume/resume.validation.test.ts",
+      "bytes": 2653,
+      "sha256": "d17ad5103af47becba3d708883c13aadd858dc7bf1474dc0886e552b2fb155ba",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/resume/resume.validation.ts",
+      "bytes": 1750,
+      "sha256": "17cd5659f6093f3268af318c395e9537b8800688c7f3fe54fb76bea1e8750aae",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/skills/skill-evidence.model.ts",
+      "bytes": 1286,
+      "sha256": "c4771fa6a9e71d975e3954f7605afa10252ad15f05c1ec3a6a4a302b720fd13e",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/skills/skill-gap.routes.ts",
+      "bytes": 1436,
+      "sha256": "bad72033308e232e04109b2c23ac0ef2cf025578b6f9ff4f57018201115f73c8",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/skills/skill.model.ts",
+      "bytes": 731,
+      "sha256": "3b955e3c02d7689eb982f2bee0c9b1bb0cf6f9babf91236c277a008bc5d09859",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/skills/skill.routes.ts",
+      "bytes": 1059,
+      "sha256": "fe5a89999772d00e2ffb99b7b7d30e2b1dcd55c5dfa73b0d38cfbbd23a12adb1",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/skills/skill.schemas.ts",
+      "bytes": 356,
+      "sha256": "7a78ce5ead78770908af8622e7fb501407b233bd38efb76001f57865cc1abcbc",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/skills/skill.service.ts",
+      "bytes": 3135,
+      "sha256": "4a774ee824ad80dfe2a3000a4a4cad1b9decf5f377e52b51a5389d3c1e8d3b51",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/modules/subscription/subscription.routes.ts",
+      "bytes": 1175,
+      "sha256": "cead2dcd97439c1b08366d50354f6c3057f01e925495ea96d5b8cea1308445ff",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/queues/knowledge.queue.ts",
+      "bytes": 646,
+      "sha256": "8c8e58043a4191d993df1aa4911d707990aaa9cc8f392288573fc79d79cc01bd",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/queues/resume-analysis.queue.ts",
+      "bytes": 748,
+      "sha256": "4c45d5b0304cb59993795e1d374e2781352a7f6654830f6605a5e3f75615bb59",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/queues/resume.queue.ts",
+      "bytes": 637,
+      "sha256": "0bc312daee719ec10b48d43387db4b744a0e13dd59d584cb10465a79f0ca1c30",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/queues/workflow.queue.ts",
+      "bytes": 972,
+      "sha256": "de5809d15d539e65da7a715a3584b61cc3f28e52243e888a110c1d3ab6b48066",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/routes/v1/health.routes.ts",
+      "bytes": 267,
+      "sha256": "2b1ce6f235efeaf07981c7fc90cde7e692a19089b9534b98f76340e7e21681fa",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/routes/v1/index.ts",
+      "bytes": 1653,
+      "sha256": "4cf17bb134b9e13e029c5ac47a82f36550420f06d100683af777e6db4cb260cd",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/scripts/create-indexes.ts",
+      "bytes": 1152,
+      "sha256": "b3f7a8a5dfe2c42d0d1ac874ddc48c848fe8b2ccdd414de72a45c8ccf18e053b",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/server.ts",
+      "bytes": 881,
+      "sha256": "c48a8110606587e75a2942b7018b574ee1e477436aee07b374f876fe14e94355",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/types/express.d.ts",
+      "bytes": 197,
+      "sha256": "2ffb8f54fdbf9d6dd75394d3f674f525a5150208bfbfb4340b73adec02fd6b49",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/utils/app-error.test.ts",
+      "bytes": 456,
+      "sha256": "f5cd18b02542497b0f7b2f7440ca71e1af3b6993c19be5d4c47bf8d3467d0f53",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/utils/app-error.ts",
+      "bytes": 180,
+      "sha256": "ba81622acf4800441e5f0a1ddcb2ba162e78bcc46f8661451d6703736f34766b",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/workers/ai.worker.ts",
+      "bytes": 356,
+      "sha256": "e114b7e0176734af88f76ee1b60503bab6af161aa60dd5ea752cddaa5ff68709",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/workers/runtime.ts",
+      "bytes": 7097,
+      "sha256": "1e026679f4c1c3f0dae3b349a80f2c1c2b3a22f196692f6559f2434a084962ef",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/src/workflows.integration.test.ts",
+      "bytes": 12516,
+      "sha256": "655e0363e2187e4660bf689cae5aaf877ebedfd5436c66bf96cb109b872eb405",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Backend/tsconfig.json",
+      "bytes": 151,
+      "sha256": "e42fd5d870634e219b7e512951c48be5e5a2fd51678bf63d50c52a8ed9e81e12",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Frontend/.gitignore",
+      "bytes": 253,
+      "sha256": "fe718e7babb14f3cbad2d97f08889b9ce5215ed3fe0e43b2b8cfbfb3b9b844e8",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Frontend/Dockerfile",
+      "bytes": 294,
+      "sha256": "ad329f180d53ec879ed49c45ac4e17277927180e3589798eb0578acfe5b02198",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Frontend/README.md",
+      "bytes": 1027,
+      "sha256": "a460b4dc7e6392e76aa54d844c9261b8db0adb7f967ba8300526456f1dcf5fb4",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "Frontend/eslint.config.js",
+      "bytes": 209,
+      "sha256": "63d755603e265360303ec1b09cd6a33f30fc236a60e8d2f5cd0e6ebbdb7e2f77",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/index.html",
+      "bytes": 1753,
+      "sha256": "bf7c8bc9487b6ae8dade7de05fd598da288e870107dd02270ecb1b1e9fc88cf0",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Frontend/package.json",
+      "bytes": 1086,
+      "sha256": "48221f3e969abd15b0239e26c065c1bff5a49342d1e57b1d07ffa2071b70c453",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Frontend/public/bgImage1.jpg",
+      "bytes": 840031,
+      "sha256": "3045ea187f64446bef08b9d27da19b38645a7f84ff96cd5e78cffeab07b69a81",
+      "scope": "asset integrity; not exhaustive visual review"
+    },
+    {
+      "path": "Frontend/public/favicon.svg",
+      "bytes": 5913,
+      "sha256": "c364158fc4fd410d52bf8429cb7c32fd16e8f3c9678288c8f4956df8f9c5853b",
+      "scope": "asset integrity; not exhaustive visual review"
+    },
+    {
+      "path": "Frontend/public/hero-network.jpg",
+      "bytes": 840031,
+      "sha256": "3045ea187f64446bef08b9d27da19b38645a7f84ff96cd5e78cffeab07b69a81",
+      "scope": "asset integrity; not exhaustive visual review"
+    },
+    {
+      "path": "Frontend/public/icons.svg",
+      "bytes": 5031,
+      "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+      "scope": "asset integrity; not exhaustive visual review"
+    },
+    {
+      "path": "Frontend/public/interview-studio.jpg",
+      "bytes": 715019,
+      "sha256": "cd2ed2d2b3572cff705624327799e6a50d082689895c0fa1b2d0d7db8e3678e2",
+      "scope": "asset integrity; not exhaustive visual review"
+    },
+    {
+      "path": "Frontend/public/logo-dark.png",
+      "bytes": 2106,
+      "sha256": "46b59ca45717020b4377ee95e78a94ac1fa3d3cebe63f1d828b27b6e1c82ae91",
+      "scope": "asset integrity; not exhaustive visual review"
+    },
+    {
+      "path": "Frontend/public/logo-light.png",
+      "bytes": 1998,
+      "sha256": "2f0828c4e3b7a05ccb9e331df63b9975bfd770d06977d82305bb185c3af3487f",
+      "scope": "asset integrity; not exhaustive visual review"
+    },
+    {
+      "path": "Frontend/public/logo.png",
+      "bytes": 3579,
+      "sha256": "aa8c19129e0a1745b86ff06183b6be9e933bca4289c2bf80edb8fa5bac65fc5c",
+      "scope": "asset integrity; not exhaustive visual review"
+    },
+    {
+      "path": "Frontend/public/resume-radar.jpg",
+      "bytes": 741683,
+      "sha256": "54e543c925b6e23af1f55530ff1c69160b3525a6bcc8e475af736d4276b46b17",
+      "scope": "asset integrity; not exhaustive visual review"
+    },
+    {
+      "path": "Frontend/src/App.tsx",
+      "bytes": 4027,
+      "sha256": "75654a47c7ca84e80b2bc2a8fdb50f9d7bec1f55ef905ed6e1fa3105c9cef97a",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/AppShell.tsx",
+      "bytes": 1613,
+      "sha256": "5bcb32bb4c0ff113ef7b95612a7cecf8a88b29fcb9f1ae5f9268c954eb86c04f",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/BrandLogo/BrandLogo.tsx",
+      "bytes": 2737,
+      "sha256": "0bc63935a2450e69172bcd8023d0cc5bd7a5f8d4601bef5c651f691318cda85d",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/BrandLogo/index.ts",
+      "bytes": 30,
+      "sha256": "5933a870a20db0a4d50f429562a10d3dfca64ac71220606e56005a865569e415",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/Footer/Footer.tsx",
+      "bytes": 3713,
+      "sha256": "1402e24890066612237b96105c00b924b16636b5aab31d8aa4437c5957e46b4f",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/Footer/index.ts",
+      "bytes": 35,
+      "sha256": "09862b74511910b955a0fb69a1dbb5f8906fe6f194a6079e4d61f8b77dd00ea0",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/Header/AppHeader.tsx",
+      "bytes": 6448,
+      "sha256": "728ef9d387e92643199635e4bd6ecf05dc9acf3725cd4f33e2deeb7d3d00f692",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/Header/Header.tsx",
+      "bytes": 3916,
+      "sha256": "b0fb73654ea7f3d2909fae35e76e8057c6e3d208c5a2a677f4b9ef2d23169450",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/Header/index.ts",
+      "bytes": 76,
+      "sha256": "f4f1e4fb87e997193ad3cc7d6d65caaa8c65ecbc6183ac5e65e50dfb92337ffd",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/Sidebar/NavigationIcon.tsx",
+      "bytes": 1742,
+      "sha256": "9ba150e984db2b983c35b2b26832031c1b7cee76bf5e3c695f2788b8e4675bf7",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/Sidebar/Sidebar.tsx",
+      "bytes": 5324,
+      "sha256": "bd2c1919fdfa3e89485994edb222ffcbefc569c9edb75d64cb7b64f1d26792e4",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/Sidebar/index.ts",
+      "bytes": 37,
+      "sha256": "9e5985581e4bf2d7d7ebebc5464404da39c4eb552ee07bcbceb669c108352a99",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/ThemeToggle.tsx",
+      "bytes": 3918,
+      "sha256": "8491b1a621675180c71c67276a15a340c2d86ffcc1f425fcba53843f0bba02ae",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/animations/AmbientHeroParticles.tsx",
+      "bytes": 5972,
+      "sha256": "32c8528600d0be35186a7ec127f829a6fef3f95c280bb3c28a7dc4ad925f41ec",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/animations/AnimatedCounter.tsx",
+      "bytes": 2400,
+      "sha256": "bc88aadd481bf41d6f5c623861199ce44d811644b4c7010497bddc826c58a1bd",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/animations/AudioWaveform.tsx",
+      "bytes": 2206,
+      "sha256": "bd0bd3696a3dda2ac9cd80d6a24e04b47b676d5aee6056af4309b03d2b1c7b1d",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/animations/CircularGauge.tsx",
+      "bytes": 3595,
+      "sha256": "7bd25cff8dca04bf88dda36cbc48b66a1a1b8eebff7394167ef428d2194230d8",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/animations/InteractiveSpotlightCard.tsx",
+      "bytes": 2915,
+      "sha256": "f50b580bb5229b3cdb2e00c4afefdbfe17c0f0c1c9b5f4da6daec4261181b5d5",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/animations/LaserScanline.tsx",
+      "bytes": 748,
+      "sha256": "5588123438a6abd053787ba0d8355882a45267459b6757a92a2400098ebc50f1",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/animations/ScrollProgressBar.tsx",
+      "bytes": 1653,
+      "sha256": "0decd8bf936ad89d587df4021c1b45f8e3d71044f1c0ad76021fe9601e4de776",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/animations/index.ts",
+      "bytes": 444,
+      "sha256": "5b59a6f219217316f08f95e5eb3d7549a388ee85b81dbb267e53e04656260d4c",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/animations/useScrollReveal.ts",
+      "bytes": 2217,
+      "sha256": "a21361ba8335e80ae469294fa346ea782540e716e62148674b66cce28d83ed06",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/Components/index.ts",
+      "bytes": 136,
+      "sha256": "97cd02ed7ff5e9cd9f00114dabefa758d8c61d2ff0065c4d6830d0e922734012",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/lib/api.test.ts",
+      "bytes": 5133,
+      "sha256": "43d8f0dcc04279fc5e956044314f7de7bf5139993fe426bdf6efde08a6076ff5",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/lib/api.ts",
+      "bytes": 4912,
+      "sha256": "b75caca8388be79ea14dd1dee292070a1b210a43bdf42e049292153f8f3cfe74",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/lib/gemini-live.test.ts",
+      "bytes": 10909,
+      "sha256": "5a9da858b0d759c6652d5c85ab3ef12b856c8f4598781f8e9bf55551fea5c85d",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/lib/gemini-live.ts",
+      "bytes": 20222,
+      "sha256": "480cd90fa49bc60b87cb41b70bcacd2794c9160f54721f17d04882a6b64fd252",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/lib/pcm-capture.worklet.js",
+      "bytes": 763,
+      "sha256": "118d209f9e8d2c533ecad2c2827f55f7c97b5de7c5b5425b8d4918a9dcbc6e82",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/main.tsx",
+      "bytes": 766,
+      "sha256": "e9b067820b5a5f46b1d27e2ac1a21c2513f78f281e164f08a9612fa41d238f02",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/ApplicationsPage.tsx",
+      "bytes": 5996,
+      "sha256": "9e7e6885df34106e4157da79e3d9b222cff5f62d3ef59aa8a15d381196bc1dc8",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/ArchitecturePage.tsx",
+      "bytes": 16146,
+      "sha256": "2061d6af0303daf561152e3ef04f5be5d2743b81249f818fafea45aa1bd6fa94",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/CareerRecommendationsPage.tsx",
+      "bytes": 5664,
+      "sha256": "497317fec380c969081e5654786962db7aad5aba02460d11c30ec6fac50a24d8",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/ChatPage.tsx",
+      "bytes": 8893,
+      "sha256": "736add759fa09cfb1c8a3b074bd7bde6735ee8cb9b564297777bd4bf13c20125",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/DashboardPage.tsx",
+      "bytes": 11876,
+      "sha256": "bacab7c1bab57030302be5477eb5961522c826bc2d257f9d60001544b0c1d15d",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/FeaturePage.tsx",
+      "bytes": 7143,
+      "sha256": "50e8fe1e7cddc0456beb9d0908505df79a8293ca36cd79b5910e0be15ed7bc6f",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/JobMatchesPage.tsx",
+      "bytes": 11602,
+      "sha256": "2cc11f5898a425c60fe25fe06c62e097d47d66cbb90a92f9386b74e7b0abaf0d",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/LandingPage.tsx",
+      "bytes": 35110,
+      "sha256": "082a909153964aa2dec1c1be608414231b19e4d0a3f00ac77e872692b59669b4",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/LearningRoadmapPage.tsx",
+      "bytes": 13426,
+      "sha256": "d132e6ff3eba5c67b06f2a007903f1ae0150bd1dea4adab193e330272aaa4e05",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/LoginPage.tsx",
+      "bytes": 10847,
+      "sha256": "540c8dd6c61b1e92a626b65f35506ea208dd8ae15818824d189b29e70408e1ac",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/MockInterviewsPage.tsx",
+      "bytes": 34119,
+      "sha256": "ef749f11e94d02c048ac406a0803cd5aae199d960a117b2d18d80b61c13ac160",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/PlansPage.tsx",
+      "bytes": 2322,
+      "sha256": "0fce49449068a1bc0a6c7df42b547563523aca695fa4135e2ca17fc406094b6a",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/ProfilePage.tsx",
+      "bytes": 6474,
+      "sha256": "1b53b8da883d69c08a235549acd65c9fdfaccc5995d54f3bc85d00bf40146b92",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/ResumeStudioPage.tsx",
+      "bytes": 14484,
+      "sha256": "4028914b5a6733ff20fd650e673c18b4303c3ec55f126079c7f6110862a345ff",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/SettingsPage.tsx",
+      "bytes": 4590,
+      "sha256": "e94e5a05bdd2700b52766381cd01fd2b9d32f04ca950160f9b6e69ba83a6db80",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/pages/SkillEvidencePage.tsx",
+      "bytes": 9304,
+      "sha256": "9f1d5c60b4102174505ec52173cb287d0f1373b5fa73e24eabaf989bbed57995",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/src/styles/career-workspace.css",
+      "bytes": 5281,
+      "sha256": "0ad061964f2e857396a9a1c428f76b141ed79eb83c69802f3a37009751a1e6de",
+      "scope": "CSS structural parsing and selected layout review; not complete visual acceptance"
+    },
+    {
+      "path": "Frontend/src/styles/global.css",
+      "bytes": 32805,
+      "sha256": "3b1df004ad1965afacb9fb8a372a53938dc3986839d202dcbd54492e49d73449",
+      "scope": "CSS structural parsing and selected layout review; not complete visual acceptance"
+    },
+    {
+      "path": "Frontend/src/styles/interface.css",
+      "bytes": 15805,
+      "sha256": "21e10620182207159303e9bb550ece84bad616235d0ebdbd0c852137c1ef02ef",
+      "scope": "CSS structural parsing and selected layout review; not complete visual acceptance"
+    },
+    {
+      "path": "Frontend/src/styles/interviews.css",
+      "bytes": 17738,
+      "sha256": "4eec9740ff6e2c6f7ba65be4f2c73e395e6441214bee58ab60b33a7c7d760a8a",
+      "scope": "CSS structural parsing and selected layout review; not complete visual acceptance"
+    },
+    {
+      "path": "Frontend/src/styles/landing.css",
+      "bytes": 5681,
+      "sha256": "0ebb8362b0b23bc3cd6f238eed54b47ad42a06727fa78597b9dbea25b9690f4c",
+      "scope": "CSS structural parsing and selected layout review; not complete visual acceptance"
+    },
+    {
+      "path": "Frontend/tsconfig.json",
+      "bytes": 508,
+      "sha256": "dd137c09c3a4bb7463f4601696d6b7670c15c8dc865cd476c8b65a65dcf71af8",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Frontend/tsconfig.tsbuildinfo",
+      "bytes": 1640,
+      "sha256": "e35d7e4b81d0939612598fb4d761b962327a8c25d08f0aa7e940fef969de273f",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Frontend/vite.config.ts",
+      "bytes": 1061,
+      "sha256": "8659650d9e9840850c46c78a8a75effc78d4dd92a3ea70cd8e351a0b62a0558a",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Frontend/vitest.config.ts",
+      "bytes": 142,
+      "sha256": "691699f76d285edcb0e2437ca7ff4d831de1a8ce27cf194620b4720e0a0eb85f",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/.dockerignore",
+      "bytes": 71,
+      "sha256": "a168afc4d2c36d190689799bd61084f75f97c93c0f9aeb048c8f6b93e71c3cde",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Multi-agent AI/Dockerfile",
+      "bytes": 240,
+      "sha256": "fd9ca88f93415ee0ed8ef720d624bffc48c8a090e436cbeb1011d78f743182ba",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Multi-agent AI/backend/agents/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/agents/career_agent.py",
+      "bytes": 2845,
+      "sha256": "9403046af6fb5818edcd5abd2fb13ff33d7b90447bd321b8f0e74d642e49aa33",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/agents/interview_agent.py",
+      "bytes": 4489,
+      "sha256": "3d1af29d9efc10e16183e9e7b2cc0143e0cea90265d7c4dc2aab6c6c4e409b34",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/agents/llm_client.py",
+      "bytes": 8979,
+      "sha256": "ad2226700472a876fa978ae05a640c3006ec4a26d91b59f3c6b31b5604aaed7f",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/agents/resume_agent.py",
+      "bytes": 1902,
+      "sha256": "6292da6f11c5991e4422106d37f3b4f930f9e3fa190bb182e7f25230df25a5d7",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/agents/skill_gap_agent.py",
+      "bytes": 2039,
+      "sha256": "ccb52a5cf0e10e1e7948911f1469cd13903cf95f8fc74404fc950bbccb27b3e9",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/core/__init__.py",
+      "bytes": 16,
+      "sha256": "cbf71e58d3101048bcc7497e0c143a2e534a3e0aada338a4a48b11cf3a12b099",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/core/exception_handlers.py",
+      "bytes": 3861,
+      "sha256": "50ee392c8df5bc6fc72a4f069153cd9020fa020222db8748a2ec633779426f49",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/core/exceptions.py",
+      "bytes": 3709,
+      "sha256": "1def39d3dcca3c023661c4a1fe1e07d59297d35d0e83b2e418fcaeb3e9f41da4",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/database/connection.py",
+      "bytes": 1596,
+      "sha256": "ca1d651fc32abce1eee35f2b276b7714de67a75304f56ccfa2a8ba9d78a795d6",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/database/dependencies.py",
+      "bytes": 462,
+      "sha256": "62d3c2052acdff468abc58817a7d7cb0d09778708cb97b32105477c675eedf91",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/exceptions.py",
+      "bytes": 617,
+      "sha256": "1e718b6bc36ecce601fbe6c01452ba519e639d6dd4d3f4aa3970caa944369d7c",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/main.py",
+      "bytes": 8171,
+      "sha256": "df94d64cb9cb37696cb91479909f6cfb128b193b242d37db0f078c90bbc8831d",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/repositories/analysis_repository.py",
+      "bytes": 1637,
+      "sha256": "6a9ba121e67da5c164e37440f8a9bb46d0b57096b77834138b9d4c862d9a06d6",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/requirements.txt",
+      "bytes": 101,
+      "sha256": "bfd1885b0c9a6108bf7496265f12d2330c3d041e59f4b97645e90f733b596d3f",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "Multi-agent AI/backend/routers/__init__.py",
+      "bytes": 19,
+      "sha256": "30ab301eb64c817e6cff29279198a73942c5fe2790992143a3cc080ae770da66",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/routers/ipca_router.py",
+      "bytes": 4132,
+      "sha256": "e2302f1ba327031b154ef77015ad1bb339a3bf94d117678d7711497476eeae07",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/schemas/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/schemas/api_response.py",
+      "bytes": 664,
+      "sha256": "fdc7d7bf488efd6298f46e5abcd14dfba6bc8bcc71bc99ddf801430210b03c75",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/schemas/api_schema.py",
+      "bytes": 543,
+      "sha256": "1253547a15f28525133400996104b942a2549ad2becb9ee2d1fb119f01824ae7",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/schemas/career_schema.py",
+      "bytes": 1452,
+      "sha256": "d4d4dbbb3e01fdd632e359e5bd5deef7f3c0fc0e2d487e34e5efffbcc7aa8b39",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/schemas/interview_schema.py",
+      "bytes": 1648,
+      "sha256": "f0dee003976fb94b7e225b9863d1a951a87e752ecce743271759d644fcc6b7c7",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/schemas/resume_schema.py",
+      "bytes": 939,
+      "sha256": "3b5cd09222088daa50d76bdd3d24f64773581c8230649332b7bacc7fac994209",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/schemas/skill_gap_schema.py",
+      "bytes": 808,
+      "sha256": "36815a7c28338af41380f8a97baec3d9a69d8b38837a58224acfbcfcb5366af4",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/services/__init__.py",
+      "bytes": 20,
+      "sha256": "f9f3f3a64b4e52395d6dc9fa9ba770e71bd35c9e1cd62904d42a2731d4156ffd",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/services/ipca_service.py",
+      "bytes": 3252,
+      "sha256": "ce4cbadd6dbbb08fc235dda6d211595e1edbd08c606e71f8a5d1d6638bdfd5ff",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/tests/test_workflow_regressions.py",
+      "bytes": 6771,
+      "sha256": "64c296c9fee1d733bd207f787624dd375b0722ff32933d0717e5ec7c3af0d102",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/utils/__init__.py",
+      "bytes": 17,
+      "sha256": "7a15da8c74cecd4bf0282a6e04c571992e21c992cef77adf622e7324e8cd5d40",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/utils/error_handler.py",
+      "bytes": 1096,
+      "sha256": "07a9fab94fac320b76fe74d5de5e2a4b403997029a65c79951b6ec7ab423a779",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/utils/logger.py",
+      "bytes": 515,
+      "sha256": "2a0483888b0006e1612e4047d9a1a14d9f294a9e07116f837d70a9fe528a1a11",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/utils/metrics.py",
+      "bytes": 675,
+      "sha256": "abaf568912ea976728ebb1f44df93268f852fdc87501aa7431660d49b0900263",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/utils/monitoring.py",
+      "bytes": 2383,
+      "sha256": "2e1d4130477bd083e6c48b2cb4d76386361c2688657df258bed35060572f4a35",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/utils/token_tracker.py",
+      "bytes": 376,
+      "sha256": "806b0c9bf1ed479db7680cf7266b17e7bb931527227df77630b4fe23f9747919",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/verify_system.py",
+      "bytes": 4479,
+      "sha256": "46824630e309f6af10cea2166c14ad0d24f80ac62a0266a199f560565c558065",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/workflow/__init__.py",
+      "bytes": 20,
+      "sha256": "b36428a1cb28791555cb3cefca34a1364a902d4a1145750de88651a76ca58ade",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/workflow/graph.py",
+      "bytes": 11647,
+      "sha256": "1f2e4d38070c5485392382cf735281557c977d87ca97282b41269e0f14ed4ddf",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/workflow/input_schema.py",
+      "bytes": 322,
+      "sha256": "56ed063bb4779d77205126afa6f222461103fcff541b1fea5996de3ce955b43a",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/workflow/nodes.py",
+      "bytes": 484,
+      "sha256": "208db6a4b1d935ec8a5bc910b18bddcd2678e644dde0e18a122188ec32506969",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/workflow/quality_checker.py",
+      "bytes": 1869,
+      "sha256": "bd9cd5bec233eb26f671a14d1ff63c9d692fb23133ca1518e4f9be5edcf341fc",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/workflow/state.py",
+      "bytes": 1132,
+      "sha256": "4e7469695d0d8c12acc5a2bdda6421b4fb4287b88b0d5f0e31734f847d691740",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/backend/workflow/test_workflow.py",
+      "bytes": 2515,
+      "sha256": "a0a9e7a09fe2d8c117a2ed7c8c272ff2f8cecf07c1e3103e301745e0e8c29198",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "Multi-agent AI/requirements.txt",
+      "bytes": 189,
+      "sha256": "33d4d8a24da21ab6f055115e088310998802ae46637ed860481ac74da96d3a5e",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5703,
+      "sha256": "f27b11da319e180feef0f3f4c61daf9f8b3c4c33ef2da29f823d98470cf8a517",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "SRS.pdf",
+      "bytes": 519412,
+      "sha256": "a3f5208f5e0debbffb65034b5e5c1f8c607865579822b91793abae3d43a7f2ef",
+      "scope": "requirements text compared with implemented workflows"
+    },
+    {
+      "path": "docker-compose.yml",
+      "bytes": 2409,
+      "sha256": "fd8da323df14953e3dc0b668cb8a8bfc9875c73b9f583d394df735f62bf8df65",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "docs/ai/mongodb-vector-index.json",
+      "bytes": 143,
+      "sha256": "8f39fd459a7a80f8ed93dc51485a8919369d6677d5b588bb507b2238dc3ec246",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "docs/architecture/phase-1.md",
+      "bytes": 1078,
+      "sha256": "cadcb840c09238d6afad9e36aca01dd1415af0b9337a4922ad7be85cd7bd09ae",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "docs/architecture/phase-2.md",
+      "bytes": 1288,
+      "sha256": "1fc0aa8317b1c404695ddb53c4d005ba79fcbf9c4cacc714ee083be9020fb781",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "docs/architecture/phase-3.md",
+      "bytes": 1525,
+      "sha256": "f2697ebfbc121462a280079ddb223bc61e6285755f2e1b0181dd0006b947f560",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "docs/architecture/phase-4.md",
+      "bytes": 1230,
+      "sha256": "4d083c2e83622fc60af5a97e12d8c26bf431e7d64ff66f3712d4e0b18cfafd59",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "docs/architecture/phase-5.md",
+      "bytes": 1461,
+      "sha256": "6597058cd56cc727cf3b4e49ba4c773244d52e3b37e2468a3832da0d6134acf9",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "docs/architecture/phase-6.md",
+      "bytes": 1687,
+      "sha256": "22d4eeef9a7e131e06cd1753d22d65e56a971d47cad09bf2b19269d59ad33f1d",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "docs/architecture/phase-7.md",
+      "bytes": 1490,
+      "sha256": "332aaf6a99e1bfbcb560ad562e47916ffb12edfda90602d1409247ff44f9365e",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "docs/architecture/phase-8.md",
+      "bytes": 533,
+      "sha256": "08655121b2765bdf4bae38ce41ceb20c65e2687def3009468772c0af00533b29",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "docs/architecture/phase-9.md",
+      "bytes": 382,
+      "sha256": "3a54316e08b20b47ea502fb29f6a548bd497ea22573a8aabb385233060f18dc6",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "docs/project-audit.md",
+      "bytes": 8455,
+      "sha256": "2e696705638d5d28121229512e5542c3b659990bb1ad1a749b9148573230df62",
+      "scope": "documentation review; historical inconsistencies recorded in report"
+    },
+    {
+      "path": "eslint.config.js",
+      "bytes": 346,
+      "sha256": "7a3f73f318c1a9d91318f0d20d22cb85568370a3ba073e9e617bad86e25d008b",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "infrastructure/docker/nginx.conf",
+      "bytes": 563,
+      "sha256": "17b943601bc91d8f11d83bc3ed144b08382b0d7d6272f4eb3acd2eb7ddeb6ca2",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 271293,
+      "sha256": "31ef8d18b6c6a6bb330c4a7dae170669084e1d6af597a4967c9971866fc31485",
+      "scope": "manifest consistency; dependency advisory scan not performed"
+    },
+    {
+      "path": "package.json",
+      "bytes": 1275,
+      "sha256": "9013e0b788ab93e69cf348669187384a233480394d4a82e28d5b1992d7a978b1",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "packages/ai-core/package.json",
+      "bytes": 288,
+      "sha256": "bbb07dfc11a7217c453d500f71cb4b9c91eef93f499dfa4b1e016465c1dcd8dd",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "packages/ai-core/src/index.ts",
+      "bytes": 343,
+      "sha256": "dd3f9ef5b208a3f4044851fc271644bfc89bd1e48215e172513a779f35575f18",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "packages/ai-core/tsconfig.json",
+      "bytes": 121,
+      "sha256": "06a283912691d548c71c38ca53835afb4e62809645c98959b74646c077bc7f89",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "packages/config/package.json",
+      "bytes": 326,
+      "sha256": "1f992fd92c4bf180b293d56d0592382891766bc7a3a5a46b8dc9365ef640f781",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "packages/config/src/index.ts",
+      "bytes": 2115,
+      "sha256": "ca24dc5a73ed45c4e54a12ed3f6d48dda805377f6f71b6026fad07ebc71317b4",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "packages/config/tsconfig.json",
+      "bytes": 121,
+      "sha256": "06a283912691d548c71c38ca53835afb4e62809645c98959b74646c077bc7f89",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "packages/database/package.json",
+      "bytes": 385,
+      "sha256": "e57b0e8336400505785e332c6458f3fddd9fc4a5f21cc2db303dd8626316fd8e",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "packages/database/src/index.ts",
+      "bytes": 389,
+      "sha256": "2a97e45d1a62b1b72b87bb04ed4c86361b9c78d8748de230903fe61b1f0e662b",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "packages/database/tsconfig.json",
+      "bytes": 140,
+      "sha256": "1e56441b9103476ed0045ba4e28e12abe253595f636c519f9610065858e8fb15",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "packages/types/package.json",
+      "bytes": 286,
+      "sha256": "b3d37fc6d83399050c3c0b676d3acbb9e59add4cf89b7cf5e1ca54dea5e0e019",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "packages/types/src/index.ts",
+      "bytes": 329,
+      "sha256": "42996b9808f262fc6a83202c63c7e8743c436a696044bd4f1a0a0a1733328a29",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "packages/types/tsconfig.json",
+      "bytes": 121,
+      "sha256": "06a283912691d548c71c38ca53835afb4e62809645c98959b74646c077bc7f89",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "packages/validation/package.json",
+      "bytes": 330,
+      "sha256": "2108d4e35742d58062dda79c3b6061489274d1a417dba24e9f67fe3f6006aba1",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "packages/validation/src/index.ts",
+      "bytes": 2587,
+      "sha256": "a7ffa4ce9491b2f943192c26e82bc4e32569f887243866960bb76c571c82f6aa",
+      "scope": "source review and applicable build/tests; see workflow matrix for execution limits"
+    },
+    {
+      "path": "packages/validation/tsconfig.json",
+      "bytes": 121,
+      "sha256": "06a283912691d548c71c38ca53835afb4e62809645c98959b74646c077bc7f89",
+      "scope": "configuration or fixture review"
+    },
+    {
+      "path": "tsconfig.base.json",
+      "bytes": 367,
+      "sha256": "b70c6204a4cdc1ad87f124f826f981a66c6261ebe763830c33b293bbe8806882",
+      "scope": "configuration or fixture review"
+    }
+  ]
+}

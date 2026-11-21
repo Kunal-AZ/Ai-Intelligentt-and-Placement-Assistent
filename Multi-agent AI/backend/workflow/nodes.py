@@ -20,19 +20,3 @@ __all__ = [
     "career_node",
     "final_report_node"
 ]
-
-from utils.monitoring import monitor_agent
-
-def resume_node(state):
-
-    result, execution_time = monitor_agent(
-        "Resume Agent",
-        analyze_resume,
-        state["resume_text"]
-    )
-
-    return {
-        "resume_analysis": result,
-        "resume_execution_time": execution_time,
-        "workflow_status": "resume_completed"
-    }

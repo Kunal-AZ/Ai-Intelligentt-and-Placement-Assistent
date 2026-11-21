@@ -69,5 +69,7 @@ export async function saveResumeSkills(userId: string, resumeId: string, skills:
     );
     saved.push(skill);
   }
+  // A re-analysis replaces this resume's claims; retain other evidence sources.
+  await SkillEvidence.deleteMany({ userId, source: 'RESUME', sourceRef: resumeId, skillId: { $nin: saved.map((skill) => skill._id) } });
   return saved;
 }

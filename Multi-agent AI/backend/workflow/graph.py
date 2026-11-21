@@ -142,15 +142,13 @@ def skill_gap_node(state: IPCAState):
     # makes the gap analysis a comparison of the selected role against the
     # complete current skill picture, not just a single uploaded document.
     skills = list(dict.fromkeys([*recorded_skills, *resume_skills]))
-    if not skills:
-        skills = ["General Software Engineering"]
 
     try:
         result = analyze_skill_gaps(
             student_name=name,
             existing_skills=skills,
             target_role=target_role,
-            experience_level="Fresher"
+            experience_level="Not provided; do not infer"
         )
         data = result.model_dump() if hasattr(result, "model_dump") else result
         return {"skill_gap_analysis": data}
@@ -176,15 +174,13 @@ def interview_node(state: IPCAState):
 
     resume_analysis = state.get("resume_analysis") or {}
     skills = resume_analysis.get("extracted_skills", [])
-    if not skills:
-        skills = ["Core Java", "Python", "Data Structures"]
 
     try:
         result = generate_interview_questions(
             student_name=name,
             target_role=target_role,
             skills=skills,
-            experience_level="Fresher",
+            experience_level="Not provided; do not infer",
             difficulty="Mixed",
             question_count=5
         )
@@ -212,17 +208,15 @@ def career_node(state: IPCAState):
 
     resume_analysis = state.get("resume_analysis") or {}
     skills = list(dict.fromkeys([*(state.get("current_skills", [])), *(resume_analysis.get("extracted_skills", []))]))
-    if not skills:
-        skills = ["Software Development", "Problem Solving"]
 
     try:
         result = generate_career_recommendations(
             student_name=name,
-            education="Computer Science / Engineering",
+            education="Not provided; do not infer",
             skills=skills,
             interests=[target_role],
-            projects=["Academic and practical software projects"],
-            experience_level="Fresher",
+            projects=[],
+            experience_level="Not provided; do not infer",
             preferred_work=target_role
         )
         data = result.model_dump() if hasattr(result, "model_dump") else result

@@ -13,6 +13,26 @@ const denied = () => Response.json({ error: { message: 'Authentication is requir
 const session = () => Response.json({ data: { accessToken: 'renewed-token' } });
 
 describe('browser session recovery', () => {
+  it('rejects late responses from a previous account instead of caching their data', async () => {
+    let finish!: (response: Response) => void;
+    vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(resolve => { finish = resolve; })));
+    const pending = client.api('/profile');
+    const rejection = expect(pending).rejects.toThrow('session has expired or changed');
+    client.setAccessToken('other-account');
+    finish(Response.json({ data: { private: 'previous account' } }));
+    await rejection;
+  });
+  it('invalidates account caches on logout and login but preserves them on token renewal', async () => {
+    const listener = vi.fn();
+    const unsubscribe = client.subscribeToSessionChange(listener);
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(denied()).mockResolvedValueOnce(session()).mockResolvedValueOnce(Response.json({ data: {} })));
+    await client.api('/profile');
+    expect(listener).not.toHaveBeenCalled();
+    client.setAccessToken(null);
+    client.setAccessToken('new-account');
+    expect(listener).toHaveBeenCalledTimes(2);
+    unsubscribe();
+  });
   it('refreshes an expired session and retries with the new token', async () => {
     const fetch = vi.fn().mockResolvedValueOnce(denied()).mockResolvedValueOnce(session()).mockResolvedValueOnce(Response.json({ data: { ready: true } }));
     vi.stubGlobal('fetch', fetch);

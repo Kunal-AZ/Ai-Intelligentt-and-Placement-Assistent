@@ -71,7 +71,7 @@ const ROLE_PROFILES: RoleProfile[] = [
 const FAQS = [
   {
     q: 'How does HiPlacement verify skills differently than standard ATS checkers?',
-    a: 'Traditional ATS checkers only look for superficial keyword frequency. HiPlacement parses your code repositories, verifies test assertions, validates background queue implementations, and tests your reasoning through simulated AI mock interview sessions.',
+    a: 'HiPlacement records declared skills and claims extracted from your resume, compares them with role requirements, and offers AI mock interviews. Resume claims are not independent verification of proficiency; repository analysis is not implemented.',
   },
   {
     q: 'Is my uploaded resume and code kept private?',
@@ -110,9 +110,9 @@ export function LandingPage() {
   );
 
   const calcGrade =
-    calcScore >= 85 ? 'Tier-1 Elite (₹18 - ₹32 LPA)' :
-    calcScore >= 70 ? 'Tier-1 Qualified (₹12 - ₹20 LPA)' :
-    'Foundational (₹6 - ₹12 LPA)';
+    calcScore >= 85 ? 'High practice activity' :
+    calcScore >= 70 ? 'Developing practice activity' :
+    'Foundational practice activity';
 
   // FAQ accordion
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -171,13 +171,13 @@ export function LandingPage() {
             <p className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
               <AnimatedCounter end={24.8} prefix="₹" suffix=" LPA" decimals={1} />
             </p>
-            <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Average Tier-1 CTC</p>
+            <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Example salary (demo)</p>
           </div>
           <div>
             <p className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
               <AnimatedCounter end={94} suffix="%" />
             </p>
-            <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">ATS Pass Rate</p>
+            <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Example ATS score (demo)</p>
           </div>
           <div>
             <p className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
@@ -235,7 +235,7 @@ export function LandingPage() {
                 </button>
               </div>
 
-              <span className="badge badge-mono text-[9px] hidden sm:inline-flex">Live Telemetry</span>
+              <span className="badge badge-mono text-[9px]">Illustrative demo</span>
             </div>
 
             {/* Terminal Tab Body */}
@@ -342,7 +342,7 @@ export function LandingPage() {
           <span className="badge badge-mono mb-2">Role Benchmarks</span>
           <h2>Target Role Calibration</h2>
           <p>
-            Inspect required competencies, current packages, and high-impact skill gaps.
+            Explore illustrative role profiles. These sample scores, salaries, and market figures are not live data or personal assessments.
           </p>
         </div>
 
@@ -424,7 +424,7 @@ export function LandingPage() {
 
           <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
             <span className="text-xs text-[var(--text-muted)]">
-              Calibrated against 1,200+ active SDE openings
+              Illustrative example; no live market calibration
             </span>
             <Link to="/skills" className="btn-primary text-xs py-2 px-4">
               Calibrate Your Profile ↗
@@ -439,7 +439,7 @@ export function LandingPage() {
           <span className="badge badge-mono mb-2">Readiness Index</span>
           <h2>Placement Readiness Calculator</h2>
           <p>
-            Adjust your metrics to calculate your placement qualification score and package bracket.
+            Explore a simple practice-progress simulation. It does not predict hiring outcomes or salary.
           </p>
         </div>
 
@@ -515,7 +515,7 @@ export function LandingPage() {
               {calcGrade}
             </p>
             <p className="text-xs text-[var(--text-muted)] leading-relaxed mt-1">
-              Based on historical placement data across 3,400+ engineering graduates.
+              Illustrative formula based only on the sliders, without historical placement validation.
             </p>
             <Link to="/dashboard" className="btn-primary w-full text-xs mt-2">
               Start Diagnostic Audit ↗
@@ -575,7 +575,7 @@ export function LandingPage() {
             <ul className="space-y-3 text-xs text-[var(--text-secondary)]">
               <li className="flex items-start gap-2">
                 <span className="text-[var(--status-success)]">✓</span>
-                <span>Code-backed evidence linking projects directly to candidate competencies.</span>
+                <span>Resume-backed and self-declared evidence linked to recorded skills.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[var(--status-success)]">✓</span>
@@ -597,10 +597,10 @@ export function LandingPage() {
       {/* ── 5. Student Placement Stories (#stories) ─────────────── */}
       <section id="stories" className="landing-section reveal-on-scroll">
         <div className="landing-section-head">
-          <span className="badge badge-mono mb-2">Verified Placements</span>
+          <span className="badge badge-mono mb-2">Illustrative scenarios</span>
           <h2>From Critical Gaps to Tier-1 Offers</h2>
           <p>
-            Real engineering students who used HiPlacement to audit their resumes and pass technical interviews.
+            Fictional examples illustrating preparation journeys; these are not verified testimonials.
           </p>
         </div>
 

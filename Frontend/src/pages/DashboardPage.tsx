@@ -6,8 +6,8 @@ type Profile = { firstName?: string; targetRoles?: string[]; updatedAt?: string 
 type Skill = { _id: string; displayName: string };
 type Evidence = { skillId: string; source: string; proficiency?: string; createdAt?: string };
 type Resume = { originalFileName: string; analysisStatus: string; updatedAt?: string };
-type Interview = { type: string; updatedAt?: string };
-type Response = { evaluation?: Record<string, unknown> };
+type Interview = { _id: string; type: string; status: string; updatedAt?: string };
+type Response = { sessionId: string; evaluation?: Record<string, unknown> };
 
 const date = (value?: string) => value ? new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value)) : 'No activity yet';
 const evaluationScore = (evaluation?: Record<string, unknown>) => {
@@ -36,7 +36,12 @@ export function DashboardPage() {
       if (p.status === 'fulfilled') setProfile(p.value.profile ?? {});
       if (s.status === 'fulfilled') { setSkills(s.value.skills ?? []); setEvidence(s.value.evidence ?? []); }
       if (r.status === 'fulfilled') setResumes(r.value.resumes ?? []);
-      if (i.status === 'fulfilled') { setInterviews(i.value.sessions ?? []); setResponses(i.value.responses ?? []); }
+      if (i.status === 'fulfilled') {
+        const completed = (i.value.sessions ?? []).filter(session => session.status === 'COMPLETED');
+        const completedIds = new Set(completed.map(session => session._id));
+        setInterviews(completed);
+        setResponses((i.value.responses ?? []).filter(response => completedIds.has(response.sessionId)));
+      }
       setLoading(false);
     });
     return () => { mounted = false; };

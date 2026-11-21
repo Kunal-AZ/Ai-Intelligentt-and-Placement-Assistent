@@ -94,5 +94,16 @@ class WorkflowRegressions(unittest.TestCase):
         self.assertEqual(transport.call_count, 2)
 
 
+    def test_empty_profile_does_not_invent_qualifications(self):
+        with patch.object(graph, 'generate_career_recommendations', return_value={}) as career:
+            graph.career_node({'student_name': 'Test', 'target_role': 'Developer'})
+            self.assertEqual(career.call_args.kwargs['skills'], [])
+            self.assertEqual(career.call_args.kwargs['projects'], [])
+            self.assertEqual(career.call_args.kwargs['education'], 'Not provided; do not infer')
+        with patch.object(graph, 'generate_interview_questions', return_value={}) as interview:
+            graph.interview_node({'student_name': 'Test', 'target_role': 'Developer'})
+            self.assertEqual(interview.call_args.kwargs['skills'], [])
+
+
 if __name__ == '__main__':
     unittest.main()

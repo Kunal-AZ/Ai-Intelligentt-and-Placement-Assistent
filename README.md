@@ -34,6 +34,8 @@ The root `.env` is the single runtime configuration file for the Express API, Bu
 
 ## Multi-agent AI integration
 
+For a deployed resume-analysis failure, run `node Backend/scripts/diagnose-ai.mjs` from the repository root in the API or worker's hosting environment. This checks the Python workflow route and shared token without sending resume data or calling Gemini. `AI_SERVICE_URL` must point to the Python FastAPI service origin; use localhost only when Python runs in the same host/container. Set the same `AI_SERVICE_TOKEN` in the API, worker, and Python service. A passing connection check does not verify Gemini quota or MongoDB access; inspect the Python service logs for those failures. Backend failure logs include HTTP status and a bounded error code without provider response bodies or resume text.
+
 Authenticated users access the protected FastAPI system only through Express: `POST /api/v1/ai/workflow`, `/api/v1/ai/interview/questions`, `/api/v1/ai/interview/evaluate`, and `/api/v1/ai/careers`. Configure the same `AI_SERVICE_TOKEN` in Express and FastAPI. Workflow requests are queued and processed by the worker so long-running Gemini calls do not time out browser requests.
 
 ## Phase 2 API

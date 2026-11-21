@@ -17,7 +17,7 @@ let resumeId;
 // A synthetic one-page PDF exercises storage and extraction without using
 // anyone's resume or calling an AI provider.
 function fixturePdf() {
-  return readFileSync(new URL('./fixtures/diagnostic-resume.pdf', import.meta.url));
+  return readFileSync(new URL('./fixtures/diagnostic-resume.pdf.txt', import.meta.url));
 }
 
 async function request(path, method = 'GET', body, expected = 200) {
@@ -42,7 +42,7 @@ try {
   token = account.accessToken;
   await request('/profile', 'PUT', { firstName: 'Diagnostic', college: 'Test University', degree: 'Computer Science', targetRoles: ['Backend Developer'] });
   for (const path of ['/profile', '/resumes', '/skills', '/skill-gaps', '/careers', '/applications', '/interviews', '/chat/conversations', '/subscription']) await request(path);
-  await request('/jobs', 'GET', undefined, 409);
+  await request('/jobs');
   const pdf = fixturePdf();
   const upload = new FormData();
   upload.append('resume', new Blob([pdf], { type: 'application/pdf' }), 'diagnostic-fixture.pdf');

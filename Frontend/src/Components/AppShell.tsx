@@ -12,7 +12,7 @@ export function AppShell() {
     '/dashboard': 'Command Center',
     '/resume': 'Resume Studio & ATS Audit',
     '/skills': 'Skill Evidence & Gaps',
-    '/careers': 'Skill Evidence & Gaps',
+    '/careers': 'Career Recommendations',
     '/jobs': 'Job Matches',
     '/applications': 'Application Tracker',
     '/interviews': 'AI Mock Interviews',

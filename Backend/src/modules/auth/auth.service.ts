@@ -59,7 +59,7 @@ export async function register(email: string, password: string, firstName?: stri
 
 export async function authenticate(email: string, password: string) {
   const user = await User.findOne({ email }).select('+passwordHash');
-  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+  if (!user?.passwordHash || !(await bcrypt.compare(password, user.passwordHash))) {
     throw new AppError(401, 'INVALID_CREDENTIALS', 'Email or password is incorrect.');
   }
   return { user: toAuthenticatedUser(user), tokens: await issueTokenPair(user) };

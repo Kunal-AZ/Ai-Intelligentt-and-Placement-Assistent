@@ -38,6 +38,6 @@ class IPCAState(TypedDict, total=False):
     error_status: Optional[int]
     errors: Annotated[List[str], operator.add]
     resume_execution_time: float
-skill_gap_execution_time: float
-interview_execution_time: float
-career_execution_time: float
+    skill_gap_execution_time: float
+    interview_execution_time: float
+    career_execution_time: float

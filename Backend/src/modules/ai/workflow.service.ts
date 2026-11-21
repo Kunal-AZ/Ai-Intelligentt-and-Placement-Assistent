@@ -33,7 +33,7 @@ export async function runPlacementWorkflow(job: WorkflowJob): Promise<void> {
     const skills = Array.isArray(extractedSkills)
       ? extractedSkills.filter((skill): skill is string => typeof skill === 'string' && skill.trim().length > 0).map((skill) => skill.trim())
       : [];
-    if (skills.length) await saveResumeSkills(job.userId, resume._id.toString(), skills);
+    await saveResumeSkills(job.userId, resume._id.toString(), skills);
     const storedAnalysis = await ResumeAnalysis.findOneAndUpdate(
       { resumeId: resume._id, userId: job.userId },
       { $set: { model: 'ipca-workflow', promptVersion: 'ipca-workflow-v1', analysis: toStoredResumeAnalysis(parsed.data) } },

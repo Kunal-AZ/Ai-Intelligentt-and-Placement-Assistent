@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { objectIdSchema } from '@placement-assistant/validation';
 import { retrieveKnowledge } from '../../ai/rag/retrieval.js';
 import { AppError } from '../../utils/app-error.js';
 import { enqueueKnowledgeIngestion } from '../../queues/knowledge.queue.js';
@@ -40,7 +41,7 @@ knowledgeRouter.post('/documents', requireRole('ADMIN'), async (request, respons
 
 knowledgeRouter.get('/documents/:id', requireRole('ADMIN'), async (request, response, next) => {
   try {
-    const document = await KnowledgeDocument.findById(request.params.id).select('-content').lean();
+    const document = await KnowledgeDocument.findById(objectIdSchema.parse(request.params.id)).select('-content').lean();
     if (!document) throw new AppError(404, 'KNOWLEDGE_DOCUMENT_NOT_FOUND', 'Knowledge document was not found.');
     response.status(200).json({ success: true, data: { document } });
   } catch (error) { next(error); }
