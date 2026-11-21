@@ -7,6 +7,9 @@ export interface ProfileDocument {
   lastName?: string;
   headline?: string;
   college?: string;
+  universityId?: string;
+  universityCountry?: string;
+  major?: string;
   degree?: string;
   cgpa?: string;
   graduationYear?: number;
@@ -29,7 +32,10 @@ const profileSchema = new Schema<ProfileDocument>(
     firstName: { type: String, trim: true, maxlength: 80 },
     lastName: { type: String, trim: true, maxlength: 80 },
     headline: { type: String, trim: true, maxlength: 160 },
-    college: { type: String, trim: true, maxlength: 160 },
+    college: { type: String, trim: true, maxlength: 300 },
+    universityId: { type: String, maxlength: 24 },
+    universityCountry: { type: String, maxlength: 120 },
+    major: { type: String, maxlength: 120 },
     degree: { type: String, trim: true, maxlength: 160 },
     cgpa: { type: String, trim: true, maxlength: 30 },
     graduationYear: { type: Number, min: 2000, max: 2100 },
