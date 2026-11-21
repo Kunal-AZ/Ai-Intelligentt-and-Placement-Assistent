@@ -97,6 +97,7 @@ async def require_internal_service_token(request: Request, call_next):
         return JSONResponse(status_code=401, content={"detail": "Unauthorized AI service request."})
     return await call_next(request)
 
+
 # Enable CORS for frontend clients
 app.add_middleware(
     CORSMiddleware,

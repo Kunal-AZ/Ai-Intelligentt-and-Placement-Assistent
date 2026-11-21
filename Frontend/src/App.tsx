@@ -1,7 +1,7 @@
-import { Suspense, lazy, useSyncExternalStore } from 'react';
+import { Suspense, lazy, useEffect, useState, useSyncExternalStore } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AppShell } from './Components/AppShell';
-import { hasAccessToken, subscribeToAuthentication } from './lib/api';
+import { hasAccessToken, restoreSession, subscribeToAuthentication } from './lib/api';
 
 // Lazy-load route pages to enable route-level code splitting and minimize initial bundle size
 const LandingPage = lazy(() => import('./pages/LandingPage').then((m) => ({ default: m.LandingPage })));
@@ -31,6 +31,23 @@ function RouteLoader() {
 function RequireAuthentication() {
   const location = useLocation();
   const authenticated = useSyncExternalStore(subscribeToAuthentication, hasAccessToken);
+  const [isRestoring, setIsRestoring] = useState(!authenticated);
+
+  useEffect(() => {
+    if (!authenticated) {
+      let isMounted = true;
+      restoreSession().finally(() => {
+        if (isMounted) setIsRestoring(false);
+      });
+      return () => {
+        isMounted = false;
+      };
+    } else {
+      setIsRestoring(false);
+    }
+  }, [authenticated]);
+
+  if (isRestoring && !authenticated) return <RouteLoader />;
   return authenticated ? <AppShell /> : <Navigate to="/login" replace state={{ from: location }} />;
 }
 
