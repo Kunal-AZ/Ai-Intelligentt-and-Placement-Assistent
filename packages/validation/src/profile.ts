@@ -1,13 +1,11 @@
 import { z } from 'zod';
+import { academicDegrees, academicMajors } from './academics.js';
+import { parseAcademicGrade } from './grades.js';
 
 export const studentRoles = ['Software Engineer', 'Full-Stack Developer', 'Backend Developer', 'Frontend Developer', 'Mobile Developer', 'DevOps Engineer', 'Cloud Engineer', 'Cybersecurity Analyst', 'Data Analyst', 'Data Scientist', 'Machine Learning Engineer', 'AI Engineer', 'QA / Test Engineer', 'Site Reliability Engineer', 'UI/UX Designer', 'Product Manager', 'Business Analyst'] as const;
 const name = z.string().trim().min(1, 'Enter your first name.').max(80).regex(/^[\p{L}\p{M}]+(?:[ .’'\-][\p{L}\p{M}]+)*\.?$/u, 'Names may contain letters, spaces, apostrophes, hyphens and initials.');
-const academicText = (label: string) => z.string().trim().min(2, `Enter your ${label}.`).max(160).regex(/^[\p{L}\p{M}\p{N} .,&()/'’+\-]+$/u, `Enter a valid ${label} without markup or special symbols.`).refine((value) => /\p{L}/u.test(value), `Your ${label} must contain letters.`);
-const grade = z.string().trim().max(30).refine((value) => {
-  if (!value) return true;
-  const match = /^(\d{1,3}(?:\.\d{1,2})?)\s*(%|\/\s*(4|10))?$/.exec(value);
-  return !!match && Number(match[1]) <= (match[2] === '%' ? 100 : Number(match[3] ?? 10));
-}, 'Enter a CGPA from 0–10 (or 3.5/4), or a percentage such as 85%.');
+const grade = z.string().trim().max(30).refine((value) => !value || parseAcademicGrade(value) !== null,
+  'Enter a non-negative score no greater than its maximum, with up to two decimal places (e.g. 7/10, 3.5/4, 85%, or 450/500).');
 const compensation = z.string().trim().max(40).refine((value) => {
   if (!value) return true;
   const match = /^(?:₹\s*)?(\d+(?:\.\d{1,2})?)(?:\s*[-–]\s*(\d+(?:\.\d{1,2})?))?\s*(?:LPA)?$/i.exec(value);
@@ -25,8 +23,10 @@ export const updateProfileSchema = z.object({
   firstName: name.optional(),
   lastName: name.or(z.literal('')).optional(),
   headline: z.string().trim().max(160).optional(),
-  college: academicText('college or university').optional(),
-  degree: academicText('degree and major').optional(),
+  college: z.string().trim().min(2).max(300).refine((value) => /\p{L}/u.test(value), 'Select a listed university.').optional(),
+  universityId: z.string().regex(/^[a-f0-9]{24}$/).optional(),
+  degree: z.enum(academicDegrees, { error: 'Select a degree from the list.' }).optional(),
+  major: z.enum(academicMajors, { error: 'Select a subject from the list.' }).optional(),
   cgpa: grade.optional(),
   graduationYear: z.number().int().min(2000).max(2100).optional(),
   targetRoles: z.array(z.enum(studentRoles, { error: 'Select a supported target role.' })).max(10).refine((roles) => new Set(roles).size === roles.length, 'Target roles must be unique.').optional(),

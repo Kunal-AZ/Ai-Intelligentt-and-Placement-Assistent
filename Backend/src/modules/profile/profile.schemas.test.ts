@@ -3,7 +3,7 @@ import { updateProfileSchema } from './profile.schemas.js';
 
 describe('student profile validation', () => {
   it('accepts international names, academic punctuation and valid optional fields', () => {
-    expect(updateProfileSchema.parse({ firstName: ' José ', lastName: "O’Neill", college: 'IIT (BHU), Varanasi', degree: 'B.Tech Computer Science', cgpa: '8.75/10', graduationYear: 2027, targetRoles: ['Software Engineer'], expectedLpa: '₹8–12 LPA', githubUrl: 'https://github.com/student', linkedinUrl: '', portfolioUrl: 'https://example.com' })).toMatchObject({ firstName: 'José' });
+    expect(updateProfileSchema.parse({ firstName: ' José ', lastName: "O’Neill", college: 'IIT (BHU), Varanasi', degree: 'B.Tech', major: 'Computer Science', cgpa: '8.75/10', graduationYear: 2027, targetRoles: ['Software Engineer'], expectedLpa: '₹8–12 LPA', githubUrl: 'https://github.com/student', linkedinUrl: '', portfolioUrl: 'https://example.com' })).toMatchObject({ firstName: 'José' });
   });
   it.each([
     { firstName: '123' }, { firstName: '   ' }, { lastName: '<script>' },
@@ -11,7 +11,7 @@ describe('student profile validation', () => {
     { cgpa: 'eleven' }, { cgpa: '11' }, { cgpa: '-1' }, { cgpa: '101%' }, { cgpa: '4.5/4' },
     { graduationYear: 2026.5 }, { graduationYear: 1900 }, { graduationYear: '2027' },
     { expectedLpa: 'anything' }, { expectedLpa: '-2' }, { expectedLpa: '12–8 LPA' },
-    { targetRoles: ['Made up role'] }, { targetRoles: ['AI Engineer', 'AI Engineer'] }, { secondaryRole: 'anything' },
+    { targetRoles: ['Made up role'] }, { targetRoles: ['AI Engineer', 'AI Engineer'] }, { secondaryRole: 'anything' }, { major: 'anything' }, { universityId: 'fake' }, { academicStatus: 'APPROVED' }, { academicRevision: 20 }, { academicFileKey: 'forged' },
     { githubUrl: 'https://github.com.evil.test/student' }, { linkedinUrl: 'https://example.com/user' },
     { portfolioUrl: 'javascript:alert(1)' }, { portfolioUrl: 'ftp://example.com' }, { email: 'changed@example.com' },
   ])('rejects malformed or unsupported fields: %j', (input) => {

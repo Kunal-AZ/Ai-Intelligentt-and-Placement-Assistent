@@ -1,5 +1,7 @@
 import { z } from 'zod';
 export { updateProfileSchema, studentRoles } from './profile.js';
+export { academicDegrees, academicMajors } from './academics.js';
+export { parseAcademicGrade } from './grades.js';
 
 export const paginationSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
