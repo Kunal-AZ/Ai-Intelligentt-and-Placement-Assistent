@@ -22,6 +22,9 @@ const serviceErrors: Record<string, { status: number; code: string; message: str
   AGENT_TIMEOUT: { status: 504, code: 'AI_SERVICE_TIMEOUT', message: 'The AI provider took too long to respond. Your resume is saved; try the analysis again later.' },
   LLM_API_ERROR: { status: 503, code: 'AI_PROVIDER_UNAVAILABLE', message: 'The AI provider is overloaded or temporarily unavailable. Your resume is saved; try again later.' },
   INVALID_AGENT_DATA: { status: 502, code: 'AI_INVALID_RESPONSE', message: 'The AI provider returned an incomplete analysis. Your resume is saved; try again later.' },
+  WORKFLOW_EXECUTION_ERROR: { status: 502, code: 'AI_WORKFLOW_FAILED', message: 'The AI workflow failed while processing your resume. Your resume is saved. If this persists, the site owner needs to check the AI service logs.' },
+  AI_DATABASE_UNAVAILABLE: { status: 503, code: 'AI_DATABASE_UNAVAILABLE', message: 'The AI service cannot access its workflow database. Your resume is saved. The site owner needs to check the AI database connection.' },
+  INTERNAL_SERVER_ERROR: { status: 502, code: 'AI_INTERNAL_ERROR', message: 'The AI service encountered an internal error. Your resume is saved. The site owner needs to check the AI service logs.' },
 };
 
 export async function callIpca<T>(path: string, payload: unknown): Promise<T> {
@@ -39,6 +42,17 @@ export async function callIpca<T>(path: string, payload: unknown): Promise<T> {
       const failure = body as FastApiError | undefined;
       const known = failure?.error_code ? serviceErrors[failure.error_code] : undefined;
       if (known) throw new AppError(known.status, known.code, known.message);
+      // These statuses belong to the private service, not the student's session.
+      // Forwarding a 401 causes the browser to refresh a valid login needlessly.
+      if (response.status === 401 || response.status === 403) {
+        throw new AppError(503, 'AI_SERVICE_AUTH_FAILED', 'The API and AI service authentication settings do not match. The site owner needs to check AI_SERVICE_TOKEN on both services. Your resume is saved.');
+      }
+      if (response.status === 404) {
+        throw new AppError(503, 'AI_SERVICE_MISCONFIGURED', 'The AI analysis endpoint was not found. The site owner needs to check AI_SERVICE_URL and the deployed AI service version.');
+      }
+      if (response.status === 503 && failure?.detail === 'AI service authentication is not configured.') {
+        throw new AppError(503, 'AI_SERVICE_AUTH_FAILED', 'Authentication is not configured on the AI service. The site owner needs to set AI_SERVICE_TOKEN. Your resume is saved.');
+      }
       const status = response.status === 422 ? 400 : response.status >= 500 ? 502 : response.status;
       throw new AppError(status, 'AI_SERVICE_FAILED', response.status === 422 ? detailMessage(failure) : 'The AI service could not complete the request. Please try again later.');
     }
