@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
+import { updateProfileSchema } from '@placement-assistant/validation';
 
 type WorkflowReport = {
   status?: string; resume_quality_score?: number;
@@ -51,7 +52,7 @@ export function ResumeStudioPage() {
     const controller = new AbortController();
     activeRequest.current = controller;
     api<{ profile: Profile }>('/profile', { signal: controller.signal }).then(({ profile }) => {
-      const missing = [!profile.firstName && 'first name', !profile.college && 'college or university', !profile.degree && 'degree and major', !profile.targetRoles?.[0] && 'primary target role'].filter(Boolean);
+      const missing = [(!profile.firstName?.trim() || !updateProfileSchema.shape.firstName.safeParse(profile.firstName).success) && 'first name', (!profile.college?.trim() || !updateProfileSchema.shape.college.safeParse(profile.college).success) && 'college or university', (!profile.degree?.trim() || !updateProfileSchema.shape.degree.safeParse(profile.degree).success) && 'degree and major', (!profile.targetRoles?.[0] || !updateProfileSchema.shape.targetRoles.safeParse(profile.targetRoles).success) && 'primary target role'].filter(Boolean);
       setProfileReady(missing.length === 0);
       setProfileMessage(missing.length ? `Complete your profile first: ${missing.join(', ')}.` : '');
     }).catch((error: unknown) => { if (!controller.signal.aborted) { setProfileReady(false); setProfileMessage(error instanceof Error ? error.message : 'Your profile could not be loaded. Please refresh and try again.'); } });

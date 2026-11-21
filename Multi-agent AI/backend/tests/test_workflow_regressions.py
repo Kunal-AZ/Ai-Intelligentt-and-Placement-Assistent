@@ -15,6 +15,7 @@ with patch('langgraph.checkpoint.mongodb.MongoDBSaver', return_value=InMemorySav
     from main import app
 from core.exceptions import LLMQuotaExceededError, LLMAPIError
 from agents import llm_client
+from pymongo.errors import ServerSelectionTimeoutError
 
 
 class TinyResponse(BaseModel):
@@ -40,6 +41,20 @@ class WorkflowRegressions(unittest.TestCase):
         response = self.request()
         self.assertEqual(response.status_code, 429)
         self.assertEqual(response.json()['error_code'], 'LLM_QUOTA_EXCEEDED')
+
+    def test_checkpoint_database_failure_has_operational_error_code(self):
+        self.stack.enter_context(patch('services.ipca_service.ipca_graph.invoke', side_effect=ServerSelectionTimeoutError('Private connection details')))
+        response = self.request()
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json()['error_code'], 'AI_DATABASE_UNAVAILABLE')
+        self.assertNotIn('Private connection details', response.text)
+
+    def test_unexpected_workflow_failure_keeps_error_contract(self):
+        self.stack.enter_context(patch('services.ipca_service.ipca_graph.invoke', side_effect=RuntimeError('Private failure details')))
+        response = self.request()
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.json()['error_code'], 'WORKFLOW_EXECUTION_ERROR')
+        self.assertNotIn('Private failure details', response.text)
 
     def test_successful_graph_returns_resume_report(self):
         self.stack.enter_context(patch.object(graph, 'analyze_resume_with_ai', return_value={'summary': 'Fixture summary', 'extracted_skills': ['Python'], 'strengths': ['API project']}))

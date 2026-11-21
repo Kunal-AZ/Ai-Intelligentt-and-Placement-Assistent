@@ -49,7 +49,7 @@ export async function runPlacementWorkflow(job: WorkflowJob): Promise<void> {
     const workflowErrorMessage = error instanceof AppError ? error.message : 'The analysis could not be saved. Please try again later.';
     await Resume.updateOne({ _id: resume._id }, { workflowStatus: 'FAILED', workflowErrorCode, workflowErrorMessage });
     // Also protect jobs queued by older API processes with attempts > 1.
-    if (['AI_QUOTA_EXCEEDED', 'AI_PROVIDER_AUTH_FAILED', 'RESUME_NOT_READY', 'PROFILE_INCOMPLETE'].includes(workflowErrorCode)) throw new UnrecoverableError(workflowErrorMessage);
+    if (['AI_QUOTA_EXCEEDED', 'AI_PROVIDER_AUTH_FAILED', 'AI_SERVICE_AUTH_FAILED', 'AI_SERVICE_MISCONFIGURED', 'RESUME_NOT_READY', 'PROFILE_INCOMPLETE'].includes(workflowErrorCode)) throw new UnrecoverableError(workflowErrorMessage);
     throw error;
   }
 }

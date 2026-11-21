@@ -1,4 +1,5 @@
 import { z } from 'zod';
+export { updateProfileSchema, studentRoles } from './profile.js';
 
 export const paginationSchema = z.object({
   page: z.coerce.number().int().positive().default(1),

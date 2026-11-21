@@ -13,6 +13,7 @@ from workflow.input_schema import StudentInput
 from workflow.graph import ipca_graph
 from utils.logger import logger
 from core.exceptions import IPCAException
+from pymongo.errors import PyMongoError
 
 
 def run_ipca_workflow(
@@ -85,12 +86,17 @@ def run_ipca_workflow(
     except IPCAException:
         # Keep quota, authentication and timeout codes intact for HTTP clients.
         raise
+    except PyMongoError as error:
+        logger.exception("Workflow checkpoint database unavailable (thread_id: %s)", thread_id)
+        raise IPCAException(
+            message="The workflow database is unavailable.",
+            status_code=503,
+            error_code="AI_DATABASE_UNAVAILABLE",
+        ) from error
     except Exception as error:
         logger.exception("IPCA Workflow Execution Error (thread_id: %s): %s", thread_id, str(error))
-        return {
-            "thread_id": thread_id,
-            "workflow_status": "failed",
-            "final_report": None,
-            "resume_feedback": None,
-            "error": str(error)
-        }
+        raise IPCAException(
+            message="The AI workflow could not complete the analysis.",
+            status_code=500,
+            error_code="WORKFLOW_EXECUTION_ERROR",
+        ) from error
