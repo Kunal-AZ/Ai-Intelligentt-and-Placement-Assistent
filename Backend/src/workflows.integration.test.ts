@@ -5,7 +5,9 @@ import mongoose from 'mongoose';
 import { z } from 'zod';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({ files: new Map<string, Buffer>(), enqueue: vi.fn(), workflow: vi.fn(), evaluate: vi.fn(), google: vi.fn() }));
+const mocks = vi.hoisted(() => ({ files: new Map<string, Buffer>(), enqueue: vi.fn(), workflow: vi.fn(), evaluate: vi.fn(), google: vi.fn(), mail: vi.fn() }));
+vi.mock('./modules/auth/mail.service.js', () => ({ sendVerificationEmail: mocks.mail }));
+vi.mock('./modules/auth/email-validator.js', () => ({ validateEmailDomain: async () => undefined }));
 vi.mock('google-auth-library', () => ({ OAuth2Client: class { verifyIdToken = mocks.google; } }));
 vi.mock('./config/env.js', async () => {
   const { parseEnvironment } = await import('@placement-assistant/config');
@@ -71,13 +73,16 @@ describe.skipIf(!process.env.AUDIT_MONGO_URI)('HTTP workflows with real MongoDB 
     expect((await request('/health')).status).toBe(200);
     expect((await request('/profile')).status).toBe(401);
     const registered = await request('/auth/register', 'POST', { email: 'Audit@Example.test', password: 'test-password-123', firstName: 'Audit', lastName: 'Student' });
-    expect(registered.status).toBe(201);
-    token = registered.data.accessToken; userId = registered.data.user.id; cookie = registered.cookie!;
+    expect(registered.status).toBe(200);
+    const verified = await request('/auth/verify-email', 'POST', { email: 'audit@example.test', code: mocks.mail.mock.calls.at(-1)![1] });
+    expect(verified.status).toBe(200);
+    token = verified.data.accessToken; userId = verified.data.user.id; cookie = verified.cookie!;
     expect((await request('/profile')).data.profile.lastName).toBe('Student');
     expect((await request('/auth/register', 'POST', { email: 'audit@example.test', password: 'test-password-123' })).status).toBe(409);
     expect((await request('/auth/login', 'POST', { email: 'audit@example.test', password: 'wrong' })).status).toBe(401);
     expect((await request('/auth/login', 'POST', { email: 'audit@example.test', password: 'test-password-123' })).status).toBe(200);
-    otherToken = (await request('/auth/register', 'POST', { email: 'other@example.test', password: 'test-password-123' })).data.accessToken;
+    await request('/auth/register', 'POST', { email: 'other@example.test', password: 'test-password-123' });
+    otherToken = (await request('/auth/verify-email', 'POST', { email: 'other@example.test', code: mocks.mail.mock.calls.at(-1)![1] })).data.accessToken;
     expect((await request('/profile', 'PUT', { firstName: 'Audit', college: 'Synthetic University', degree: 'Computing', targetRoles: ['Backend Developer'] })).status).toBe(200);
     expect((await request('/profile', 'PUT', { role: 'ADMIN' })).status).toBe(400);
     expect((await request('/knowledge/documents')).status).toBe(403);

@@ -4,12 +4,7 @@ const authListeners = new Set<() => void>();
 const sessionListeners = new Set<() => void>();
 let sessionVersion = 0;
 let refreshInFlight: Promise<void> | null = null;
-<<<<<<< HEAD
 export function setAccessToken(token: string | null, renewed = false) {
-=======
-
-export function setAccessToken(token: string | null) {
->>>>>>> 5ba8bc5f979219befd0b21c404eb98cde05857fb
   accessToken = token;
   if (token) sessionStorage.setItem('placement_access_token', token);
   else sessionStorage.removeItem('placement_access_token');
@@ -19,14 +14,10 @@ export function setAccessToken(token: string | null) {
   }
   authListeners.forEach(listener => listener());
 }
-<<<<<<< HEAD
 export function subscribeToSessionChange(listener: () => void) {
   sessionListeners.add(listener);
   return () => { sessionListeners.delete(listener); };
 }
-=======
-
->>>>>>> 5ba8bc5f979219befd0b21c404eb98cde05857fb
 export function subscribeToAuthentication(listener: () => void) {
   authListeners.add(listener);
   return () => { authListeners.delete(listener); };

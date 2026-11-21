@@ -1,5 +1,13 @@
 # Enable Google sign-in on Vercel and Render
 
+## Update after merging the social-login work
+
+The current login page uses the incoming redirect-based OAuth buttons for Google, GitHub, and LinkedIn. For that visible Google button, set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and an explicit `GOOGLE_CALLBACK_URL` on the Render API. When using the Vercel API proxy, the callback should be `https://YOUR-APP.vercel.app/api/v1/auth/callback/google`; register that exact URL under Google's Authorized redirect URIs. Keep `WEB_ORIGIN` equal to the frontend origin. The callback must return through the same host where sign-in started so the OAuth state cookie is available.
+
+GitHub and LinkedIn use `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` / `GITHUB_CALLBACK_URL` and `LINKEDIN_CLIENT_ID` / `LINKEDIN_CLIENT_SECRET` / `LINKEDIN_CALLBACK_URL`, respectively, with callback paths `/api/v1/auth/callback/github` and `/api/v1/auth/callback/linkedin`. Provider secrets belong only on Render.
+
+The earlier popup implementation and its tests remain in the repository, but its component is not mounted by the current login page. The no-client-secret instructions below describe that earlier popup implementation, not the current redirect buttons. Live provider sign-in still requires separate verification.
+
 Google sign-in is implemented in this workspace. It is not live until these changes are pushed, both services deploy, and the following configuration is supplied. No OAuth client secret is needed for the implemented Google Identity Services popup/ID-token flow.
 
 ## 1. Create a Google OAuth client

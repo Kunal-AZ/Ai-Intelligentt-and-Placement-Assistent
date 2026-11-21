@@ -1,13 +1,8 @@
-<<<<<<< HEAD
-import { FormEvent, useCallback, useState } from 'react';
-=======
 import { FormEvent, useEffect, useState } from 'react';
->>>>>>> 5ba8bc5f979219befd0b21c404eb98cde05857fb
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { api, setAccessToken } from '../lib/api';
 import { ThemeToggle } from '../Components/ThemeToggle';
 import { BrandLogo } from '../Components/BrandLogo';
-import { GoogleSignIn } from '../Components/GoogleSignIn';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -36,10 +31,6 @@ export function LoginPage() {
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const afterGoogleSignIn = useCallback((token: string) => {
-    setAccessToken(token);
-    navigate((location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/dashboard');
-  }, [navigate, location.state]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -54,7 +45,7 @@ export function LoginPage() {
     }
 
     if (oauthError) {
-      setError(decodeURIComponent(oauthError));
+      setError(oauthError);
     }
   }, [location, navigate]);
 
@@ -116,7 +107,6 @@ export function LoginPage() {
           email: signupEmail,
           password: signupPassword,
           firstName,
-          lastName,
         }),
       });
 
@@ -235,171 +225,19 @@ export function LoginPage() {
       {/* Main split grid */}
       <div className="w-full flex-1 flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 items-center gap-12">
-<<<<<<< HEAD
-        {/* Left Side: Product Value & Proof (6 cols) */}
-        <div className="lg:col-span-6 flex flex-col gap-6">
-          <div className="flex items-center gap-2">
-            <span className="badge badge-mono">Zero Guesswork Placement Engine</span>
-          </div>
-
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
-            Crack top tech placements with verified proof.
-          </h1>
-
-          <p className="text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">
-            Stop sending unverified resumes into applicant tracking black holes. HiPlacement evaluates your
-            resume claims, identifies skill gaps, and helps you prepare with AI mock interviews.
-          </p>
-
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--border-subtle)]">
-            <div>
-              <p className="text-2xl font-black text-[var(--text-primary)]">Resume</p>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">Analysis and feedback</p>
-            </div>
-            <div>
-              <p className="text-2xl font-black text-[var(--text-primary)]">Interview</p>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">Guided practice</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side: Auth Card (6 cols) */}
-        <div className="lg:col-span-6">
-          <div className="card-elevated flex flex-col gap-5">
-            {/* Tab switch */}
-            <div className="tab-list">
-              <button
-                type="button"
-                className={`tab-btn ${authMode === 'signin' ? 'is-active' : ''}`}
-                onClick={() => { setAuthMode('signin'); setError(''); }}
-              >
-                Sign In to Workspace
-              </button>
-              <button
-                type="button"
-                className={`tab-btn ${authMode === 'signup' ? 'is-active' : ''}`}
-                onClick={() => { setAuthMode('signup'); setError(''); }}
-              >
-                Create Account
-              </button>
-=======
           {/* Left Side: Product Value & Proof (6 cols) */}
           <div className="lg:col-span-6 flex flex-col gap-6">
             <div className="flex items-center gap-2">
               <span className="badge badge-mono">Zero Guesswork Placement Engine</span>
->>>>>>> 5ba8bc5f979219befd0b21c404eb98cde05857fb
             </div>
 
             <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
               Crack top tech placements with verified proof.
             </h1>
 
-<<<<<<< HEAD
-            {authMode === 'signin' ? (
-              /* Sign In Form */
-              <form onSubmit={handleSignIn} className="flex flex-col gap-4">
-                <div className="form-group">
-                  <label className="form-label">University / Work Email</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@university.edu"
-                    className="form-input"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Password</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="form-input"
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="btn-primary w-full py-2.5 mt-2"
-                  disabled={isLoading || !email || !password}
-                >
-                  {isLoading ? 'Authenticating…' : 'Sign In to Workspace ↗'}
-                </button>
-              </form>
-            ) : (
-              /* Sign Up Form */
-              <form onSubmit={handleSignUp} className="flex flex-col gap-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="form-group">
-                    <label className="form-label">First Name</label>
-                    <input
-                      type="text"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Your first name"
-                      className="form-input"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Last Name</label>
-                    <input
-                      type="text"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Surname "
-                      className="form-input"
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">University Email</label>
-                  <input
-                    type="email"
-                    value={signupEmail}
-                    onChange={(e) => setSignupEmail(e.target.value)}
-                    placeholder="student@nit.ac.in"
-                    className="form-input"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Create Password</label>
-                  <input
-                    type="password"
-                    value={signupPassword}
-                    onChange={(e) => setSignupPassword(e.target.value)}
-                    placeholder="Min 6 characters"
-                    className="form-input"
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="btn-primary w-full py-2.5 mt-2"
-                  disabled={isLoading || !signupEmail || !signupPassword || !firstName}
-                >
-                  {isLoading ? 'Creating Account…' : 'Create Free Student Account ↗'}
-                </button>
-              </form>
-            )}
-
-            <GoogleSignIn disabled={isLoading} onSuccess={afterGoogleSignIn} onBusyChange={setIsLoading} />
-
-            <p className="pt-3 border-t border-[var(--border-subtle)] text-center text-xs text-[var(--text-muted)]">
-              Your workspace is private and saved to your account.
-=======
             <p className="text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">
               Stop sending unverified resumes into applicant tracking black holes. HiPlacement evaluates your
               real-world code commits, detects high-impact skill gaps, and prepares you with conversational AI mock interviews.
->>>>>>> 5ba8bc5f979219befd0b21c404eb98cde05857fb
             </p>
 
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--border-subtle)]">

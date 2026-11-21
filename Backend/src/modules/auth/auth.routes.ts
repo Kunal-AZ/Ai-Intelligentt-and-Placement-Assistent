@@ -1,10 +1,10 @@
+import { z } from 'zod';
+import { AppError } from '../../utils/app-error.js';
+import { authenticateGoogle, createGoogleChallenge, readGoogleChallenge } from './google.service.js';
 import crypto from 'node:crypto';
 import type { Response } from 'express';
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { z } from 'zod';
-import { AppError } from '../../utils/app-error.js';
-import { authenticateGoogle, createGoogleChallenge, readGoogleChallenge } from './google.service.js';
 import { env } from '../../config/env.js';
 import { Profile } from '../profile/profile.model.js';
 import { loginSchema, registerSchema, resendVerificationSchema, verifyEmailSchema } from './auth.schemas.js';
@@ -50,7 +50,6 @@ function sendSession(response: Response, tokens: { accessToken: string; refreshT
   return tokens.accessToken;
 }
 
-<<<<<<< HEAD
 const googleLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: 'draft-8', legacyHeaders: false });
 const googleCookieName = 'placement_google_nonce';
 const googleCookieOptions = { ...refreshCookieOptions, maxAge: 10 * 60 * 1000 };
@@ -75,7 +74,8 @@ authRouter.post('/google', googleLimiter, async (request, response, next) => {
     response.clearCookie(googleCookieName, googleCookieOptions);
     response.status(200).json({ success: true, data: { user: result.user, accessToken: sendSession(response, result.tokens) } });
   } catch (error) { next(error); }
-=======
+});
+
 authRouter.get('/providers', (_request, response) => {
   response.status(200).json({
     success: true,
@@ -144,18 +144,12 @@ authRouter.get('/callback/:provider', async (request, response) => {
     const message = err instanceof Error ? err.message : 'Social authentication failed';
     response.redirect(`${env.WEB_ORIGIN}/login?error=${encodeURIComponent(message)}`);
   }
->>>>>>> 5ba8bc5f979219befd0b21c404eb98cde05857fb
 });
 
 authRouter.post('/register', authenticationLimiter, async (request, response, next) => {
   try {
     const input = registerSchema.parse(request.body);
-    const result = await register(input.email, input.password, input.firstName);
-<<<<<<< HEAD
-    await Profile.create({ userId: result.user.id, firstName: result.firstName, lastName: input.lastName });
-    const tokens = await issueTokenPairForUserId(result.user.id);
-    response.status(201).json({ success: true, data: { user: result.user, accessToken: sendSession(response, tokens) } });
-=======
+    const result = await register(input.email, input.password, input.firstName, input.lastName);
     response.status(200).json({
       success: true,
       data: {
@@ -201,7 +195,6 @@ authRouter.post('/resend-verification', authenticationLimiter, async (request, r
         devVerificationCode: result.devVerificationCode,
       },
     });
->>>>>>> 5ba8bc5f979219befd0b21c404eb98cde05857fb
   } catch (error) { next(error); }
 });
 

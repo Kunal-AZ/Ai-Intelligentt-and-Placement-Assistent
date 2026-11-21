@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { Profile } from '../profile/profile.model.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env.js';
@@ -56,7 +57,7 @@ function generateVerificationCode(): string {
   return crypto.randomInt(100000, 1000000).toString();
 }
 
-export async function register(email: string, password: string, firstName?: string) {
+export async function register(email: string, password: string, firstName?: string, lastName?: string) {
   await validateEmailDomain(email);
 
   const existingUser = await User.findOne({ email });
@@ -88,6 +89,7 @@ export async function register(email: string, password: string, firstName?: stri
     });
   }
 
+  await Profile.updateOne({ userId: user._id }, { $set: { firstName, lastName } }, { upsert: true, runValidators: true });
   await sendVerificationEmail(email, code);
 
   return {
@@ -158,13 +160,9 @@ export async function resendVerificationCode(email: string) {
 
 export async function authenticate(email: string, password: string) {
   const user = await User.findOne({ email }).select('+passwordHash');
-<<<<<<< HEAD
-  if (!user?.passwordHash || !(await bcrypt.compare(password, user.passwordHash))) {
-=======
   const hashToCompare = user?.passwordHash || DUMMY_PASSWORD_HASH;
   const isMatch = await bcrypt.compare(password, hashToCompare);
   if (!user || !user.passwordHash || !isMatch) {
->>>>>>> 5ba8bc5f979219befd0b21c404eb98cde05857fb
     throw new AppError(401, 'INVALID_CREDENTIALS', 'Email or password is incorrect.');
   }
   if (!user.isEmailVerified) {

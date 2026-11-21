@@ -1,5 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import dns from 'node:dns/promises';
+vi.mock('node:dns/promises', () => ({ default: { resolveMx: vi.fn() } }));
 import { validateEmailDomain } from './email-validator.js';
+
+beforeEach(() => { vi.mocked(dns.resolveMx).mockReset(); });
 
 describe('validateEmailDomain', () => {
   it('rejects malformed email strings without @', async () => {
@@ -16,7 +20,11 @@ describe('validateEmailDomain', () => {
   });
 
   it('accepts valid domains with MX records in test mode', async () => {
-    // In test environment or with standard domains, it resolves without error
+    vi.mocked(dns.resolveMx).mockResolvedValue([{ exchange: 'mail.example.test', priority: 10 }]);
     await expect(validateEmailDomain('student@gmail.com')).resolves.toBeUndefined();
+  });
+  it('rejects domains with no mail servers', async () => {
+    vi.mocked(dns.resolveMx).mockResolvedValue([]);
+    await expect(validateEmailDomain('student@example.test')).rejects.toMatchObject({ code: 'INVALID_EMAIL_DOMAIN' });
   });
 });
