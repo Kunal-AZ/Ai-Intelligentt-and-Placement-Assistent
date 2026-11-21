@@ -45,8 +45,8 @@ export function ProfilePage() {
     const timer = window.setTimeout(() => {
       setSearchMessage('Searching…'); setUniversities([]);
       api<{ universities: University[] }>(`/profile/universities?country=${encodeURIComponent(country)}&q=${encodeURIComponent(query)}`, { signal: controller.signal })
-        .then(({ universities }) => { setUniversities(universities); setSearchMessage(universities.length ? 'Select a result below. Refine your search if needed.' : 'No match. Try another spelling or contact support to request a missing institution.'); })
-        .catch(() => { if (!controller.signal.aborted) setSearchMessage('University search failed. Change your search to retry.'); });
+        .then(({ universities }) => { if (!controller.signal.aborted) { setUniversities(universities); setSearchMessage(universities.length ? 'Select a suggestion or keep the name you typed.' : 'No suggestions found. You can save the college name you typed.'); } })
+        .catch(() => { if (!controller.signal.aborted) setSearchMessage('Suggestions are unavailable. You can still save the college name you typed.'); });
     }, 250);
     return () => { window.clearTimeout(timer); controller.abort(); };
   }, [country, query, student.universityId]);
@@ -58,10 +58,9 @@ export function ProfilePage() {
   }
   function reportError(error: unknown) { setFailed(true); setMessage(error instanceof Error ? error.message : 'The request failed.'); }
   async function saveProfile() {
-    const parsed = updateProfileSchema.safeParse({ firstName: student.firstName, lastName: student.lastName, college: student.college, universityId: student.universityId || undefined, degree: student.degree, major: student.major, cgpa: student.cgpa, graduationYear: student.graduationYear ? Number(student.graduationYear) : undefined, githubUrl: student.githubUrl, linkedinUrl: student.linkedinUrl, portfolioUrl: student.portfolioUrl, targetRoles: student.targetRole ? [student.targetRole] : [], secondaryRole: student.secondaryRole, expectedLpa: student.expectedLpa });
+    const parsed = updateProfileSchema.safeParse({ firstName: student.firstName, lastName: student.lastName, college: student.college, universityId: student.universityId || undefined, universityCountry: country || undefined, degree: student.degree, major: student.major, cgpa: student.cgpa, graduationYear: student.graduationYear ? Number(student.graduationYear) : undefined, githubUrl: student.githubUrl, linkedinUrl: student.linkedinUrl, portfolioUrl: student.portfolioUrl, targetRoles: student.targetRole ? [student.targetRole] : [], secondaryRole: student.secondaryRole, expectedLpa: student.expectedLpa });
     const fields: Record<string, string> = {};
     if (!parsed.success) for (const issue of parsed.error.issues) fields[String(issue.path[0])] ??= issue.message;
-    if (!student.universityId) fields.college = 'Choose a university from the search results.';
     setErrors(fields);
     if (!parsed.success || Object.keys(fields).length) throw new Error('Please correct the highlighted fields.');
     const { profile: saved } = await api<{ profile: Profile }>('/profile', { method: 'PUT', body: JSON.stringify(parsed.data) });
@@ -84,10 +83,10 @@ export function ProfilePage() {
         <Choice label="Backup role" optional value={student.secondaryRole} options={studentRoles} error={errors.secondaryRole} onChange={(value) => update('secondaryRole', value)} />
         <Field label="Target compensation" error={errors.expectedLpa}><input className="form-input" maxLength={40} value={student.expectedLpa} onChange={(e) => update('expectedLpa', e.target.value)} placeholder="e.g. ₹8–12 LPA" /></Field>
       </div></section>
-      <section className="card p-5"><h2 className="font-bold">Education</h2><p className="text-xs text-[var(--text-muted)] mt-2">Select your degree-awarding university. Catalog inclusion does not verify accreditation or your attendance. Missing institutions or programs can be requested through support.</p>
+      <section className="card p-5"><h2 className="font-bold">Education</h2><p className="text-xs text-[var(--text-muted)] mt-2">Enter your college or university name. Select a matching suggestion if available, or save the name you typed.</p>
         <fieldset className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-          <Choice label="University country" value={country} options={countries} onChange={(value) => { setCountry(value); setQuery(''); setUniversities([]); setSearchMessage(''); setStudent((s) => ({ ...s, college: '', universityId: '' })); }} />
-          <div className="form-group"><label className="form-label" htmlFor="university-search">University</label><input id="university-search" className="form-input" required aria-invalid={!!(errors.college || errors.universityId)} disabled={!country} value={query} onChange={(e) => { setQuery(e.target.value); setSearchMessage(''); setUniversities([]); setStudent((s) => ({ ...s, college: '', universityId: '' })); }} placeholder="Type at least two letters" />
+          <Choice label="College / university country" value={country} options={countries} optional onChange={(value) => { setCountry(value); setUniversities([]); setSearchMessage(''); setStudent((s) => ({ ...s, universityId: '' })); }} />
+          <div className="form-group"><label className="form-label" htmlFor="university-search">College / university</label><input id="university-search" className="form-input" required maxLength={300} aria-invalid={!!(errors.college || errors.universityId)} value={query} onChange={(e) => { const name = e.target.value; setQuery(name); setSearchMessage(''); setUniversities([]); setStudent((s) => ({ ...s, college: name, universityId: '' })); }} placeholder="Enter a name; choose a country for suggestions" />
             {student.universityId ? <span className="text-xs">Selected: {student.college}</span> : <><span role="status" className="text-xs">{searchMessage}</span><ul className="max-h-56 overflow-auto">{universities.map((item) => <li key={item.id}><button type="button" className="btn-secondary w-full text-left mb-1" onClick={() => { setStudent((s) => ({ ...s, college: item.name, universityId: item.id })); setQuery(item.name); setUniversities([]); }}>{item.name}{item.region ? ` (${item.region})` : ''}</button></li>)}</ul></>}
             {(errors.college || errors.universityId) && <span role="alert" className="text-xs text-[var(--status-danger)]">{errors.college || errors.universityId}</span>}
           </div>

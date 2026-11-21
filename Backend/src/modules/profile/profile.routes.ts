@@ -29,12 +29,12 @@ profileRouter.get('/', async (request, response, next) => {
 profileRouter.put('/', async (request, response, next) => {
   try {
     const updates = updateProfileSchema.parse(request.body);
-    if (updates.college !== undefined && !updates.universityId) throw new AppError(400, 'UNIVERSITY_SELECTION_REQUIRED', 'Select your university from the search results.');
     const university = updates.universityId ? findUniversity(updates.universityId) : undefined;
     const canonical = { ...updates, ...(university ? { college: university.name, universityCountry: university.country } : {}) };
+    const customInstitution = !university && (updates.college !== undefined || updates.universityCountry !== undefined);
     const profile = await Profile.findOneAndUpdate(
       { userId: request.auth!.userId },
-      { $set: canonical },
+      { $set: canonical, ...(customInstitution ? { $unset: { universityId: 1, ...(updates.universityCountry === undefined ? { universityCountry: 1 } : {}) } } : {}) },
       { new: true, runValidators: true },
     ).select(studentProfileProjection).lean();
     if (!profile) throw new AppError(404, 'PROFILE_NOT_FOUND', 'Profile was not found.');
