@@ -1,8 +1,12 @@
 # Student academic details
 
-Students select a university from the bundled worldwide catalog and select degree
-and subject categories. University IDs are checked on the server, which saves the
-canonical name and country. Catalog membership does not verify accreditation,
+Students type a college or university name and can optionally select a suggestion
+from the worldwide catalog. Unlisted names can be saved without a catalog ID.
+Selecting a country filters suggestions; typing a name still works if suggestions
+are unavailable. Selected university IDs are checked on the server, which saves the
+canonical name and country. Editing a selected name clears its catalog ID so the old
+record cannot overwrite the custom name. Students also select degree and subject
+categories. Catalog membership does not verify accreditation,
 attendance, or that a particular program is offered.
 
 Marks are self-reported. There is no administrator approval, result-card upload,
@@ -25,6 +29,6 @@ File: `world_universities_and_domains.json`, downloaded 2026-11-21.
 MIT license is bundled with the data and copied to the backend build output.
 The snapshot contains 10,272 institutions in 201 country entries. It is community
 maintained, not an exhaustive official registry. Searches run within the backend.
-Missing institutions or programs require a catalog update. Review renamed or removed
+Missing institutions can be entered manually. New program categories require a catalog update. Review renamed or removed
 entries and migrate stored IDs before replacing the snapshot: IDs derive from
 country code, name and domains.

@@ -35,10 +35,21 @@ describe('student-only profile', () => {
   it.each(['11/10', '5/4', '101%', '-3', '501/500'])('rejects invalid marks via direct API: %s', async (cgpa) => {
     expect((await update({ cgpa })).status).toBe(400); expect(mocks.update).not.toHaveBeenCalled();
   });
-  it('requires university selection and saves its canonical name', async () => {
-    expect((await update({ college: 'Made up University' })).status).toBe(400);
+  it('accepts an unlisted college and clears an earlier catalog association', async () => {
+    expect((await update({ college: 'Local Engineering College', universityCountry: 'India' })).status).toBe(200);
+    expect(mocks.update).toHaveBeenCalledWith(expect.anything(), { $set: { college: 'Local Engineering College', universityCountry: 'India' }, $unset: { universityId: 1 } }, expect.anything());
+  });
+  it('accepts a typed college without a country and removes stale country metadata', async () => {
+    expect((await update({ college: 'Local Engineering College' })).status).toBe(200);
+    expect(mocks.update).toHaveBeenCalledWith(expect.anything(), { $set: { college: 'Local Engineering College' }, $unset: { universityId: 1, universityCountry: 1 } }, expect.anything());
+  });
+  it('saves the canonical name and country when a suggestion is selected', async () => {
     expect((await update({ college: 'Made up University', universityId: universities[0].id })).status).toBe(200);
     expect(mocks.update).toHaveBeenCalledWith(expect.anything(), { $set: { college: universities[0].name, universityId: universities[0].id, universityCountry: universities[0].country } }, expect.anything());
+  });
+  it.each(['', '   ', '1234', '<script>college</script>'])('rejects malformed custom college names: %s', async (college) => {
+    expect((await update({ college })).status).toBe(400);
+    expect(mocks.update).not.toHaveBeenCalled();
   });
   it('removes academic approval and result-card routes', async () => {
     for (const path of ['/academic-verification', '/academic-verification/reviews', '/academic-verification/123456789012345678901234/document']) {
